@@ -1,0 +1,38 @@
+<qhana-experiment-nav active="data"></qhana-experiment-nav>
+<div class="big-content">
+    <h1 class="t-page-headline">Experiment Data</h1>
+
+    <div class="page-item-list">
+        <mat-card class="page-item" *ngFor="let data of experimentData | async">
+            <mat-card-title>
+                <a class="t-headline title-link"
+                    [routerLink]="['/experiments', experimentId, 'data', data.name]">{{data.name}}</a>
+            </mat-card-title>
+            <mat-card-content>
+                <dl class="data-details">
+                    <div>
+                        <dt>Version</dt>
+                        <dd>{{data.version}}</dd>
+                    </div>
+                    <div>
+                        <dt>Data Type</dt>
+                        <dd>{{data.type}}</dd>
+                    </div>
+                    <div>
+                        <dt>Content Type (mimetype)</dt>
+                        <dd>{{data.contentType}}</dd>
+                    </div>
+                    <div>
+                        <dt>Dowload link</dt>
+                        <dd><a href="{{backendUrl}}{{data.download}}" target="_blank" rel="noopener noreferrer"
+                                mat-flat-button>Dowload as File</a></dd>
+                    </div>
+                </dl>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <mat-paginator (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
+    </mat-paginator>
+</div>

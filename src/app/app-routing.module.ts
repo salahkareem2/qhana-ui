@@ -16,8 +16,21 @@
 
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ExperimentDataComponent } from './components/experiment-data/experiment-data.component';
+import { ExperimentTimelineComponent } from './components/experiment-timeline/experiment-timeline.component';
+import { ExperimentWorkspaceComponent } from './components/experiment-workspace/experiment-workspace.component';
+import { ExperimentComponent } from './components/experiment/experiment.component';
+import { ExperimentsPageComponent } from './components/experiments-page/experiments-page.component';
 
-const routes: Routes = [];
+const routes: Routes = [
+    { path: '', component: ExperimentsPageComponent },
+    { path: 'experiments', component: ExperimentsPageComponent },
+    { path: 'experiments/:experimentId', redirectTo: "info" },
+    { path: 'experiments/:experimentId/info', component: ExperimentComponent },
+    { path: 'experiments/:experimentId/workspace', component: ExperimentWorkspaceComponent },
+    { path: 'experiments/:experimentId/data', component: ExperimentDataComponent },
+    { path: 'experiments/:experimentId/timeline', component: ExperimentTimelineComponent },
+];
 
 @NgModule({
     imports: [RouterModule.forRoot(routes)],

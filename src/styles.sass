@@ -3,9 +3,83 @@
 
 @include mat.core()
 
+$my-primary: mat.define-palette(mat.$deep-purple-palette)
+$my-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400)
+
+// The "warn" palette is optional and defaults to red if not specified.
+$my-warn: mat.define-palette(mat.$red-palette)
+
+$my-theme: mat.define-light-theme((color: (primary: $my-primary,accent: $my-accent,warn: $my-warn,)))
+
+@include mat.all-component-themes($my-theme)
+
+//expose the as css variables to be used in other styles
+:root
+    --primary: #{mat.get-color-from-palette($my-primary, 'default')}
+    --primary-darker: #{mat.get-color-from-palette($my-primary, 'darker')}
+    --primary-lighter: #{mat.get-color-from-palette($my-primary, 'lighter')}
+    --primary-text: #{mat.get-color-from-palette($my-primary, 'text')}
+    --accent: #{mat.get-color-from-palette($my-accent, 'default')}
+    --accent-darker: #{mat.get-color-from-palette($my-accent, 'darker')}
+    --accent-lighter: #{mat.get-color-from-palette($my-accent, 'lighter')}
+    --accent-text: #{mat.get-color-from-palette($my-accent, 'text')}
+    --warn: #{mat.get-color-from-palette($my-warn, 'default')}
+    --warn-darker: #{mat.get-color-from-palette($my-warn, 'darker')}
+    --warn-lighter: #{mat.get-color-from-palette($my-warn, 'lighter')}
+    --warn-text: #{mat.get-color-from-palette($my-warn, 'text')}
+
+$my-typography: mat.define-typography-config()
+
+// expose typography as css classes
+.t-page-headline
+    @include mat.typography-level($my-typography, 'display-2')
+    margin-block: 0.8ex
+
+.t-headline
+    @include mat.typography-level($my-typography, 'headline')
+
+.t-title
+    @include mat.typography-level($my-typography, 'title')
+
+.t-subheading
+    @include mat.typography-level($my-typography, 'subheading-2')
+
+.t-subsubheading
+    @include mat.typography-level($my-typography, 'subheading-1')
+
+.t-paragraph
+    @include mat.typography-level($my-typography, 'body-1')
+
 html, body
     height: 100%
 
 body
     margin: 0
     font-family: Roboto, "Helvetica Neue", sans-serif
+
+////////////////////////////////////////////////////////////////////////////////
+// top level classes applying to all components ////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+.big-content
+    // max width for readability
+    max-width: 60rem
+    // auto center content
+    margin-inline-start: auto
+    margin-inline-end: auto
+
+.big-nav-tabs .mat-tab-list
+    color: red
+    left: calc(calc(100% - 60rem)/2)
+    max-width: 60rem
+
+.page-item-list
+    display: flex
+    flex-direction: column
+    gap: 1rem
+
+.title-link
+    color: var(--primary)
+
+.title-link:visited
+    color: var(--primary-darker)

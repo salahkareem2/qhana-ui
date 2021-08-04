@@ -1,0 +1,21 @@
+<div class="big-content">
+
+    <div class="title">
+        <h1 class="t-page-headline">Experiments</h1>
+        <button mat-raised-button color="primary">New Experiment</button>
+    </div>
+
+    <div class="page-item-list">
+        <mat-card class="page-item" *ngFor="let experiment of experiments | async">
+            <mat-card-title>
+                <a class="t-headline title-link"
+                    [routerLink]="['/experiments', experiment.experimentId, 'info']">{{experiment.name}}</a>
+            </mat-card-title>
+            <mat-card-content>{{experiment.description}}</mat-card-content>
+        </mat-card>
+    </div>
+
+    <mat-paginator (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
+    </mat-paginator>
+</div>
