@@ -1,0 +1,48 @@
+<qhana-experiment-nav active="data"></qhana-experiment-nav>
+<div class="big-content" *ngIf="data != null">
+    <h1 class="t-page-headline">Data</h1>
+    <mat-card class="experiment-card">
+        <mat-card-title class="t-headline">{{data?.name}}</mat-card-title>
+        <mat-card-content>
+            <dl class="data-details">
+                <div>
+                    <dt>Version</dt>
+                    <dd>{{data.version}}</dd>
+                </div>
+                <div>
+                    <dt>Data Type</dt>
+                    <dd>{{data.type}}</dd>
+                </div>
+                <div>
+                    <dt>Content Type (mimetype)</dt>
+                    <dd>{{data.contentType}}</dd>
+                </div>
+                <div>
+                    <dt>Dowload link</dt>
+                    <dd><a href="{{backendUrl}}{{data.download}}" target="_blank" rel="noopener noreferrer"
+                            mat-flat-button>Dowload as File</a></dd>
+                </div>
+                <div *ngIf="data?.producedBy != null">
+                    <dt>Created in</dt>
+                    <dd>
+                        <a [routerLink]="['/experiments', experimentId, 'timeline', data.producedBy]">
+                            Step {{data.producedBy}}
+                        </a>
+                    </dd>
+                </div>
+                <div *ngIf="data.usedBy != null">
+                    <dt>Used in</dt>
+                    <dd>
+                        <ul>
+                            <li *ngFor="let step of data.usedBy">
+                                <a [routerLink]="['/experiments', experimentId, 'timeline', step]">
+                                    Step {{step}}
+                                </a>
+                            </li>
+                        </ul>
+                    </dd>
+                </div>
+            </dl>
+        </mat-card-content>
+    </mat-card>
+</div>

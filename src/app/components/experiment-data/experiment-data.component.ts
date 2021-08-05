@@ -3,6 +3,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, of, Subscription } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 @Component({
@@ -27,7 +28,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
     experimentData: Observable<ExperimentDataApiObject[]> | null = null;
 
-    constructor(private route: ActivatedRoute, private backend: QhanaBackendService) { }
+    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService) { }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params
@@ -36,6 +37,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
             ).subscribe(experimentId => {
                 const change = this.experimentId !== experimentId;
                 this.experimentId = experimentId;
+                this.experiment.setExperimentId(experimentId);
                 if (change) {
                     this.updatePageContent();
                 }

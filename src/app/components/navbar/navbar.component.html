@@ -3,4 +3,6 @@
         <img class="app-logo" height="86%" src="assets/QHAna_logo_inv.png" alt="QHAna logo">
         <span>{{title}}</span>
     </a>
+    <div class="toolbar-spacer"></div>
+    <span [hidden]="(currentExperiment|async) == null">Experiment: {{currentExperiment|async}}</span>
 </mat-toolbar>

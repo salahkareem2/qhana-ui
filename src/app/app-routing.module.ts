@@ -16,6 +16,7 @@
 
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { DataDetailComponent } from './components/data-detail/data-detail.component';
 import { ExperimentDataComponent } from './components/experiment-data/experiment-data.component';
 import { ExperimentTimelineComponent } from './components/experiment-timeline/experiment-timeline.component';
 import { ExperimentWorkspaceComponent } from './components/experiment-workspace/experiment-workspace.component';
@@ -29,6 +30,7 @@ const routes: Routes = [
     { path: 'experiments/:experimentId/info', component: ExperimentComponent },
     { path: 'experiments/:experimentId/workspace', component: ExperimentWorkspaceComponent },
     { path: 'experiments/:experimentId/data', component: ExperimentDataComponent },
+    { path: 'experiments/:experimentId/data/:dataName', component: DataDetailComponent },
     { path: 'experiments/:experimentId/timeline', component: ExperimentTimelineComponent },
 ];
 

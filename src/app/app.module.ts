@@ -33,6 +33,7 @@ import { ExperimentNavComponent } from './components/experiment-nav/experiment-n
 import { ExperimentWorkspaceComponent } from './components/experiment-workspace/experiment-workspace.component';
 import { ExperimentDataComponent } from './components/experiment-data/experiment-data.component';
 import { ExperimentTimelineComponent } from './components/experiment-timeline/experiment-timeline.component';
+import { DataDetailComponent } from './components/data-detail/data-detail.component';
 
 
 
@@ -46,6 +47,7 @@ import { ExperimentTimelineComponent } from './components/experiment-timeline/ex
         ExperimentWorkspaceComponent,
         ExperimentDataComponent,
         ExperimentTimelineComponent,
+        DataDetailComponent,
     ],
     imports: [
         BrowserModule,

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 @Component({
@@ -20,10 +21,11 @@ export class ExperimentsPageComponent implements OnInit {
 
     experiments: Observable<ExperimentApiObject[]> | null = null;
 
-    constructor(private backend: QhanaBackendService) { }
+    constructor(private backend: QhanaBackendService, private experimentService: CurrentExperimentService) { }
 
     ngOnInit(): void {
-        this.updatePageContent()
+        this.experimentService.setExperimentId(null);
+        this.updatePageContent();
     }
 
     onPageChange(pageEvent: PageEvent) {

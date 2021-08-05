@@ -15,19 +15,22 @@
  */
 
 import { Component, Input, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 
 @Component({
     selector: 'qhana-navbar',
     templateUrl: './navbar.component.html',
     styleUrls: ['./navbar.component.sass']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent {
 
     @Input() title: string = "";
 
-    constructor() { }
+    currentExperiment: Observable<string | null>;
 
-    ngOnInit(): void {
+    constructor(private experiment: CurrentExperimentService) {
+        this.currentExperiment = this.experiment.experimentName;
     }
 
 }

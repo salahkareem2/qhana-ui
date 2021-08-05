@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 
 @Component({
     selector: 'qhana-experiment-nav',
@@ -8,9 +10,12 @@ import { Component, Input, OnInit } from '@angular/core';
 export class ExperimentNavComponent implements OnInit {
     @Input() active: string = "";
 
-    constructor() { }
+    experimentId: Observable<string | null> | null = null;
+
+    constructor(private currentExperiment: CurrentExperimentService) { }
 
     ngOnInit(): void {
+        this.experimentId = this.currentExperiment.experimentId;
     }
 
 }

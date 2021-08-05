@@ -1,6 +1,9 @@
 <qhana-experiment-nav active="info"></qhana-experiment-nav>
 <div class="big-content" *ngIf="experiment != null">
-    <h1 class="t-page-headline">Experiment</h1>
+    <div class="title">
+        <h1 class="t-page-headline">Experiment</h1>
+        <a [routerLink]="['/experiments']" mat-raised-button color="primary">Change Experiment</a>
+    </div>
     <mat-card class="experiment-card">
         <mat-card-title class="t-headline">{{experiment?.name}}</mat-card-title>
         <mat-card-content>{{experiment?.description}}</mat-card-content>
