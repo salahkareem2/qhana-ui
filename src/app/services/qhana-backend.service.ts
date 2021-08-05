@@ -73,4 +73,8 @@ export class QhanaBackendService {
             return dataObject;
         }));
     }
+
+    public getPluginRunners(): Observable<ApiObjectList<string>> {
+        return this.http.get<ApiObjectList<string>>(`${this.rootUrl}/plugin-runners`);
+    }
 }

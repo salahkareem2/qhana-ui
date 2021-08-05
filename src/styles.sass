@@ -27,6 +27,12 @@ $my-theme: mat.define-light-theme((color: (primary: $my-primary,accent: $my-acce
     --warn-darker: #{mat.get-color-from-palette($my-warn, 'darker')}
     --warn-lighter: #{mat.get-color-from-palette($my-warn, 'lighter')}
     --warn-text: #{mat.get-color-from-palette($my-warn, 'text')}
+    --text-primary: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'text')}
+    --text-secondary: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'secondary-text')}
+    --text-disabled: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'disabled-text')}
+    --text-light-primary: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'text')}
+    --text-light-secondary: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'secondary-text')}
+    --text-light-disabled: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'disabled-text')}
 
 $my-typography: mat.define-typography-config()
 
@@ -83,3 +89,66 @@ body
 
 .title-link:visited
     color: var(--primary-darker)
+
+// qhana form inputs (from micro frontends)
+
+.qhana-form-label
+    @include mat.typography-level($my-typography, 'body-1')
+    font-weight: 500
+    padding-inline-start: 0.5rem
+    color: var(--outline-color, currentColor)
+
+.qhana-form-input
+    border: 2px solid var(--outline-color, currentColor)
+    border-radius: 5px
+    width: 100%
+    box-sizing: border-box
+    padding-inline: 0.5rem
+    padding-block: 1.3ex
+
+.qhana-form-input:focus
+    outline: none
+
+.qhana-form-field
+    margin-block-end: 0.8rem
+    --outline-color: var(--text-secondary, #333)
+
+.qhana-form-field:hover:not(:focus-within)
+    --outline-color: var(--text-primary, black)
+
+.qhana-form-field:focus-within
+    --outline-color: var(--primary, black)
+
+.qhana-form-submit
+    margin: 0.4rem
+    padding-inline: 1em
+    background-color: var(--primary, purple)
+    color: var(--text-light-primary, white)
+    cursor: pointer
+    outline: none
+    border: none
+    border-radius: 4px
+    font-size: 14px
+    line-height: 36px
+    font-weight: 500
+
+.qhana-form-submit:active
+    background-color: var(--primary-lighter, purple)
+
+.qhana-form-submit:focus-visible
+    outline: 4px solid var(--accent-darker, black)
+
+.plugin-micro-frontend
+    @include mat.typography-level($my-typography, 'body-1')
+
+.plugin-micro-frontend h1
+    @include mat.typography-level($my-typography, 'headline')
+
+.plugin-micro-frontend h2
+    @include mat.typography-level($my-typography, 'title')
+
+.plugin-micro-frontend h3
+    @include mat.typography-level($my-typography, 'subheading-2')
+
+.plugin-micro-frontend h4
+    @include mat.typography-level($my-typography, 'subheading-1')

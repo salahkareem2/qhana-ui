@@ -38,6 +38,7 @@ import { ExperimentWorkspaceComponent } from './components/experiment-workspace/
 import { ExperimentComponent } from './components/experiment/experiment.component';
 import { ExperimentsPageComponent } from './components/experiments-page/experiments-page.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { PluginUiComponent } from './components/plugin-ui/plugin-ui.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
 
 
@@ -54,6 +55,7 @@ import { CreateExperimentDialog } from './dialogs/create-experiment/create-exper
         ExperimentTimelineComponent,
         DataDetailComponent,
         CreateExperimentDialog,
+        PluginUiComponent,
     ],
     imports: [
         BrowserModule,

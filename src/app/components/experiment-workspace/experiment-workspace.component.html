@@ -1,4 +1,10 @@
 <qhana-experiment-nav active="workspace"></qhana-experiment-nav>
 <div class="big-content">
     <h1 class="t-page-headline">Experiment Workspace</h1>
+    <div *ngFor="let plugin of pluginList | async">
+        <h2 class="t-title">
+            {{plugin.pluginDescription.name}}
+        </h2>
+        <qhana-plugin-ui [plugin]="plugin"></qhana-plugin-ui>
+    </div>
 </div>
