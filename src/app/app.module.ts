@@ -16,24 +16,29 @@
 
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCommonModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { DataDetailComponent } from './components/data-detail/data-detail.component';
+import { ExperimentDataComponent } from './components/experiment-data/experiment-data.component';
+import { ExperimentNavComponent } from './components/experiment-nav/experiment-nav.component';
+import { ExperimentTimelineComponent } from './components/experiment-timeline/experiment-timeline.component';
+import { ExperimentWorkspaceComponent } from './components/experiment-workspace/experiment-workspace.component';
+import { ExperimentComponent } from './components/experiment/experiment.component';
 import { ExperimentsPageComponent } from './components/experiments-page/experiments-page.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { ExperimentComponent } from './components/experiment/experiment.component';
-import { MatTabsModule } from '@angular/material/tabs';
-import { ExperimentNavComponent } from './components/experiment-nav/experiment-nav.component';
-import { ExperimentWorkspaceComponent } from './components/experiment-workspace/experiment-workspace.component';
-import { ExperimentDataComponent } from './components/experiment-data/experiment-data.component';
-import { ExperimentTimelineComponent } from './components/experiment-timeline/experiment-timeline.component';
-import { DataDetailComponent } from './components/data-detail/data-detail.component';
+import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
 
 
 
@@ -48,10 +53,12 @@ import { DataDetailComponent } from './components/data-detail/data-detail.compon
         ExperimentDataComponent,
         ExperimentTimelineComponent,
         DataDetailComponent,
+        CreateExperimentDialog,
     ],
     imports: [
         BrowserModule,
         AppRoutingModule,
+        FormsModule,
         BrowserAnimationsModule,
         HttpClientModule,
         MatToolbarModule,
@@ -60,8 +67,13 @@ import { DataDetailComponent } from './components/data-detail/data-detail.compon
         MatButtonModule,
         MatCommonModule,
         MatTabsModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
     ],
-    providers: [],
+    providers: [
+        { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: "outline" } }
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

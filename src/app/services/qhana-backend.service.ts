@@ -41,6 +41,10 @@ export class QhanaBackendService {
         return this.http.get<ApiObjectList<ExperimentApiObject>>(`${this.rootUrl}/experiments`);
     }
 
+    public createExperiment(name: string, description: string): Observable<ExperimentApiObject> {
+        return this.http.post<ExperimentApiObject>(`${this.rootUrl}/experiments`, { name, description });
+    }
+
     public getExperiment(experimentId: number | string): Observable<ExperimentApiObject> {
         return this.http.get<ExperimentApiObject>(`${this.rootUrl}/experiments/${experimentId}`);
     }
@@ -49,8 +53,9 @@ export class QhanaBackendService {
         return this.http.get<ApiObjectList<ExperimentDataApiObject>>(`${this.rootUrl}/experiments/${experimentId}/data`);
     }
 
-    public getExperimentData(experimentId: number | string, dataName: string): Observable<ExperimentDataApiObject> {
-        return this.http.get<any>(`${this.rootUrl}/experiments/${experimentId}/data/${dataName}`).pipe(map(data => {
+    public getExperimentData(experimentId: number | string, dataName: string, version: string = "latest"): Observable<ExperimentDataApiObject> {
+        const versionQuery = `?version=${version != null ? version : 'latest'}`
+        return this.http.get<any>(`${this.rootUrl}/experiments/${experimentId}/data/${dataName}${versionQuery}`).pipe(map(data => {
             const dataObject: ExperimentDataApiObject = {
                 "@self": data["@self"],
                 download: data.download,

@@ -6,7 +6,7 @@
         <mat-card class="page-item" *ngFor="let data of experimentData | async">
             <mat-card-title>
                 <a class="t-headline title-link"
-                    [routerLink]="['/experiments', experimentId, 'data', data.name]">{{data.name}}</a>
+                    [routerLink]="['/experiments', experimentId, 'data', data.name, {version: data.version.toString()}]">{{data.name}}</a>
             </mat-card-title>
             <mat-card-content>
                 <dl class="data-details">

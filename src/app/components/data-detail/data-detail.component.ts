@@ -26,7 +26,7 @@ export class DataDetailComponent implements OnInit, OnDestroy {
         this.routeSubscription = this.route.params.subscribe(params => {
             this.experimentId = params.experimentId;
             this.experiment.setExperimentId(params.experimentId);
-            this.loadData(params.experimentId, params.dataName);
+            this.loadData(params.experimentId, params.dataName, params.version ?? null);
         });
     }
 
@@ -34,8 +34,8 @@ export class DataDetailComponent implements OnInit, OnDestroy {
         this.routeSubscription?.unsubscribe();
     }
 
-    loadData(experimentId: number, dataName: string) {
-        this.backend.getExperimentData(experimentId, dataName).pipe(take(1)).subscribe(data => this.data = data);
+    loadData(experimentId: number, dataName: string, version: string | null) {
+        this.backend.getExperimentData(experimentId, dataName, version ?? 'latest').pipe(take(1)).subscribe(data => this.data = data);
     }
 
 }

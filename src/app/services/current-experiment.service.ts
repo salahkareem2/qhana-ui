@@ -43,7 +43,6 @@ export class CurrentExperimentService {
     }
 
     private setNewValues(experimentId: string | null, experiment: ExperimentApiObject | null) {
-        console.log(experimentId, experiment);
         if (this.currentExperimentId.getValue() !== experimentId) {
             this.currentExperimentId.next(experimentId);
         }
