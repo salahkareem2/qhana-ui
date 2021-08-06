@@ -1,3 +1,3 @@
-<div class="plugin-micro-frontend" *ngIf="microFrontend != null" [innerHtml]="microFrontend">
-
-</div>
+<mat-card [hidden]="microFrontend == null">
+    <div class="plugin-micro-frontend" [innerHtml]="microFrontend" #frontend></div>
+</mat-card>

@@ -91,7 +91,16 @@ export class PluginsService {
     }
 
     public getPluginUi(plugin: QhanaPlugin) {
-        return this.http.get(`${plugin.url}ui`, { responseType: "text" });
+        return this.http.get(`${plugin.url}ui`, { responseType: 'text' });
+    }
+
+    public getPluginUiWithData(plugin: QhanaPlugin, formData: FormData) {
+        const query = (new URLSearchParams(formData as any)).toString();
+        return this.http.get(`${plugin.url}ui?${query}`, { responseType: 'text' });
+    }
+
+    public postPluginUiWithData(plugin: QhanaPlugin, formData: FormData) {
+        return this.http.post(`${plugin.url}ui/`, new URLSearchParams(formData as any), { responseType: 'text', headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
     }
 
 

@@ -138,6 +138,11 @@ body
 .qhana-form-submit:focus-visible
     outline: 4px solid var(--accent-darker, black)
 
+.qhana-error-message
+    @include mat.typography-level($my-typography, 'body-1')
+    color: var(--warn-text, red)
+    margin-block-start: 0px
+
 .plugin-micro-frontend
     @include mat.typography-level($my-typography, 'body-1')
 
