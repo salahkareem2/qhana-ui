@@ -28,6 +28,28 @@ export interface ExperimentDataApiObject extends ApiObject {
     usedBy?: number[];
 }
 
+export interface ExperimentDataRef {
+    name: string;
+    version: string;
+}
+
+export interface TimelineStepApiObject extends ApiObject {
+    sequence: number;
+    start: string;
+    end: string;
+    status: string;
+    resultLog?: string;
+    notes: string;
+    processorName: string;
+    processorVersion: string;
+    processorLocation: string;
+    parameters: string;
+    parametersContentType: string;
+    parametersDescriptionLocation: string;
+    inputData?: ExperimentDataRef[];
+    outputData?: ExperimentDataRef[];
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -74,7 +96,15 @@ export class QhanaBackendService {
         }));
     }
 
+    public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<TimelineStepApiObject>> {
+        return this.http.get<ApiObjectList<TimelineStepApiObject>>(`${this.rootUrl}/experiments/${experimentId}/timeline`);
+    }
+
     public getPluginRunners(): Observable<ApiObjectList<string>> {
         return this.http.get<ApiObjectList<string>>(`${this.rootUrl}/plugin-runners`);
+    }
+
+    public getTimelineStep(experimentId: number | string, step: number | string): Observable<TimelineStepApiObject> {
+        return this.http.get<TimelineStepApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline/${step}`);
     }
 }

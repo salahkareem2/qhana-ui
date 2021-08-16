@@ -53,7 +53,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize); // TODO test
     }
 
-    updatePageContent(page: number = 9, itemCount: number = 10) {
+    updatePageContent(page: number = 0, itemCount: number = 10) {
         if (this.experimentId == null) {
             return;
         }

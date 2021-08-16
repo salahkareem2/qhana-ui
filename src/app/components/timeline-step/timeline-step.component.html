@@ -1,0 +1,67 @@
+<qhana-experiment-nav active="timeline"></qhana-experiment-nav>
+<div class="big-content" *ngIf="timelineStep != null">
+    <h1 class="t-page-headline">Timeline Step</h1>
+    <mat-card class="experiment-card">
+        <mat-card-title class="t-headline">
+            Step {{timelineStep.sequence}} ({{timelineStep.processorName}}@{{timelineStep.processorVersion}})
+            <span [hidden]="timelineStep.status !== 'PENDING'">PENDING</span>
+        </mat-card-title>
+        <mat-card-content>
+            <dl class="step-details">
+                <div>
+                    <dt>Processor</dt>
+                    <dd>{{timelineStep.processorName}} (version {{timelineStep.processorVersion}})</dd>
+                </div>
+                <div>
+                    <dt>Status</dt>
+                    <dd>{{timelineStep.status}}</dd>
+                </div>
+                <div *ngIf="timelineStep.status === 'PENDING'">
+                    <dt>Started at</dt>
+                    <dd>{{timelineStep.start | date:'HH:mm:ss (dd MMMM YYYY)'}}</dd>
+                </div>
+                <div *ngIf="timelineStep.status !== 'PENDING'">
+                    <dt>Timing</dt>
+                    <dd>
+                        {{timelineStep.start | date:'HH:mm:ss (dd MMMM YYYY)'}}
+                        – {{timelineStep.end | date:'HH:mm:ss (dd MMMM YYYY)'}}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Result Log</dt>
+                    <dd>{{timelineStep.resultLog}}</dd>
+                </div>
+                <div>
+                    <dt>Processor Location</dt>
+                    <dd>{{timelineStep.processorLocation}}</dd>
+                </div>
+                <div>
+                    <dt>Input Data</dt>
+                    <dd>
+                        <ul>
+                            <li *ngFor="let dataRef of timelineStep.inputData">
+                                <a
+                                    [routerLink]="['/experiments', experimentId, 'data', dataRef.name, {version: dataRef.version}]">
+                                    {{dataRef.name}} (version {{dataRef.version}})
+                                </a>
+                            </li>
+                        </ul>
+                    </dd>
+                </div>
+                <div>
+                    <dt>Output Data</dt>
+                    <dd>
+                        <ul>
+                            <li *ngFor="let dataRef of timelineStep.outputData">
+                                <a
+                                    [routerLink]="['/experiments', experimentId, 'data', dataRef.name, {version: dataRef.version}]">
+                                    {{dataRef.name}} (version {{dataRef.version}})
+                                </a>
+                            </li>
+                        </ul>
+                    </dd>
+                </div>
+            </dl>
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -1,4 +1,43 @@
 <qhana-experiment-nav active="timeline"></qhana-experiment-nav>
 <div class="big-content">
     <h1 class="t-page-headline">Experiment Timeline</h1>
+
+    <div class="page-item-list">
+        <mat-card class="page-item" *ngFor="let step of timelineSteps | async">
+            <mat-card-title>
+                <a class="t-headline title-link"
+                    [routerLink]="['/experiments', experimentId, 'timeline', step.sequence]">
+                    Step {{step.sequence}} ({{step.processorName}}@{{step.processorVersion}})
+                    <span [hidden]="step.status !== 'PENDING'">PENDING</span>
+                </a>
+            </mat-card-title>
+            <mat-card-content>
+                <dl class="step-details">
+                    <div>
+                        <dt>Processor</dt>
+                        <dd>{{step.processorName}} (version {{step.processorVersion}})</dd>
+                    </div>
+                    <div>
+                        <dt>Status</dt>
+                        <dd>{{step.status}}</dd>
+                    </div>
+                    <div *ngIf="step.status === 'PENDING'">
+                        <dt>Started at</dt>
+                        <dd>{{step.start | date:'HH:mm:ss (dd MMMM YYYY)'}}</dd>
+                    </div>
+                    <div *ngIf="step.status !== 'PENDING'">
+                        <dt>Timing</dt>
+                        <dd>
+                            {{step.start | date:'HH:mm:ss (dd MMMM YYYY)'}}
+                            – {{step.end | date:'HH:mm:ss (dd MMMM YYYY)'}}
+                        </dd>
+                    </div>
+                </dl>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <mat-paginator (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
+    </mat-paginator>
 </div>
