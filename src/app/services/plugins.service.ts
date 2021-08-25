@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, from } from 'rxjs';
 import { catchError, map, mergeAll, mergeMap, toArray } from 'rxjs/operators';
@@ -101,6 +101,10 @@ export class PluginsService {
 
     public postPluginUiWithData(plugin: QhanaPlugin, formData: FormData) {
         return this.http.post(`${plugin.url}ui/`, new URLSearchParams(formData as any), { responseType: 'text', headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    }
+
+    public postPluginTask(pluginEndpoint: string, formData: FormData) {
+        return this.http.post<HttpResponse<{ taskId: string }>>(pluginEndpoint, new URLSearchParams(formData as any), { observe: "response", headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
     }
 
 

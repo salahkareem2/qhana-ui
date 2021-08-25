@@ -1,8 +1,11 @@
 import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
+import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
+import { QhanaBackendService, TimelineStepPostData } from 'src/app/services/qhana-backend.service';
 
 @Component({
     selector: 'qhana-plugin-ui',
@@ -14,13 +17,17 @@ export class PluginUiComponent implements OnInit, OnDestroy, OnChanges {
     @Input() plugin: QhanaPlugin | null = null;
 
     @ViewChild('frontend', { static: true }) frontendNode: ElementRef | null = null;
+
     private observer: MutationObserver = new MutationObserver((mutations, observer) => { this.observeMutation(mutations, observer) });
+
+    private experimentId: string | null = null;
 
     microFrontend: SafeHtml | null = null;
 
-    constructor(private plugins: PluginsService, private sanitizer: DomSanitizer) { }
+    constructor(private plugins: PluginsService, private backend: QhanaBackendService, private experiment: CurrentExperimentService, private router: Router, private sanitizer: DomSanitizer) { }
 
     ngOnInit(): void {
+        this.experiment.experimentId.subscribe(experimentId => this.experimentId = experimentId);
         this.instrumentFrontendElement();
     }
 
@@ -46,16 +53,68 @@ export class PluginUiComponent implements OnInit, OnDestroy, OnChanges {
         });
     }
 
-    private observeMutation(mutations: MutationRecord[], observer: MutationObserver) {
-        const node = mutations[0].target as HTMLDivElement;
-        console.log(node)
-        const forms = node.querySelectorAll("form.qhana-form") as NodeListOf<HTMLFormElement>;
-        forms.forEach(form => {
-            form.onsubmit = ev => this.onMicrofrontendSubmit(ev);
-        })
+    private instrumentDataInputElement(inputElement: HTMLInputElement) {
+        let datalistId: string | null = inputElement.getAttribute('list');
+        let datalist = inputElement.list;
+        if (datalistId == null) {
+            datalistId = 'list-' + Math.random().toString(16);
+            datalist = document.createElement('datalist');
+            datalist.setAttribute('id', datalistId);
+            inputElement.after(datalist);
+            inputElement.setAttribute('list', datalistId);
+        }
+        const dataType = inputElement.getAttribute('data-input');
+        const contentTypes = inputElement.getAttribute('data-content-type')?.split(' ') ?? [];
+        const experimentId = this.experimentId;
+        if (experimentId == null) {
+            console.warn("Tried instrumenting data input field before experiment id was known.");
+            return;
+        }
+        const rootUrl = this.backend.backendRootUrl;
+        this.backend.getExperimentDataPage(experimentId).subscribe(dataPage => {
+            const optionNodes: HTMLOptionElement[] = [];
+            dataPage.items.forEach(data => {
+                if (data.type != dataType) {
+                    // FIXME move filters into backend server!
+                    // return;
+                }
+                const option = document.createElement('option');
+                option.text = `${rootUrl}${data.download}`; // FIXME make root url more configurable/robust
+                optionNodes.push(option);
+            });
+            datalist?.append(...optionNodes);
+        });
     }
 
-    private onMicrofrontendSubmit(event: Event) {
+    private observeMutation(mutations: MutationRecord[], observer: MutationObserver) {
+        const node = mutations[0].target as HTMLDivElement;
+        const forms = node.querySelectorAll('form.qhana-form') as NodeListOf<HTMLFormElement>;
+        forms.forEach(form => {
+            const privateInputs: Set<string> = new Set();
+            const dataInputs: Set<string> = new Set();
+            form.querySelectorAll('input[data-private],input[type=password]').forEach(inputElement => {
+                const name = inputElement.getAttribute('name');
+                if (name == null) {
+                    console.warn('Input of plugin ui form has no specified name but is private!', inputElement);
+                } else {
+                    privateInputs.add(name);
+                }
+            });
+            form.querySelectorAll('input[data-input]').forEach(inputElement => {
+                const name = inputElement.getAttribute('name');
+                if (name == null) {
+                    console.warn('Input of plugin ui form has no specified name but is marked as input data!', inputElement);
+                } else {
+                    dataInputs.add(name);
+                }
+                this.instrumentDataInputElement(inputElement as HTMLInputElement);
+            });
+            form.onsubmit = ev => this.onMicrofrontendSubmit(ev, privateInputs, dataInputs);
+        });
+
+    }
+
+    private onMicrofrontendSubmit(event: Event, privateInputs: Set<string>, dataInputs: Set<string>) {
         event.preventDefault();
         event.stopPropagation();
         //console.log(event);
@@ -69,10 +128,10 @@ export class PluginUiComponent implements OnInit, OnDestroy, OnChanges {
             formAction = new URL(submitter.formAction);
             formMethod = submitter.formMethod ?? formMethod;
         }
-        if (formAction.pathname.startsWith("/experiments/") || formAction.pathname.endsWith("/ui/") || formAction.pathname.endsWith("/ui")) {
+        if (formAction.pathname.startsWith('/experiments/') || formAction.pathname.endsWith('/ui/') || formAction.pathname.endsWith('/ui')) {
             this.updateMicroFrontend(formData, formMethod);
         } else {
-            // TODO submit result to backend!
+            this.submitMicroFrontend(formAction, formData, privateInputs, dataInputs);
         }
     }
 
@@ -83,10 +142,10 @@ export class PluginUiComponent implements OnInit, OnDestroy, OnChanges {
         }
         console.log(method);
         let observable: Observable<string>;
-        if (method == null || method === "" || method === "get" || method === "GET") {
+        if (method == null || method === '' || method === 'get' || method === 'GET') {
             observable = this.plugins.getPluginUiWithData(plugin, formData);
         } else {
-            if (method !== "post" && method !== "POST") {
+            if (method !== 'post' && method !== 'POST') {
                 return; // unsupported update method
             }
             observable = this.plugins.postPluginUiWithData(plugin, formData);
@@ -97,6 +156,49 @@ export class PluginUiComponent implements OnInit, OnDestroy, OnChanges {
                 return this.sanitizer.bypassSecurityTrustHtml(frontend);
             }),
         ).subscribe(frontend => this.microFrontend = frontend);
+    }
+
+    private submitMicroFrontend(formAction: URL, formData: FormData, privateInputs: Set<string>, dataInputs: Set<string>) {
+        const plugin = this.plugin;
+        const experimentId = this.experimentId;
+        if (plugin == null || experimentId == null) {
+            return;
+        }
+
+        const pluginUrl = new URL(plugin.url);
+        const pluginEndpointUrl = pluginUrl.origin + formAction.pathname;
+        console.log(pluginEndpointUrl);
+
+        const inputData: Set<string> = new Set();
+        const processedFormData = new FormData();
+        formData.forEach((entry, key) => {
+            if (privateInputs.has(key)) {
+                processedFormData.append(key, '****');
+                return;
+            }
+            processedFormData.append(key, entry);
+            if (dataInputs.has(key) && (typeof entry === 'string')) {
+                inputData.add(entry);
+            }
+        });
+
+        const observable: Observable<any> = this.plugins.postPluginTask(pluginEndpointUrl, formData);
+        observable.pipe(
+            mergeMap(response => {
+                const timelineStepData: TimelineStepPostData = {
+                    resultLocation: response.url,
+                    inputData: [...inputData],
+
+                    processorName: plugin.pluginDescription.name,
+                    processorVersion: plugin.pluginDescription.version,
+                    processorLocation: plugin.url,
+                    parameters: (new URLSearchParams(processedFormData as any)).toString(),
+                    parametersContentType: 'application/x-www-form-urlencoded',
+                    parametersDescriptionLocation: `${plugin.url}ui/`,
+                };
+                return this.backend.createTimelineStep(experimentId, timelineStepData);
+            }),
+        ).subscribe(timelineStep => this.router.navigate(['/experiments', experimentId, 'timeline', timelineStep.sequence.toString()]));
     }
 
 }

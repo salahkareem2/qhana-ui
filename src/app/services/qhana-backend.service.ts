@@ -33,6 +33,18 @@ export interface ExperimentDataRef {
     version: string;
 }
 
+export interface TimelineStepPostData {
+    resultLocation: string;
+    inputData: string[];
+
+    processorName: string;
+    processorVersion: string;
+    processorLocation: string;
+    parameters: string;
+    parametersContentType: string;
+    parametersDescriptionLocation: string;
+};
+
 export interface TimelineStepApiObject extends ApiObject {
     sequence: number;
     start: string;
@@ -56,6 +68,10 @@ export interface TimelineStepApiObject extends ApiObject {
 export class QhanaBackendService {
 
     private rootUrl = "http://localhost:9090"
+
+    public get backendRootUrl() {
+        return this.rootUrl;
+    }
 
     constructor(private http: HttpClient) { }
 
@@ -98,6 +114,10 @@ export class QhanaBackendService {
 
     public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<TimelineStepApiObject>> {
         return this.http.get<ApiObjectList<TimelineStepApiObject>>(`${this.rootUrl}/experiments/${experimentId}/timeline`);
+    }
+
+    public createTimelineStep(experimentId: number | string, stepData: TimelineStepPostData): Observable<TimelineStepApiObject> {
+        return this.http.post<TimelineStepApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline`, stepData);
     }
 
     public getPluginRunners(): Observable<ApiObjectList<string>> {
