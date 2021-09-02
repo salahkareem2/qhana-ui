@@ -19,8 +19,11 @@
                 </div>
                 <div>
                     <dt>Dowload link</dt>
-                    <dd><a href="{{downloadUrl}}" target="_blank" rel="noopener noreferrer" mat-flat-button>Dowload as
-                            File</a></dd>
+                    <dd>
+                        <a [href]="downloadUrl" target="_blank" rel="noopener noreferrer" mat-flat-button>
+                            Dowload as File
+                        </a>
+                    </dd>
                 </div>
                 <div *ngIf="data?.producedBy != null">
                     <dt>Created in</dt>
