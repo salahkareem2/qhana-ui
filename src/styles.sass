@@ -92,16 +92,20 @@ body
 
 // qhana form inputs (from micro frontends)
 
+form.qhana-form
+    max-width: initial
+
 .qhana-form-label
     @include mat.typography-level($my-typography, 'body-1')
     font-weight: 500
     padding-inline-start: 0.5rem
     color: var(--outline-color, currentColor)
 
-.qhana-form-input
+.qhana-form-input, input.qhana-form-input, select.qhana-form-input, textarea.qhana-form-input
     border: 2px solid var(--outline-color, currentColor)
     border-radius: 5px
     width: 100%
+    max-width: initial
     box-sizing: border-box
     padding-inline: 0.5rem
     padding-block: 1.3ex
