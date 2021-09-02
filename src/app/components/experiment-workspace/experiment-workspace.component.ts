@@ -15,6 +15,8 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
 
     pluginList: Observable<QhanaPlugin[]> | null = null;
 
+    activePlugin: QhanaPlugin | null = null;
+
     constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private plugins: PluginsService) { }
 
     ngOnInit(): void {

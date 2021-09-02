@@ -1,6 +1,6 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, from } from 'rxjs';
+import { BehaviorSubject, from, Observable } from 'rxjs';
 import { catchError, map, mergeAll, mergeMap, toArray } from 'rxjs/operators';
 import { QhanaBackendService } from './qhana-backend.service';
 
@@ -39,23 +39,47 @@ export class PluginsService {
             return;
         }
         this.loading = true;
-        this.backend.getPluginRunners().subscribe(pluginRunners => {
-            var observables = pluginRunners.items.map(pluginRunner => this.loadPluginsFromPluginRunner(pluginRunner));
+        this.backend.getPluginEndpoints().subscribe(pluginEndpoints => {
+            var observables: Observable<QhanaPlugin>[] = [];
+            pluginEndpoints.items.map(pluginEndpoint => {
+                if (pluginEndpoint.type === "PluginRunner") {
+                    observables.push(this.loadPluginsFromPluginRunner(pluginEndpoint.url));
+                } else if (pluginEndpoint.type === "Plugin") {
+                    // TODO refactor into method
+                    const observable = this.http.get<PluginDescription>(pluginEndpoint.url).pipe(
+                        map(pluginMetadata => {
+                            return {
+                                url: pluginEndpoint.url,
+                                pluginDescription: {
+                                    apiRoot: pluginEndpoint.url,
+                                    name: pluginMetadata.name,
+                                    version: pluginMetadata.version,
+                                    identifier: pluginMetadata.identifier,
+                                },
+                                metadata: pluginMetadata,
+                            };
+                        }),
+                    );
+                    observables.push(observable);
+                } else {
+                    console.warn(`Unknown Plugin Endpoint type ${pluginEndpoint.type}.`, pluginEndpoint);
+                }
+            });
             from(observables).pipe(
                 mergeAll(),
                 toArray(),
             ).subscribe(plugins => {
                 plugins.sort((a, b) => {
-                    if (a.pluginDescription.name > a.pluginDescription.name) {
+                    if (a.pluginDescription.name > b.pluginDescription.name) {
                         return 1;
                     }
-                    if (a.pluginDescription.name < a.pluginDescription.name) {
+                    if (a.pluginDescription.name < b.pluginDescription.name) {
                         return -1;
                     }
-                    if (a.pluginDescription.version > a.pluginDescription.version) {
+                    if (a.pluginDescription.version > b.pluginDescription.version) {
                         return 1;
                     }
-                    if (a.pluginDescription.version < a.pluginDescription.version) {
+                    if (a.pluginDescription.version < b.pluginDescription.version) {
                         return -1;
                     }
                     return 0;

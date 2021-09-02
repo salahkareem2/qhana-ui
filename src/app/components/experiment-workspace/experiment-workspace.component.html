@@ -1,10 +1,44 @@
 <qhana-experiment-nav active="workspace"></qhana-experiment-nav>
-<div class="big-content">
-    <h1 class="t-page-headline">Experiment Workspace</h1>
-    <div *ngFor="let plugin of pluginList | async">
-        <h2 class="t-title">
-            {{plugin.pluginDescription.name}}
-        </h2>
-        <qhana-plugin-ui [plugin]="plugin"></qhana-plugin-ui>
+<div class="workspace-content">
+    <div class="sidebar-container">
+        <mat-card class="sidebar">
+            <mat-card-title>
+                <h3>Plugins</h3>
+            </mat-card-title>
+            <mat-card-content>
+                <mat-action-list class="card-list">
+                    <button
+                        [ngClass]="{'active-list-item': plugin.pluginDescription.identifier === activePlugin?.pluginDescription?.identifier}"
+                        mat-list-item (click)="activePlugin=plugin" *ngFor="let plugin of pluginList | async">
+                        {{plugin.metadata.title ?? plugin.pluginDescription.name}}
+                        (@{{plugin.pluginDescription.version}})
+                    </button>
+                </mat-action-list>
+            </mat-card-content>
+        </mat-card>
+    </div>
+    <div class="content-container">
+        <div class="main-content">
+            <h1 class="t-page-headline">Experiment Workspace</h1>
+            <div *ngIf="activePlugin == null">
+                <p>Choose a plugin.</p>
+            </div>
+            <div *ngIf="activePlugin != null">
+                <mat-card class="plugin-details">
+                    <mat-card-title>
+                        <h2 class="t-title">{{activePlugin.metadata.title ?? activePlugin.pluginDescription.name}}
+                            (@{{activePlugin.pluginDescription.version}})</h2>
+                    </mat-card-title>
+                    <mat-card-content>
+                        <mat-chip-list>
+                            <mat-chip color="primary">{{activePlugin.metadata.pluginType ?? 'unknown'}}</mat-chip>
+                            <mat-chip *ngFor="let tag of (activePlugin.metadata.tags ?? [])">{{tag}}</mat-chip>
+                        </mat-chip-list>
+                        <p>{{activePlugin.metadata.description}}</p>
+                    </mat-card-content>
+                </mat-card>
+                <qhana-plugin-ui [plugin]="activePlugin"></qhana-plugin-ui>
+            </div>
+        </div>
     </div>
 </div>

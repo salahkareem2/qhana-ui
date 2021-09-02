@@ -12,6 +12,12 @@ export interface ApiObjectList<T> extends ApiObject {
     items: T[];
 }
 
+export interface PluginEndpointApiObject extends ApiObject {
+    endpointId: number;
+    url: string;
+    type: "PluginRunner"|"Plugin"|string;
+}
+
 export interface ExperimentApiObject extends ApiObject {
     experimentId: number;
     name: string;
@@ -120,8 +126,8 @@ export class QhanaBackendService {
         return this.http.post<TimelineStepApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline`, stepData);
     }
 
-    public getPluginRunners(): Observable<ApiObjectList<string>> {
-        return this.http.get<ApiObjectList<string>>(`${this.rootUrl}/plugin-runners`);
+    public getPluginEndpoints(): Observable<ApiObjectList<PluginEndpointApiObject>> {
+        return this.http.get<ApiObjectList<PluginEndpointApiObject>>(`${this.rootUrl}/plugin-endpoints`);
     }
 
     public getTimelineStep(experimentId: number | string, step: number | string): Observable<TimelineStepApiObject> {
