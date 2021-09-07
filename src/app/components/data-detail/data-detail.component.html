@@ -55,6 +55,9 @@
                 <div *ngSwitchCase="'text/plain'">
                     <iframe class="preview-frame" [src]="downloadUrl" frameborder="0" sandbox></iframe>
                 </div>
+                <div *ngSwitchCase="'text/csv'">
+                    <iframe class="preview-frame" [src]="downloadUrl" frameborder="0" sandbox></iframe>
+                </div>
                 <div *ngSwitchDefault>No Preview</div>
             </ng-container>
         </mat-card-content>

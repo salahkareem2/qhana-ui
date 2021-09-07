@@ -22,10 +22,12 @@ import { ExperimentTimelineComponent } from './components/experiment-timeline/ex
 import { ExperimentWorkspaceComponent } from './components/experiment-workspace/experiment-workspace.component';
 import { ExperimentComponent } from './components/experiment/experiment.component';
 import { ExperimentsPageComponent } from './components/experiments-page/experiments-page.component';
+import { SettingsPageComponent } from './components/settings-page/settings-page.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
 
 const routes: Routes = [
     { path: '', component: ExperimentsPageComponent },
+    { path: 'settings', component: SettingsPageComponent },
     { path: 'experiments', component: ExperimentsPageComponent },
     { path: 'experiments/:experimentId', redirectTo: "info" },
     { path: 'experiments/:experimentId/info', component: ExperimentComponent },

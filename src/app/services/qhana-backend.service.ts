@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 University of Stuttgart
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -15,7 +31,7 @@ export interface ApiObjectList<T> extends ApiObject {
 export interface PluginEndpointApiObject extends ApiObject {
     endpointId: number;
     url: string;
-    type: "PluginRunner"|"Plugin"|string;
+    type: "PluginRunner" | "Plugin" | string;
 }
 
 export interface ExperimentApiObject extends ApiObject {
@@ -73,13 +89,75 @@ export interface TimelineStepApiObject extends ApiObject {
 })
 export class QhanaBackendService {
 
-    private rootUrl = "http://localhost:9090"
+    private rootUrl: string;
 
     public get backendRootUrl() {
         return this.rootUrl;
     }
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) {
+        this.rootUrl = this.getBackendUrlFromConfig();
+    }
+
+    private getBackendUrlFromConfig() {
+        let protocol = window?.location?.protocol ?? "http:";
+        let hostname = window?.location?.hostname ?? "localhost";
+        let port = "9090";
+        let path = "";
+        if (localStorage) {
+            protocol = localStorage.getItem("QHAna_backend_protocol") ?? protocol;
+            hostname = localStorage.getItem("QHAna_backend_hostname") ?? hostname;
+            port = localStorage.getItem("QHAna_backend_port") ?? port;
+            path = localStorage.getItem("QHAna_backend_path") ?? path;
+        }
+        return `${protocol}//${hostname}:${port}${path}`;
+    }
+
+    public changeBackendUrl(protocol?: string, hostname?: string, port?: string, path?: string) {
+        if (protocol == null) {
+            localStorage.removeItem("QHAna_backend_protocol");
+        } else {
+            localStorage.setItem("QHAna_backend_protocol", protocol);
+        }
+        if (hostname == null) {
+            localStorage.removeItem("QHAna_backend_hostname");
+        } else {
+            localStorage.setItem("QHAna_backend_hostname", hostname);
+        }
+        if (port == null) {
+            localStorage.removeItem("QHAna_backend_port");
+        } else {
+            localStorage.setItem("QHAna_backend_port", port);
+        }
+        if (path == null) {
+            localStorage.removeItem("QHAna_backend_path");
+        } else {
+            localStorage.setItem("QHAna_backend_path", path);
+        }
+
+        // set new URL
+        this.rootUrl = this.getBackendUrlFromConfig();
+    }
+
+    public resetBackendUrl() {
+        this.changeBackendUrl(undefined, undefined, undefined, undefined);
+    }
+
+    public getPluginEndpoints(): Observable<ApiObjectList<PluginEndpointApiObject>> {
+        return this.http.get<ApiObjectList<PluginEndpointApiObject>>(`${this.rootUrl}/plugin-endpoints`);
+    }
+
+    public addPluginEndpoint(url: string, type?: string): Observable<PluginEndpointApiObject> {
+        const body: { url: string, type?: string } = { url };
+        if (type != null) {
+            body.type = type;
+        }
+        return this.http.post<PluginEndpointApiObject>(`${this.rootUrl}/plugin-endpoints`, body);
+    }
+
+    public removePluginEndpoint(endpoint: PluginEndpointApiObject): Observable<void> {
+        return this.http.delete(`${this.rootUrl}/plugin-endpoints/${endpoint.endpointId}`).pipe(map(() => { return; }));
+    }
 
     public getExperimentsPage(page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentApiObject>> {
         return this.http.get<ApiObjectList<ExperimentApiObject>>(`${this.rootUrl}/experiments`);
@@ -124,10 +202,6 @@ export class QhanaBackendService {
 
     public createTimelineStep(experimentId: number | string, stepData: TimelineStepPostData): Observable<TimelineStepApiObject> {
         return this.http.post<TimelineStepApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline`, stepData);
-    }
-
-    public getPluginEndpoints(): Observable<ApiObjectList<PluginEndpointApiObject>> {
-        return this.http.get<ApiObjectList<PluginEndpointApiObject>>(`${this.rootUrl}/plugin-endpoints`);
     }
 
     public getTimelineStep(experimentId: number | string, step: number | string): Observable<TimelineStepApiObject> {

@@ -5,4 +5,7 @@
     </a>
     <div class="toolbar-spacer"></div>
     <span [hidden]="(currentExperiment|async) == null">Experiment: {{currentExperiment|async}}</span>
+    <a class="settings-link" [routerLink]="['/settings']">
+        <mat-icon aria-hidden="false" aria-label="Settings">settings</mat-icon>
+    </a>
 </mat-toolbar>

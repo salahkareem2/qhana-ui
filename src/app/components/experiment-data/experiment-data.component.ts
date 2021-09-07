@@ -15,7 +15,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
     private routeSubscription: Subscription | null = null;
 
-    backendUrl: string = "http://localhost:9090"; // FIXME move this into settings somehow
+    backendUrl: string;
 
     experimentId: string | null = null;
 
@@ -28,7 +28,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
     experimentData: Observable<ExperimentDataApiObject[]> | null = null;
 
-    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService) { }
+    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService) {
+        this.backendUrl = backend.backendRootUrl;
+    }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params

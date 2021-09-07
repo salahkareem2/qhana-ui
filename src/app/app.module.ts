@@ -23,7 +23,9 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatCommonModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatListModule } from '@angular/material/list';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -41,6 +43,7 @@ import { ExperimentComponent } from './components/experiment/experiment.componen
 import { ExperimentsPageComponent } from './components/experiments-page/experiments-page.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { PluginUiComponent } from './components/plugin-ui/plugin-ui.component';
+import { SettingsPageComponent } from './components/settings-page/settings-page.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
 
@@ -60,6 +63,7 @@ import { CreateExperimentDialog } from './dialogs/create-experiment/create-exper
         CreateExperimentDialog,
         PluginUiComponent,
         TimelineStepComponent,
+        SettingsPageComponent,
     ],
     imports: [
         BrowserModule,
@@ -78,6 +82,8 @@ import { CreateExperimentDialog } from './dialogs/create-experiment/create-exper
         MatInputModule,
         MatListModule,
         MatChipsModule,
+        MatIconModule,
+        MatSelectModule,
     ],
     providers: [
         { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: "outline" } }

@@ -1,0 +1,75 @@
+<div class="big-content">
+
+    <h1 class="t-page-headline">Settings</h1>
+
+    <mat-card>
+        <mat-card-title>
+            <h3>Backend URL</h3>
+        </mat-card-title>
+        <mat-card-content>
+            <p><span style="font-weight: 700;">Current Value:</span> {{backendUrl}}</p>
+            <div class="url-form-group">
+                <mat-form-field class="form-field short-field">
+                    <mat-label>Protocol</mat-label>
+                    <input matInput autocomplete="false" [(ngModel)]="protocol">
+                </mat-form-field>
+                <mat-form-field class="form-field long-field">
+                    <mat-label>Hostname</mat-label>
+                    <input matInput autocomplete="false" [(ngModel)]="hostname">
+                </mat-form-field>
+                <mat-form-field class="form-field short-field">
+                    <mat-label>Port</mat-label>
+                    <input matInput autocomplete="false" type="number" [(ngModel)]="port">
+                </mat-form-field>
+                <mat-form-field class="form-field long-field">
+                    <mat-label>Path</mat-label>
+                    <input matInput autocomplete="false" [(ngModel)]="path">
+                </mat-form-field>
+            </div>
+            <button mat-flat-button color="primary" (click)="updateBackendUrl()">Update Backend URL</button>
+        </mat-card-content>
+    </mat-card>
+
+    <h2>Plugin Endpoints</h2>
+
+    <div class="page-item-list">
+        <!-- TODO add UI to inspect/change plugin endpoints-->
+        <mat-card>
+            <mat-card-title>
+                <h3>Existing Endpoints</h3>
+            </mat-card-title>
+            <mat-card-content>
+                <mat-list>
+                    <ng-container *ngFor="let endpoint of endpoints; last as last">
+                        <mat-list-item>
+                            <p class="endpoint-description">
+                                <span class="t-subheading">{{endpoint.url}}</span> ({{endpoint.type}})
+                            </p>
+                            <button mat-stroked-button color="warn" (click)="removePluginEndpoint(endpoint)">
+                                <mat-icon aria-hidden="true">delete</mat-icon> remove
+                            </button>
+                        </mat-list-item>
+                        <mat-divider *ngIf="!last"></mat-divider>
+                    </ng-container>
+                </mat-list>
+
+                <h4>New Endpoint</h4>
+                <div class="url-form-group">
+                    <mat-form-field class="form-field long-field">
+                        <mat-label>Endpoint URL</mat-label>
+                        <input matInput type="url" autocomplete="false" required [(ngModel)]="endpointUrl">
+                    </mat-form-field>
+                    <mat-form-field class="form-field">
+                        <mat-label>Endpoint Type</mat-label>
+                        <mat-select matInput type="url" [(ngModel)]="endpointType">
+                            <mat-option value="PluginRunner">Plugin Runner</mat-option>
+                            <mat-option value="Plugin">Plugin</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <button mat-flat-button color="primary" (click)="addPluginEndpoint()">Add new Endpoint</button>
+            </mat-card-content>
+        </mat-card>
+        <div class="scroll-spacer"></div>
+    </div>
+</div>

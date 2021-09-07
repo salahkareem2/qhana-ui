@@ -79,7 +79,7 @@ export class PluginUiComponent implements OnInit, OnDestroy, OnChanges {
                     // return;
                 }
                 const option = document.createElement('option');
-                option.text = `${rootUrl}${data.download}`; // FIXME make root url more configurable/robust
+                option.text = `${rootUrl}${data.download}`;
                 optionNodes.push(option);
             });
             datalist?.append(...optionNodes);
