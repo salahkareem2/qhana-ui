@@ -1,0 +1,16 @@
+<mat-card class="data-preview" *ngIf="dataUrl != null && effectiveMimetype != null">
+    <mat-card-content>
+        <ng-container [ngSwitch]="effectiveMimetype">
+            <div *ngSwitchCase="'text/*'">
+                <iframe class="preview-frame" [src]="dataUrl" frameborder="0" sandbox></iframe>
+            </div>
+            <div *ngSwitchCase="'text/html'">
+                <iframe class="preview-frame" [src]="dataUrl" frameborder="0" sandbox></iframe>
+            </div>
+            <div *ngSwitchCase="'image/*'">
+                <img class="preview-image" [src]="dataUrl">
+            </div>
+            <div *ngSwitchDefault>No Preview</div>
+        </ng-container>
+    </mat-card-content>
+</mat-card>

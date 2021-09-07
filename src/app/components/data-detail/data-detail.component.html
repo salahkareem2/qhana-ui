@@ -49,17 +49,5 @@
         </mat-card-content>
     </mat-card>
     <h3 class="t-headline">Preview</h3>
-    <mat-card class="data-preview" *ngIf="downloadUrl != null">
-        <mat-card-content>
-            <ng-container [ngSwitch]="data.contentType">
-                <div *ngSwitchCase="'text/plain'">
-                    <iframe class="preview-frame" [src]="downloadUrl" frameborder="0" sandbox></iframe>
-                </div>
-                <div *ngSwitchCase="'text/csv'">
-                    <iframe class="preview-frame" [src]="downloadUrl" frameborder="0" sandbox></iframe>
-                </div>
-                <div *ngSwitchDefault>No Preview</div>
-            </ng-container>
-        </mat-card-content>
-    </mat-card>
+    <qhana-data-preview [data]="data"></qhana-data-preview>
 </div>

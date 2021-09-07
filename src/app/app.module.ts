@@ -46,6 +46,7 @@ import { PluginUiComponent } from './components/plugin-ui/plugin-ui.component';
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
+import { DataPreviewComponent } from './components/data-preview/data-preview.component';
 
 
 
@@ -64,6 +65,7 @@ import { CreateExperimentDialog } from './dialogs/create-experiment/create-exper
         PluginUiComponent,
         TimelineStepComponent,
         SettingsPageComponent,
+        DataPreviewComponent,
     ],
     imports: [
         BrowserModule,
