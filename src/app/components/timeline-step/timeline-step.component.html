@@ -2,15 +2,27 @@
 <div class="big-content" *ngIf="timelineStep != null">
     <h1 class="t-page-headline">Timeline Step</h1>
     <mat-card class="experiment-card">
-        <mat-card-title class="t-headline">
+        <mat-card-title class="t-headline flex-title">
             Step {{timelineStep.sequence}} ({{timelineStep.processorName}}@{{timelineStep.processorVersion}})
             <span [hidden]="timelineStep.status !== 'PENDING'">PENDING</span>
+            <div class="spacer"></div>
+            <span class="t-subheading clickable" (click)="restartWatching()" *ngIf="timelineStep?.end == null">
+                {{watching}}
+            </span>
+            <button mat-button color="primary" (click)="restartWatching()"
+                *ngIf="timelineStep?.end == null && watching === 'error' || watching === 'paused'">
+                restart
+            </button>
         </mat-card-title>
         <mat-card-content>
             <dl class="step-details">
                 <div>
                     <dt>Processor</dt>
                     <dd>{{timelineStep.processorName}} (version {{timelineStep.processorVersion}})</dd>
+                </div>
+                <div>
+                    <dt>Processor Location</dt>
+                    <dd>{{timelineStep.processorLocation}}</dd>
                 </div>
                 <div>
                     <dt>Status</dt>
@@ -31,15 +43,13 @@
                     <dt>Result Log</dt>
                     <dd>{{timelineStep.resultLog}}</dd>
                 </div>
-                <div>
-                    <dt>Processor Location</dt>
-                    <dd>{{timelineStep.processorLocation}}</dd>
-                </div>
             </dl>
         </mat-card-content>
     </mat-card>
-    <h2>Output</h2>
-    <qhana-preview-list [dataList]="timelineStep.outputData ?? []"></qhana-preview-list>
+    <ng-container *ngIf="timelineStep.outputData != null && timelineStep.outputData.length > 0">
+        <h2>Output</h2>
+        <qhana-preview-list [dataList]="timelineStep.outputData ?? []"></qhana-preview-list>
+    </ng-container>
     <ng-container *ngIf="timelineStep.inputData != null && timelineStep.inputData.length > 0">
         <h2>Input</h2>
         <qhana-preview-list [dataList]="timelineStep.inputData ?? []"></qhana-preview-list>
