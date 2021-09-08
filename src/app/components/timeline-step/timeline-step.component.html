@@ -35,33 +35,13 @@
                     <dt>Processor Location</dt>
                     <dd>{{timelineStep.processorLocation}}</dd>
                 </div>
-                <div>
-                    <dt>Input Data</dt>
-                    <dd>
-                        <ul>
-                            <li *ngFor="let dataRef of timelineStep.inputData">
-                                <a
-                                    [routerLink]="['/experiments', experimentId, 'data', dataRef.name, {version: dataRef.version}]">
-                                    {{dataRef.name}} (version {{dataRef.version}})
-                                </a>
-                            </li>
-                        </ul>
-                    </dd>
-                </div>
-                <div>
-                    <dt>Output Data</dt>
-                    <dd>
-                        <ul>
-                            <li *ngFor="let dataRef of timelineStep.outputData">
-                                <a
-                                    [routerLink]="['/experiments', experimentId, 'data', dataRef.name, {version: dataRef.version}]">
-                                    {{dataRef.name}} (version {{dataRef.version}})
-                                </a>
-                            </li>
-                        </ul>
-                    </dd>
-                </div>
             </dl>
         </mat-card-content>
     </mat-card>
+    <h2>Output</h2>
+    <qhana-preview-list [dataList]="timelineStep.outputData ?? []"></qhana-preview-list>
+    <ng-container *ngIf="timelineStep.inputData != null && timelineStep.inputData.length > 0">
+        <h2>Input</h2>
+        <qhana-preview-list [dataList]="timelineStep.inputData ?? []"></qhana-preview-list>
+    </ng-container>
 </div>
