@@ -11,6 +11,13 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
+## Development server in docker container
+
+Build the image with: `docker build -t qhana-ui .`
+
+Run a container with this image and bind it to port 4200 with `docker run -p 4200:4200 qhana-ui` if you want to run the container detached add the flag `-d`.
+
+
 ## Code scaffolding
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
