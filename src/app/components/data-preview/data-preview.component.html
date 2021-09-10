@@ -5,10 +5,11 @@
                 <iframe class="preview-frame" [src]="dataUrl" frameborder="0" sandbox></iframe>
             </div>
             <div *ngSwitchCase="'text/html'">
-                <iframe class="preview-frame" [src]="dataUrl" frameborder="0" sandbox></iframe>
+                <iframe class="preview-frame large-content" [src]="dataUrl" frameborder="0"
+                    sandbox="allow-forms allow-scripts"></iframe>
             </div>
             <div *ngSwitchCase="'image/*'">
-                <img class="preview-image" [src]="dataUrl">
+                <img class="preview-image large-content" [src]="dataUrl">
             </div>
             <div *ngSwitchDefault>No Preview</div>
         </ng-container>
