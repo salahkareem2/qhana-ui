@@ -116,6 +116,11 @@ export class TimelineStepComponent implements OnInit {
                 return;
             }
             this.timelineStep = step;
+            if (step.end != null) {
+                // step is fully realized, no need to watch
+                stepSubscription?.unsubscribe();
+                this.watching = null;
+            }
         }, err => {
             this.watching = "error";
         });
