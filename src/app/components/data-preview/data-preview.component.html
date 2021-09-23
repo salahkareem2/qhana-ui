@@ -6,7 +6,7 @@
             </div>
             <div *ngSwitchCase="'text/html'">
                 <iframe class="preview-frame large-content" [src]="dataUrl" frameborder="0"
-                    sandbox="allow-forms allow-scripts"></iframe>
+                    sandbox="allow-forms allow-scripts" allow="fullscreen"></iframe>
             </div>
             <div *ngSwitchCase="'image/*'">
                 <img class="preview-image large-content" [src]="dataUrl">
