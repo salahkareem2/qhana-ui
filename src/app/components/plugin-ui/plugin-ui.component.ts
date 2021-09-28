@@ -128,7 +128,7 @@ export class PluginUiComponent implements OnInit, OnDestroy, OnChanges {
             formAction = new URL(submitter.formAction);
             formMethod = submitter.formMethod ?? formMethod;
         }
-        if (formAction.pathname.startsWith('/experiments/') || formAction.pathname.endsWith('/ui/') || formAction.pathname.endsWith('/ui')) {
+        if (formAction.pathname.startsWith('/experiments/') || formAction.pathname.endsWith('/ui/') || formAction.pathname.endsWith('/ui') || formAction.pathname === '/') {
             this.updateMicroFrontend(formData, formMethod);
         } else {
             this.submitMicroFrontend(formAction, formData, privateInputs, dataInputs);
