@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, from, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { catchError, concatMap, debounceTime, filter, mergeAll, mergeMap, take, throttleTime } from 'rxjs/operators';
@@ -10,7 +10,7 @@ import { QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qha
     templateUrl: './timeline-step.component.html',
     styleUrls: ['./timeline-step.component.sass']
 })
-export class TimelineStepComponent implements OnInit {
+export class TimelineStepComponent implements OnInit, OnDestroy {
 
     private routeSubscription: Subscription | null = null;
     private stepSubscription: Subscription | null = null;

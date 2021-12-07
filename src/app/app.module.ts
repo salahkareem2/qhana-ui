@@ -45,7 +45,7 @@ import { ExperimentComponent } from './components/experiment/experiment.componen
 import { ExperimentsPageComponent } from './components/experiments-page/experiments-page.component';
 import { MarkdownComponent } from './components/markdown/markdown.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
-import { PluginUiComponent } from './components/plugin-ui/plugin-ui.component';
+import { PluginUiframeComponent } from './components/plugin-uiframe/plugin-uiframe.component';
 import { PreviewListComponent } from './components/preview-list/preview-list.component';
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
@@ -65,12 +65,12 @@ import { CreateExperimentDialog } from './dialogs/create-experiment/create-exper
         ExperimentTimelineComponent,
         DataDetailComponent,
         CreateExperimentDialog,
-        PluginUiComponent,
         TimelineStepComponent,
         SettingsPageComponent,
         DataPreviewComponent,
         PreviewListComponent,
         MarkdownComponent,
+        PluginUiframeComponent,
     ],
     imports: [
         BrowserModule,
