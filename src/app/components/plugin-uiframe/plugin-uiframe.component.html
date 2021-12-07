@@ -1,0 +1,4 @@
+<mat-card [hidden]="frontendUrl == null">
+    <iframe seamless class="frontend-frame" [src]="frontendUrl" frameborder="0" scroll="no" [height]="frontendHeight"
+        sandbox="allow-forms allow-scripts allow-same-origin" allow="fullscreen" #uiframe></iframe>
+</mat-card>

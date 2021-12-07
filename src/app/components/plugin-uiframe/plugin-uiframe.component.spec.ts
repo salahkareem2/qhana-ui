@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PluginUiComponent } from './plugin-ui.component';
+import { PluginUiframeComponent } from './plugin-uiframe.component';
 
 
-describe('PluginUiComponent', () => {
-    let component: PluginUiComponent;
-    let fixture: ComponentFixture<PluginUiComponent>;
+describe('PluginUiframeComponent', () => {
+    let component: PluginUiframeComponent;
+    let fixture: ComponentFixture<PluginUiframeComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [PluginUiComponent]
+            declarations: [PluginUiframeComponent]
         })
             .compileComponents();
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(PluginUiComponent);
+        fixture = TestBed.createComponent(PluginUiframeComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
