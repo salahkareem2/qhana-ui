@@ -49,6 +49,9 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     frontendUrl: SafeResourceUrl;
     frontendHeight: number = 100;
 
+    loading: boolean = true;
+    error: { code: number, status: string } | null = null;
+
     listenerAbortController = new AbortController();
 
     constructor(private sanitizer: DomSanitizer) {
@@ -99,8 +102,12 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 styles.forEach((styleElement) => {
                     styleUrls.push(styleElement.href.toString());
                 })
-                console.log(styles);
                 this.sendMessage({ type: "load-css", "urls": styleUrls });
+                this.loading = false;
+            }
+            if (data === "ui-loading") {
+                this.loading = true;
+                this.uiframe?.nativeElement?.blur();
             }
         } else { // assume object message
             if (data?.type === "ui-resize") {
@@ -111,6 +118,12 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                     return;
                 }
                 this.formDataSubmit.emit(data);
+            }
+            if (data?.type === "form-error") {
+                this.loading = false;
+                if (data.error?.code != null && data.error?.status != null) {
+                    this.error = data.error;
+                }
             }
         }
         console.log(event.data) // TODO  remove later

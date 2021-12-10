@@ -1,4 +1,28 @@
+.microfrontend-container
+    position: relative
 
 .frontend-frame
     width: calc(100% + 32px)
     margin: -16px
+
+.ui-loading-blend
+    position: absolute
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+    display: flex
+    align-items: center
+    justify-content: center
+    background-color: var(--text-light-secondary)
+    backdrop-filter: blur(3px)
+
+.ui-error-blend
+    position: absolute
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+    padding: 1.5rem
+    background-color: var(--text-light-primary)
+    color: var(--warn-text)
