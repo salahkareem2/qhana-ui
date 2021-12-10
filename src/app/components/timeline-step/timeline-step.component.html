@@ -46,7 +46,7 @@
             </dl>
         </mat-card-content>
     </mat-card>
-    <div class="notes-title">
+    <div class="notes-title" *ngIf="timelineStep.status !== 'PENDING'">
         <h2>Notes</h2>
         <div class="notes-status" *ngIf="notesStatus === 'changed'">
             <span>pending changes</span>
@@ -57,7 +57,7 @@
             <mat-icon aria-hidden="true">checkmark</mat-icon>
         </div>
     </div>
-    <mat-card>
+    <mat-card *ngIf="timelineStep.status !== 'PENDING'">
         <mat-card-content>
             <qhana-markdown [markdown]="stepNotes" (markdownChanges)="triggerNoteAutosave($event)" [editable]="true"
                 [hidden]="timelineStep == null || timelineStep.status === 'PENDING'" *ngIf="stepNotes != null">
