@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 export interface FormSubmitData {
@@ -36,26 +36,34 @@ function isFormSubmitData(data: any): data is FormSubmitData {
     templateUrl: './plugin-uiframe.component.html',
     styleUrls: ['./plugin-uiframe.component.sass']
 })
-export class PluginUiframeComponent implements OnInit, OnChanges, OnDestroy {
+export class PluginUiframeComponent implements OnChanges, OnDestroy {
 
     @ViewChild('uiframe', { static: true }) uiframe: ElementRef | null = null;
 
     @Input() url: string | null = null;
     @Output() formDataSubmit: EventEmitter<FormSubmitData> = new EventEmitter();
 
+    blank: SafeResourceUrl;
+
     pluginOrigin: string | null = null;
-    frontendUrl: SafeResourceUrl | null = null;
+    frontendUrl: SafeResourceUrl;
     frontendHeight: number = 100;
 
     listenerAbortController = new AbortController();
 
-    constructor(private sanitizer: DomSanitizer) { }
-
-    ngOnInit(): void {
-        (window as any).addEventListener("message", (event: MessageEvent) => { this.handleMicroFrontendEvent(event); }, { signal: this.listenerAbortController.signal });
+    constructor(private sanitizer: DomSanitizer) {
+        this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about//blank");
+        this.frontendUrl = this.blank;
+        // see workaround in app.component.ts before fiddling with this event listener!
+        (window as any).addEventListener(
+            "message",
+            (event: MessageEvent) => this.handleMicroFrontendEvent(event),
+            { signal: this.listenerAbortController.signal }
+        );
     }
 
     ngOnDestroy(): void {
+        // see workaround in app.component.ts before fiddling with this event listener!
         this.listenerAbortController.abort();
     }
 
@@ -63,7 +71,7 @@ export class PluginUiframeComponent implements OnInit, OnChanges, OnDestroy {
         const url: string | null = this.url;
         if (url == null) {
             this.pluginOrigin = null;
-            this.frontendUrl = null;
+            this.frontendUrl = this.blank;
             this.frontendHeight = 100;
             return;
         }
@@ -73,7 +81,8 @@ export class PluginUiframeComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private sendMessage(message: any) {
-        this.uiframe?.nativeElement.contentWindow.postMessage(message, this.pluginOrigin);
+        const iframe: HTMLIFrameElement | null = this.uiframe?.nativeElement ?? null;
+        iframe?.contentWindow?.postMessage?.(message, this.pluginOrigin ?? "*");
     }
 
     private handleMicroFrontendEvent(event: MessageEvent) {
