@@ -1,0 +1,35 @@
+<h1 mat-dialog-title>Choose data</h1>
+<div mat-dialog-content>
+    <div>
+        <p>Accepts: {{data.acceptedDataType}} –
+            <span *ngFor="let contentType of data.acceptedContentTypes; let last=last;">
+                {{contentType}}{{last ? "" : " | "}}
+            </span>
+        </p>
+        <mat-paginator (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="pageSize"
+            [pageIndex]="currentPage" [pageSizeOptions]="[10, 5, 25, 100]" aria-label="Select page">
+        </mat-paginator>
+        <mat-selection-list [multiple]="false" color="primary" #selection>
+            <mat-list-option *ngFor="let data of dataList" [disabled]="!matching.has(data['@self'])" [value]="data">
+                <p>
+                    <span class="bold">
+                        {{data.name}}
+                    </span>
+                    <span>
+                        (v{{data.version}})
+                    </span>
+                    <span class="italic ml2">
+                        {{data.type}} – {{data.contentType}}
+                    </span>
+                </p>
+            </mat-list-option>
+        </mat-selection-list>
+    </div>
+</div>
+<div class="dialog-actions" mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-button [mat-dialog-close]="selection.selectedOptions.selected[0]?.value"
+        [disabled]="selection.selectedOptions.isEmpty()">
+        Choose
+    </button>
+</div>

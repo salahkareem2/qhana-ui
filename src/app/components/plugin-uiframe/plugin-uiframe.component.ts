@@ -1,5 +1,8 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
+import { ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 export interface FormSubmitData {
     type: "form-submit";
@@ -30,6 +33,32 @@ function isFormSubmitData(data: any): data is FormSubmitData {
     return true;
 }
 
+interface DataUrlRequest {
+    type: "request-data-url";
+    inputKey: string;
+    acceptedInputType: string;
+    acceptedContentTypes: string[];
+}
+
+function isDataUrlRequest(data: any): data is DataUrlRequest {
+    if (data == null) {
+        return false;
+    }
+    if (data.type !== "request-data-url") {
+        return false;
+    }
+    if (data.inputKey == null || data.acceptedInputType == null || data.acceptedContentTypes == null) {
+        return false;
+    }
+    if (typeof data.inputKey !== "string" || typeof data.acceptedInputType !== "string") {
+        return false;
+    }
+    if (!Array.isArray(data.acceptedContentTypes)) {
+        return false;
+    }
+    return true;
+}
+
 
 @Component({
     selector: 'qhana-plugin-uiframe',
@@ -54,7 +83,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
 
     listenerAbortController = new AbortController();
 
-    constructor(private sanitizer: DomSanitizer) {
+    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService) {
         this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about//blank");
         this.frontendUrl = this.blank;
         // see workaround in app.component.ts before fiddling with this event listener!
@@ -81,6 +110,26 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         this.pluginOrigin = (new URL(url)).origin;
         this.frontendHeight = 100;
         this.frontendUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+
+    private selectInputData(request: DataUrlRequest) {
+        // TODO
+        const dialogRef = this.dialog.open(ChooseDataComponent, { data: { acceptedDataType: request.acceptedInputType, acceptedContentTypes: request.acceptedContentTypes } });
+        dialogRef.afterClosed().subscribe((result: ExperimentDataApiObject) => {
+            let url = result.download;
+            if (url.startsWith("/")) {
+                url = this.backend.backendRootUrl + url;
+            }
+            this.sendMessage({
+                type: "data-url-response",
+                inputKey: request.inputKey,
+                href: url,
+                dataType: result.type,
+                contentType: result.contentType,
+                filename: result.name,
+                version: result.version,
+            });
+        });
     }
 
     private sendMessage(message: any) {
@@ -124,6 +173,12 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 if (data.error?.code != null && data.error?.status != null) {
                     this.error = data.error;
                 }
+            }
+            if (data?.type === "request-data-url") {
+                if (!isDataUrlRequest(data)) {
+                    return;
+                }
+                this.selectInputData(data);
             }
         }
         console.log(event.data) // TODO  remove later

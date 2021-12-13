@@ -50,6 +50,7 @@ import { PreviewListComponent } from './components/preview-list/preview-list.com
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
+import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component';
 
 
 
@@ -71,6 +72,7 @@ import { CreateExperimentDialog } from './dialogs/create-experiment/create-exper
         PreviewListComponent,
         MarkdownComponent,
         PluginUiframeComponent,
+        ChooseDataComponent,
     ],
     imports: [
         BrowserModule,
