@@ -16,8 +16,8 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, from, Observable } from 'rxjs';
-import { catchError, map, mergeAll, mergeMap, toArray } from 'rxjs/operators';
+import { BehaviorSubject, from, Observable, of } from 'rxjs';
+import { catchError, filter, map, mergeAll, mergeMap, toArray } from 'rxjs/operators';
 import { QhanaBackendService } from './qhana-backend.service';
 
 export interface PluginDescription {
@@ -56,7 +56,7 @@ export class PluginsService {
         }
         this.loading = true;
         this.backend.getPluginEndpoints().subscribe(pluginEndpoints => {
-            var observables: Observable<QhanaPlugin>[] = [];
+            var observables: Observable<QhanaPlugin | "error">[] = [];
             pluginEndpoints.items.map(pluginEndpoint => {
                 if (pluginEndpoint.type === "PluginRunner") {
                     observables.push(this.loadPluginsFromPluginRunner(pluginEndpoint.url));
@@ -75,6 +75,10 @@ export class PluginsService {
                                 metadata: pluginMetadata,
                             };
                         }),
+                        catchError(err => {
+                            console.log(err);
+                            return of<"error">("error"); // error sentinel
+                        })
                     );
                     observables.push(observable);
                 } else {
@@ -83,6 +87,8 @@ export class PluginsService {
             });
             from(observables).pipe(
                 mergeAll(),
+                // filter out all plugins that could not be loaded because of some error (i.e. filter out all error sentinel values left)
+                filter<QhanaPlugin | "error", QhanaPlugin>((value): value is QhanaPlugin => value !== "error"),
                 toArray(),
             ).subscribe(plugins => {
                 plugins.sort((a, b) => {
@@ -107,10 +113,15 @@ export class PluginsService {
         });
     }
 
-    private loadPluginsFromPluginRunner(pluginRunnerUrl: string) {
+    private loadPluginsFromPluginRunner(pluginRunnerUrl: string): Observable<QhanaPlugin | "error"> {
         return this.http.get<{ plugins: PluginDescription[] }>(`${pluginRunnerUrl}/plugins`).pipe(
             mergeMap(pluginsResponse => from(pluginsResponse.plugins)),
-            mergeMap(plugin => this.loadPluginMetadata(plugin)),
+            mergeMap(plugin => {
+                return this.loadPluginMetadata(plugin).pipe(catchError(err => {
+                    console.log(err);
+                    return of<"error">("error"); // error sentinel
+                }));
+            }),
             catchError(err => {
                 console.log(err);
                 return [];
@@ -118,7 +129,7 @@ export class PluginsService {
         );
     }
 
-    private loadPluginMetadata(plugin: PluginDescription) {
+    private loadPluginMetadata(plugin: PluginDescription): Observable<QhanaPlugin> {
         return this.http.get<QhanaPlugin>(plugin.apiRoot).pipe(
             map(pluginMetadata => {
                 return {
