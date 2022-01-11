@@ -69,7 +69,6 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
             inputData: formData.dataInputs,
             parameters: formData.formData,
             parametersContentType: formData.formDataType,
-            parametersDescriptionLocation: formData.microfrontendUrl ?? frontendUrl,
             processorLocation: plugin.url,
             processorName: plugin.pluginDescription.name,
             processorVersion: plugin.pluginDescription.version,

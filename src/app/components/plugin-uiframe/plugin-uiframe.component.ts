@@ -11,7 +11,6 @@ export interface FormSubmitData {
     dataInputs: string[];
     submitUrl: string;
     resultUrl: string;
-    microfrontendUrl?: string;
 }
 
 function isFormSubmitData(data: any): data is FormSubmitData {
@@ -107,6 +106,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             this.frontendHeight = 100;
             return;
         }
+        this.loading = true;
         this.pluginOrigin = (new URL(url)).origin;
         this.frontendHeight = 100;
         this.frontendUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
