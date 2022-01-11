@@ -64,7 +64,6 @@ export interface TimelineStepPostData {
     processorLocation: string;
     parameters: string;
     parametersContentType: string;
-    parametersDescriptionLocation: string;
 };
 
 export interface TimelineStepApiObject extends ApiObject {
