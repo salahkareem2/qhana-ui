@@ -17,6 +17,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
 
     experimentId: string | null = null;
 
+    searchValue: string = "";
     pluginList: Observable<QhanaPlugin[]> | null = null;
 
     activePlugin: QhanaPlugin | null = null;
