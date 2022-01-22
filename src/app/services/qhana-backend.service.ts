@@ -66,6 +66,17 @@ export interface TimelineStepPostData {
     parametersContentType: string;
 };
 
+
+export interface TimelineSubStepApiObject { // FIXME in backend: extends ApiObject
+    substepNr: number;
+    stepId: number;
+    inputData: string[]; // TODO check this later
+    substepId?: string;
+    href: string;
+    hrefUi?: string;
+    cleared: number; // FIXME fix this once the API correctly returns booleans...
+}
+
 export interface TimelineStepApiObject extends ApiObject {
     sequence: number;
     start: string;
@@ -78,9 +89,13 @@ export interface TimelineStepApiObject extends ApiObject {
     processorLocation: string;
     parameters: string;
     parametersContentType: string;
-    parametersDescriptionLocation: string;
     inputData?: ExperimentDataRef[];
     outputData?: ExperimentDataRef[];
+    progressStart?: number;
+    progressTarget?: number;
+    progressValue?: number;
+    progressUnit?: string;
+    substeps?: TimelineSubStepApiObject[],
 }
 
 export interface TimelineStepNotesApiObject extends ApiObject {
