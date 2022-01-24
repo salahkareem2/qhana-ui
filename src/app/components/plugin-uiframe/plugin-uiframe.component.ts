@@ -80,6 +80,8 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     loading: boolean = true;
     error: { code: number, status: string } | null = null;
 
+    private dialogActive = false;
+
     listenerAbortController = new AbortController();
 
     constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService) {
@@ -113,9 +115,16 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     }
 
     private selectInputData(request: DataUrlRequest) {
-        // TODO
+        if (this.dialogActive) {
+            return; // only ever show one dialog at a time
+        }
+        this.dialogActive = true;
         const dialogRef = this.dialog.open(ChooseDataComponent, { data: { acceptedDataType: request.acceptedInputType, acceptedContentTypes: request.acceptedContentTypes } });
         dialogRef.afterClosed().subscribe((result: ExperimentDataApiObject) => {
+            this.dialogActive = false;
+            if (result == null) {
+                return; // nothing was selected
+            }
             let url = result.download;
             if (url.startsWith("/")) {
                 url = this.backend.backendRootUrl + url;
