@@ -1,5 +1,5 @@
-import { Component, Input, OnChanges } from '@angular/core';
-import { TimelineSubStepApiObject } from 'src/app/services/qhana-backend.service';
+import { Component, Input } from '@angular/core';
+import { QhanaBackendService, TimelineSubStepApiObject, TimelineSubStepPostData } from 'src/app/services/qhana-backend.service';
 import { FormSubmitData } from '../plugin-uiframe/plugin-uiframe.component';
 
 @Component({
@@ -7,22 +7,28 @@ import { FormSubmitData } from '../plugin-uiframe/plugin-uiframe.component';
     templateUrl: './timeline-substeps.component.html',
     styleUrls: ['./timeline-substeps.component.sass']
 })
-export class TimelineSubstepsComponent implements OnChanges {
+export class TimelineSubstepsComponent {
 
+    @Input() experimentId: string | number | null = null;
     @Input() substeps: TimelineSubStepApiObject[] = [];
     @Input() parentFinished: boolean = false;
 
-    constructor() { }
-
-    ngOnChanges(): void {
-    }
+    constructor(private backend: QhanaBackendService) { }
 
 
     trackByFunction(index: number, substep: TimelineSubStepApiObject): number {
         return substep.substepNr;
     }
 
-    onPluginUiFormSubmit(formData: FormSubmitData) {
-        // TODO save substep input data
+    onPluginUiFormSubmit(formData: FormSubmitData, substep: TimelineSubStepApiObject) {
+        if (this.experimentId == null) {
+            return; // cannot save parameters as important URL components are missing!
+        }
+        const data: TimelineSubStepPostData = {
+            inputData: formData.dataInputs,
+            parameters: formData.formData,
+            parametersContentType: formData.formDataType,
+        };
+        this.backend.saveSubStepInputData(this.experimentId, substep.stepId, substep.substepNr, data).subscribe();
     }
 }

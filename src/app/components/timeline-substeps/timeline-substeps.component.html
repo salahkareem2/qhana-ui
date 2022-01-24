@@ -8,7 +8,7 @@
             </mat-panel-title>
         </mat-expansion-panel-header>
         <div *ngIf="!parentFinished && !step.cleared && step.hrefUi">
-            <qhana-plugin-uiframe [url]="step.hrefUi" (formDataSubmit)="onPluginUiFormSubmit($event)">
+            <qhana-plugin-uiframe [url]="step.hrefUi" (formDataSubmit)="onPluginUiFormSubmit($event, step)">
             </qhana-plugin-uiframe>
         </div>
         <p *ngIf="!parentFinished && !step.cleared && !step.hrefUi">
@@ -16,8 +16,7 @@
             (href: {{step.href}})
         </p>
         <div *ngIf="parentFinished || step.cleared">
-            <!-- todo input and output data -->
-            {{step|json}}
+            <qhana-substeps-details [experimentId]="experimentId" [substepRef]="step"></qhana-substeps-details>
         </div>
     </mat-expansion-panel>
 </mat-accordion>

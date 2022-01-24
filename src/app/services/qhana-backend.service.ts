@@ -66,6 +66,12 @@ export interface TimelineStepPostData {
     parametersContentType: string;
 };
 
+export interface TimelineSubStepPostData {
+    inputData: string[];
+    parameters: string;
+    parametersContentType: string;
+};
+
 
 export interface TimelineSubStepApiObject { // FIXME in backend: extends ApiObject
     substepNr: number;
@@ -232,5 +238,13 @@ export class QhanaBackendService {
 
     public saveTimelineStepNotes(experimentId: number | string, step: number | string, notes: string): Observable<TimelineStepNotesApiObject> {
         return this.http.put<TimelineStepNotesApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline/${step}/notes`, { notes: notes });
+    }
+
+    public saveSubStepInputData(experimentId: number | string, step: number | string, substep: number | string, data: TimelineSubStepPostData): Observable<TimelineSubStepApiObject> {
+        return this.http.post<TimelineSubStepApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`, data);
+    }
+
+    public getTimelineSubStep(experimentId: number | string, step: number | string, substep: number | string): Observable<TimelineSubStepApiObject> {
+        return this.http.get<TimelineSubStepApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`);
     }
 }

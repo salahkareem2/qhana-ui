@@ -54,6 +54,8 @@ import { TimelineStepComponent } from './components/timeline-step/timeline-step.
 import { TimelineSubstepsComponent } from './components/timeline-substeps/timeline-substeps.component';
 import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
+import { SubstepsDetailsComponent } from './components/substeps-details/substeps-details.component';
+import { StepStatusComponent } from './components-small/step-status/step-status.component';
 
 
 
@@ -77,6 +79,8 @@ import { CreateExperimentDialog } from './dialogs/create-experiment/create-exper
         PluginUiframeComponent,
         ChooseDataComponent,
         TimelineSubstepsComponent,
+        SubstepsDetailsComponent,
+        StepStatusComponent,
     ],
     imports: [
         BrowserModule,
