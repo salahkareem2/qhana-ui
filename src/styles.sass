@@ -13,8 +13,8 @@ $my-theme: mat.define-light-theme((color: (primary: $my-primary,accent: $my-acce
 
 @include mat.all-component-themes($my-theme)
 
-//expose the as css variables to be used in other styles
-:root
+//expose the as css variables to be used in other styles (.root to get higher specificity than milkdown css)
+:root.root
     --primary: #{mat.get-color-from-palette($my-primary, 'default')}
     --primary-darker: #{mat.get-color-from-palette($my-primary, 'darker')}
     --primary-lighter: #{mat.get-color-from-palette($my-primary, 'lighter')}
@@ -63,6 +63,9 @@ body
     margin: 0
     font-family: Roboto, "Helvetica Neue", sans-serif
 
+::selection
+    background: var(--primary-lighter)
+
 ////////////////////////////////////////////////////////////////////////////////
 // top level classes applying to all components ////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,9 +105,29 @@ body
 // Milkdown markdown content
 
 .markdown-wrapper > .milkdown
+    --typography: Roboto,HelveticaNeue-Light,Helvetica Neue Light,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif
+    --code: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace
+    --radius: 4px
+    --lineWidth: 1px
+
+.markdown-wrapper > .milkdown
     max-width: revert
     padding: revert
     box-shadow: revert
+    color: var(--text-primary)
+    background: var(--text-light-primary)
+    font-family: var(--typography)
+    margin-left: auto
+    margin-right: auto
+
+.markdown-wrapper > .milkdown > .editor > *
+    margin-block: inherit
+
+.markdown-wrapper > .milkdown ::selection
+    background: var(--primary-lighter)
+
+.milkdown > .editor > *
+    margin-block: 0.3rem
 
 .milkdown .slash-dropdown
     z-index: 1
@@ -150,6 +173,20 @@ body
     content: none
     margin-inline: 0.2em
     opacity: 0.5
+
+.milkdown .blockquote
+    border-left: 4px solid var(--primary)
+
+.milkdown .link
+    color: var(--primary)
+
+.milkdown .link:hover
+    color: var(--primary-darker)
+    box-shadow: unset
+    background-color: var(--primary-lighter)
+
+.milkdown .link:focus,.milkdown .link:active
+    color: var(--primary-darker)
 
 // qhana form inputs (from micro frontends)
 
