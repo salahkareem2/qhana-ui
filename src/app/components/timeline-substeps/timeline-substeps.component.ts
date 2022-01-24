@@ -10,6 +10,7 @@ import { FormSubmitData } from '../plugin-uiframe/plugin-uiframe.component';
 export class TimelineSubstepsComponent implements OnChanges {
 
     @Input() substeps: TimelineSubStepApiObject[] = [];
+    @Input() parentFinished: boolean = false;
 
     constructor() { }
 

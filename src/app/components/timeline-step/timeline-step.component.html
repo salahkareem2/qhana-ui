@@ -89,7 +89,7 @@
         <qhana-preview-list [dataList]="timelineStep.inputData ?? []"></qhana-preview-list>
     </ng-container>
     <qhana-timeline-substeps class="timeline-substeps" [substeps]="substeps"
-        *ngIf="substeps != null && substeps.length > 0">
+        [parentFinished]="timelineStep.status !== 'PENDING'" *ngIf="substeps != null && substeps.length > 0">
     </qhana-timeline-substeps>
     <div class="scroll-spacer"></div>
 </div>
