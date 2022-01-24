@@ -13,8 +13,8 @@ $my-theme: mat.define-light-theme((color: (primary: $my-primary,accent: $my-acce
 
 @include mat.all-component-themes($my-theme)
 
-//expose the as css variables to be used in other styles (.root to get higher specificity than milkdown css)
-:root.root
+//expose the as css variables to be used in other styles (second :root.root to get higher specificity than milkdown css which also defines --primary
+:root, :root.root
     --primary: #{mat.get-color-from-palette($my-primary, 'default')}
     --primary-darker: #{mat.get-color-from-palette($my-primary, 'darker')}
     --primary-lighter: #{mat.get-color-from-palette($my-primary, 'lighter')}
@@ -264,10 +264,14 @@ form.qhana-form
 .qhana-choose-file-button:focus-visible
     outline: 4px solid var(--accent-darker, black)
 
-.qhana-error-message
+.qhana-input-description
     @include mat.typography-level($my-typography, 'body-1')
+
+.qhana-input-description p
+    margin-block: 0.1em
+
+.qhana-error-message
     color: var(--warn-text, red)
-    margin-block-start: 0px
 
 .plugin-micro-frontend
     @include mat.typography-level($my-typography, 'body-1')
