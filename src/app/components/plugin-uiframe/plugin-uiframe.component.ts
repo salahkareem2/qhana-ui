@@ -58,6 +58,28 @@ function isDataUrlRequest(data: any): data is DataUrlRequest {
     return true;
 }
 
+interface DataUrlInfoRequest {
+    type: "request-data-url";
+    inputKey: string;
+    dataUrl: string;
+}
+
+function isDataUrlInfoRequest(data: any): data is DataUrlInfoRequest {
+    if (data == null) {
+        return false;
+    }
+    if (data.type !== "request-data-url-info") {
+        return false;
+    }
+    if (data.inputKey == null || data.dataUrl == null) {
+        return false;
+    }
+    if (typeof data.inputKey !== "string" || typeof data.dataUrl !== "string") {
+        return false;
+    }
+    return true;
+}
+
 
 @Component({
     selector: 'qhana-plugin-uiframe',
@@ -85,7 +107,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     listenerAbortController = new AbortController();
 
     constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService) {
-        this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about//blank");
+        this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about://blank");
         this.frontendUrl = this.blank;
         // see workaround in app.component.ts before fiddling with this event listener!
         (window as any).addEventListener(
@@ -141,6 +163,29 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         });
     }
 
+    private handleInputDataInfoRequest(request: DataUrlInfoRequest) {
+        // http://localhost:9090/experiments/1/data/out.txt/download?version=2
+        if (!request.dataUrl.startsWith(this.backend.backendRootUrl)) {
+            return; // unknown data source
+        }
+        const dataUrl = new URL(request.dataUrl);
+        const pathMatch = dataUrl.pathname.match(/^\/experiments\/([0-9]+)\/data\/([^\/\s]+)\/download\/?$/);
+        const versionMatch = dataUrl.searchParams.get("version");
+        if (pathMatch && pathMatch[1] != null && pathMatch[2] != null && versionMatch != null) {
+            this.backend.getExperimentData(pathMatch[1], pathMatch[2], versionMatch).subscribe(dataResult => {
+                this.sendMessage({
+                    type: "data-url-response",
+                    inputKey: request.inputKey,
+                    href: request.dataUrl,
+                    dataType: dataResult.type,
+                    contentType: dataResult.contentType,
+                    filename: dataResult.name,
+                    version: dataResult.version,
+                });
+            });
+        }
+    }
+
     private sendMessage(message: any) {
         const iframe: HTMLIFrameElement | null = this.uiframe?.nativeElement ?? null;
         iframe?.contentWindow?.postMessage?.(message, this.pluginOrigin ?? "*");
@@ -189,7 +234,18 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 }
                 this.selectInputData(data);
             }
+            if (data?.type === "request-data-url-info") {
+                if (!isDataUrlInfoRequest(data)) {
+                    return;
+                }
+                this.handleInputDataInfoRequest(data);
+            }
+            if (data.type === "request-plugin-url") {
+                console.log(data) //TODO
+            }
+            if (data.type === "request-plugin-url-info") {
+                console.log(data) //TODO
+            }
         }
-        console.log(event.data) // TODO  remove later
     }
 }
