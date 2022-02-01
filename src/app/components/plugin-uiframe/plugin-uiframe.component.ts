@@ -104,22 +104,19 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
 
     private dialogActive = false;
 
-    listenerAbortController = new AbortController();
+    listenerFunction = (event: MessageEvent) => this.handleMicroFrontendEvent(event);
 
     constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService) {
         this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about://blank");
         this.frontendUrl = this.blank;
-        // see workaround in app.component.ts before fiddling with this event listener!
-        (window as any).addEventListener(
+        window.addEventListener(
             "message",
-            (event: MessageEvent) => this.handleMicroFrontendEvent(event),
-            { signal: this.listenerAbortController.signal }
+            this.listenerFunction,
         );
     }
 
     ngOnDestroy(): void {
-        // see workaround in app.component.ts before fiddling with this event listener!
-        this.listenerAbortController.abort();
+        window.removeEventListener("message", this.listenerFunction);
     }
 
     ngOnChanges(changes: SimpleChanges): void {

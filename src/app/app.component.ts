@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
     selector: 'qhana-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.sass']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
     title = 'QHAna';
-
-    ngOnInit(): void {
-        (window as any).addEventListener("message", (event: MessageEvent) => {
-            // workaround for microfrontend bug
-            // one listener must always be listening for message events to avoid
-            // a bug where cancelling a listener with an abort signal prevents
-            // future event listeners from working
-        }, { passive: true });
-    }
 }
