@@ -8,13 +8,13 @@
             <mat-card-content>
                 <mat-form-field class="mat-form form-field short-field">
                     <mat-label>Search plugins</mat-label>
-                    <input [(ngModel)]="searchValue" matInput>
+                    <input [(ngModel)]="searchValue" (ngModelChange)="changeFilterPluginList()" matInput>
                 </mat-form-field>
                 <mat-action-list class="card-list">
                     <button
                         [ngClass]="{'active-list-item': plugin.pluginDescription.identifier === activePlugin?.pluginDescription?.identifier}"
                         mat-list-item (click)="changeActivePlugin(plugin)"
-                        *ngFor="let plugin of pluginList | async | pluginFilter:searchValue">
+                        *ngFor="let plugin of filteredPluginList | async">
                         {{plugin.metadata.title ?? plugin.pluginDescription.name}}
                         (@{{plugin.pluginDescription.version}})
                     </button>

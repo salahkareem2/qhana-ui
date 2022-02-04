@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
+import { map } from "rxjs/operators";
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
 import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
@@ -19,6 +20,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
 
     searchValue: string = "";
     pluginList: Observable<QhanaPlugin[]> | null = null;
+    filteredPluginList: Observable<QhanaPlugin[]> | null = null;
 
     activePlugin: QhanaPlugin | null = null;
     frontendUrl: string | null = null;
@@ -32,10 +34,34 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
         });
         this.plugins.loadPlugins();
         this.pluginList = this.plugins.plugins;
+        this.filteredPluginList = this.pluginList;
     }
 
     ngOnDestroy(): void {
         this.routeSubscription?.unsubscribe();
+    }
+
+    changeFilterPluginList(): void {
+        let searchValue: string = this.searchValue.toLowerCase();
+        if (this.pluginList == null || !this.searchValue || this.searchValue.trim() === "") {
+            this.filteredPluginList = this.pluginList;
+        } else {
+            if (this.pluginList !== null && this.searchValue) {
+                this.pluginList.pipe(
+                    map(pluginList =>
+                        pluginList.filter(plugin => {
+                            console.log(plugin.metadata);
+                            return (plugin.pluginDescription.name.toLowerCase().includes(searchValue) ||
+                                plugin.pluginDescription.apiRoot.toLowerCase().includes(searchValue) ||
+                                plugin.pluginDescription.version.toLowerCase().includes(searchValue) ||
+                                plugin.pluginDescription.identifier.toLowerCase().includes(searchValue) ||
+                                (plugin.metadata.title && plugin.metadata.title.toLowerCase().includes(searchValue)) ||
+                                (plugin.metadata.tags && plugin.metadata.tags.some((tag: string) => tag.toLowerCase().includes(searchValue))))
+                        })
+                    )
+                ).subscribe(pluginList => this.filteredPluginList = of(pluginList));
+            }
+        }
     }
 
     changeActivePlugin(plugin: QhanaPlugin) {

@@ -51,7 +51,6 @@ import { SettingsPageComponent } from './components/settings-page/settings-page.
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
 import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component';
-import { PluginFilterPipe } from './components/experiment-workspace/plugin-filter.pipe';
 
 
 
@@ -74,7 +73,6 @@ import { PluginFilterPipe } from './components/experiment-workspace/plugin-filte
         MarkdownComponent,
         PluginUiframeComponent,
         ChooseDataComponent,
-        PluginFilterPipe,
     ],
     imports: [
         BrowserModule,

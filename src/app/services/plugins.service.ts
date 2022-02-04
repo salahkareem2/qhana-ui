@@ -105,7 +105,7 @@ export class PluginsService {
                         return -1;
                     }
                     return 0;
-                })
+                });
                 this.pluginList = plugins;
                 this.pluginsSubject.next(plugins);
                 this.loading = false;
