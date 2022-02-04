@@ -58,6 +58,31 @@ function isDataUrlRequest(data: any): data is DataUrlRequest {
     return true;
 }
 
+<<<<<<< HEAD
+=======
+interface DataUrlInfoRequest {
+    type: "request-data-url";
+    inputKey: string;
+    dataUrl: string;
+}
+
+function isDataUrlInfoRequest(data: any): data is DataUrlInfoRequest {
+    if (data == null) {
+        return false;
+    }
+    if (data.type !== "request-data-url-info") {
+        return false;
+    }
+    if (data.inputKey == null || data.dataUrl == null) {
+        return false;
+    }
+    if (typeof data.inputKey !== "string" || typeof data.dataUrl !== "string") {
+        return false;
+    }
+    return true;
+}
+
+>>>>>>> origin/feature/microfrontend-refactor
 
 @Component({
     selector: 'qhana-plugin-uiframe',
@@ -80,6 +105,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     loading: boolean = true;
     error: { code: number, status: string } | null = null;
 
+<<<<<<< HEAD
     listenerAbortController = new AbortController();
 
     constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService) {
@@ -90,12 +116,28 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             "message",
             (event: MessageEvent) => this.handleMicroFrontendEvent(event),
             { signal: this.listenerAbortController.signal }
+=======
+    private dialogActive = false;
+
+    listenerFunction = (event: MessageEvent) => this.handleMicroFrontendEvent(event);
+
+    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService) {
+        this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about://blank");
+        this.frontendUrl = this.blank;
+        window.addEventListener(
+            "message",
+            this.listenerFunction,
+>>>>>>> origin/feature/microfrontend-refactor
         );
     }
 
     ngOnDestroy(): void {
+<<<<<<< HEAD
         // see workaround in app.component.ts before fiddling with this event listener!
         this.listenerAbortController.abort();
+=======
+        window.removeEventListener("message", this.listenerFunction);
+>>>>>>> origin/feature/microfrontend-refactor
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -113,9 +155,22 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     }
 
     private selectInputData(request: DataUrlRequest) {
+<<<<<<< HEAD
         // TODO
         const dialogRef = this.dialog.open(ChooseDataComponent, { data: { acceptedDataType: request.acceptedInputType, acceptedContentTypes: request.acceptedContentTypes } });
         dialogRef.afterClosed().subscribe((result: ExperimentDataApiObject) => {
+=======
+        if (this.dialogActive) {
+            return; // only ever show one dialog at a time
+        }
+        this.dialogActive = true;
+        const dialogRef = this.dialog.open(ChooseDataComponent, { data: { acceptedDataType: request.acceptedInputType, acceptedContentTypes: request.acceptedContentTypes } });
+        dialogRef.afterClosed().subscribe((result: ExperimentDataApiObject) => {
+            this.dialogActive = false;
+            if (result == null) {
+                return; // nothing was selected
+            }
+>>>>>>> origin/feature/microfrontend-refactor
             let url = result.download;
             if (url.startsWith("/")) {
                 url = this.backend.backendRootUrl + url;
@@ -132,6 +187,32 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         });
     }
 
+<<<<<<< HEAD
+=======
+    private handleInputDataInfoRequest(request: DataUrlInfoRequest) {
+        // http://localhost:9090/experiments/1/data/out.txt/download?version=2
+        if (!request.dataUrl.startsWith(this.backend.backendRootUrl)) {
+            return; // unknown data source
+        }
+        const dataUrl = new URL(request.dataUrl);
+        const pathMatch = dataUrl.pathname.match(/^\/experiments\/([0-9]+)\/data\/([^\/\s]+)\/download\/?$/);
+        const versionMatch = dataUrl.searchParams.get("version");
+        if (pathMatch && pathMatch[1] != null && pathMatch[2] != null && versionMatch != null) {
+            this.backend.getExperimentData(pathMatch[1], pathMatch[2], versionMatch).subscribe(dataResult => {
+                this.sendMessage({
+                    type: "data-url-response",
+                    inputKey: request.inputKey,
+                    href: request.dataUrl,
+                    dataType: dataResult.type,
+                    contentType: dataResult.contentType,
+                    filename: dataResult.name,
+                    version: dataResult.version,
+                });
+            });
+        }
+    }
+
+>>>>>>> origin/feature/microfrontend-refactor
     private sendMessage(message: any) {
         const iframe: HTMLIFrameElement | null = this.uiframe?.nativeElement ?? null;
         iframe?.contentWindow?.postMessage?.(message, this.pluginOrigin ?? "*");
@@ -180,7 +261,23 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 }
                 this.selectInputData(data);
             }
+<<<<<<< HEAD
         }
         console.log(event.data) // TODO  remove later
+=======
+            if (data?.type === "request-data-url-info") {
+                if (!isDataUrlInfoRequest(data)) {
+                    return;
+                }
+                this.handleInputDataInfoRequest(data);
+            }
+            if (data.type === "request-plugin-url") {
+                console.log(data) //TODO
+            }
+            if (data.type === "request-plugin-url-info") {
+                console.log(data) //TODO
+            }
+        }
+>>>>>>> origin/feature/microfrontend-refactor
     }
 }

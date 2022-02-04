@@ -22,11 +22,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCommonModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -49,8 +51,11 @@ import { PluginUiframeComponent } from './components/plugin-uiframe/plugin-uifra
 import { PreviewListComponent } from './components/preview-list/preview-list.component';
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
-import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
+import { TimelineSubstepsComponent } from './components/timeline-substeps/timeline-substeps.component';
 import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component';
+import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
+import { SubstepsDetailsComponent } from './components/substeps-details/substeps-details.component';
+import { StepStatusComponent } from './components-small/step-status/step-status.component';
 
 
 
@@ -73,6 +78,9 @@ import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component
         MarkdownComponent,
         PluginUiframeComponent,
         ChooseDataComponent,
+        TimelineSubstepsComponent,
+        SubstepsDetailsComponent,
+        StepStatusComponent,
     ],
     imports: [
         BrowserModule,
@@ -94,6 +102,8 @@ import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component
         MatIconModule,
         MatSelectModule,
         MatProgressSpinnerModule,
+        MatProgressBarModule,
+        MatExpansionModule,
     ],
     providers: [
         { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: "outline" } }

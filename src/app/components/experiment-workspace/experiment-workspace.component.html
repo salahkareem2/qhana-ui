@@ -13,8 +13,12 @@
                 <mat-action-list class="card-list">
                     <button
                         [ngClass]="{'active-list-item': plugin.pluginDescription.identifier === activePlugin?.pluginDescription?.identifier}"
+<<<<<<< HEAD
                         mat-list-item (click)="changeActivePlugin(plugin)"
                         *ngFor="let plugin of filteredPluginList | async">
+=======
+                        mat-list-item (click)="changeActivePlugin(plugin)" *ngFor="let plugin of pluginList | async">
+>>>>>>> origin/feature/microfrontend-refactor
                         {{plugin.metadata.title ?? plugin.pluginDescription.name}}
                         (@{{plugin.pluginDescription.version}})
                     </button>
@@ -39,7 +43,9 @@
                             <mat-chip color="primary">{{activePlugin.metadata.pluginType ?? 'unknown'}}</mat-chip>
                             <mat-chip *ngFor="let tag of (activePlugin.metadata.tags ?? [])">{{tag}}</mat-chip>
                         </mat-chip-list>
-                        <p>{{activePlugin.metadata.description}}</p>
+                        <qhana-markdown class="plugin-description" [markdown]="activePlugin.metadata.description"
+                            [editable]="false">
+                        </qhana-markdown>
                     </mat-card-content>
                 </mat-card>
                 <qhana-plugin-uiframe [url]="frontendUrl" (formDataSubmit)="onPluginUiFormSubmit($event)">
