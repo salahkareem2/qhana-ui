@@ -1,0 +1,13 @@
+<mat-card class="microfrontend-container" [hidden]="frontendUrl === blank">
+    <iframe seamless class="frontend-frame" [src]="frontendUrl" frameborder="0" scroll="no" [height]="frontendHeight"
+        sandbox="allow-forms allow-scripts allow-same-origin" allow="fullscreen" #uiframe></iframe>
+    <div class="ui-loading-blend" *ngIf="loading">
+        <mat-spinner class="notes-content-spinner" mode="indeterminate" strokeWidth="5" color="primary">
+        </mat-spinner>
+    </div>
+    <div class="ui-error-blend" *ngIf="error != null">
+        <h3>Error</h3>
+        <p>{{error.status}}</p>
+        <button mat-stroked-button color="warn" (click)="error=null">dismiss</button>
+    </div>
+</mat-card>

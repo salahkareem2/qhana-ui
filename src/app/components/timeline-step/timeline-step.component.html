@@ -4,7 +4,7 @@
     <mat-card class="experiment-card">
         <mat-card-title class="t-headline flex-title">
             Step {{timelineStep.sequence}} ({{timelineStep.processorName}}@{{timelineStep.processorVersion}})
-            <span [hidden]="timelineStep.status !== 'PENDING'">PENDING</span>
+            <qhana-step-status [step]="timelineStep" [noText]="true"></qhana-step-status>
             <div class="spacer"></div>
             <span class="t-subheading clickable" (click)="restartWatching()" *ngIf="timelineStep?.end == null">
                 {{watching}}
@@ -17,16 +17,23 @@
         <mat-card-content>
             <dl class="step-details">
                 <div>
-                    <dt>Processor</dt>
-                    <dd>{{timelineStep.processorName}} (version {{timelineStep.processorVersion}})</dd>
-                </div>
-                <div>
-                    <dt>Processor Location</dt>
-                    <dd>{{timelineStep.processorLocation}}</dd>
-                </div>
-                <div>
                     <dt>Status</dt>
-                    <dd>{{timelineStep.status}}</dd>
+                    <dd>
+                        <qhana-step-status [step]="timelineStep"></qhana-step-status>
+                    </dd>
+                </div>
+                <div *ngIf="stepProgress != null">
+                    <dt>Progress</dt>
+                    <dd>
+                        <div class="step-progress">
+                            <mat-progress-bar class="progress-meter" mode="determinate" color="primary"
+                                [value]="((stepProgress.value-stepProgress.start) / (stepProgress.target-stepProgress.start)) * 100">
+                            </mat-progress-bar>
+                            <span [hidden]="stepProgress.unit == null">
+                                {{stepProgress.value}}/{{stepProgress.target}} {{stepProgress.unit}}
+                            </span>
+                        </div>
+                    </dd>
                 </div>
                 <div *ngIf="timelineStep.status === 'PENDING'">
                     <dt>Started at</dt>
@@ -40,13 +47,21 @@
                     </dd>
                 </div>
                 <div>
+                    <dt>Processor</dt>
+                    <dd>{{timelineStep.processorName}} (version {{timelineStep.processorVersion}})</dd>
+                </div>
+                <div>
+                    <dt>Processor Location</dt>
+                    <dd>{{timelineStep.processorLocation}}</dd>
+                </div>
+                <div>
                     <dt>Result Log</dt>
                     <dd>{{timelineStep.resultLog}}</dd>
                 </div>
             </dl>
         </mat-card-content>
     </mat-card>
-    <div class="notes-title">
+    <div class="notes-title" *ngIf="timelineStep.status !== 'PENDING'">
         <h2>Notes</h2>
         <div class="notes-status" *ngIf="notesStatus === 'changed'">
             <span>pending changes</span>
@@ -57,7 +72,7 @@
             <mat-icon aria-hidden="true">checkmark</mat-icon>
         </div>
     </div>
-    <mat-card>
+    <mat-card *ngIf="timelineStep.status !== 'PENDING'">
         <mat-card-content>
             <qhana-markdown [markdown]="stepNotes" (markdownChanges)="triggerNoteAutosave($event)" [editable]="true"
                 [hidden]="timelineStep == null || timelineStep.status === 'PENDING'" *ngIf="stepNotes != null">
@@ -75,5 +90,8 @@
         <h2>Input</h2>
         <qhana-preview-list [dataList]="timelineStep.inputData ?? []"></qhana-preview-list>
     </ng-container>
+    <qhana-timeline-substeps class="timeline-substeps" [substeps]="substeps" [experimentId]="experimentId"
+        [parentFinished]="timelineStep.status !== 'PENDING'" *ngIf="substeps != null && substeps.length > 0">
+    </qhana-timeline-substeps>
     <div class="scroll-spacer"></div>
 </div>

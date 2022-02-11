@@ -13,8 +13,8 @@ $my-theme: mat.define-light-theme((color: (primary: $my-primary,accent: $my-acce
 
 @include mat.all-component-themes($my-theme)
 
-//expose the as css variables to be used in other styles
-:root
+//expose the as css variables to be used in other styles (second :root.root to get higher specificity than milkdown css which also defines --primary
+:root, :root.root
     --primary: #{mat.get-color-from-palette($my-primary, 'default')}
     --primary-darker: #{mat.get-color-from-palette($my-primary, 'darker')}
     --primary-lighter: #{mat.get-color-from-palette($my-primary, 'lighter')}
@@ -63,6 +63,9 @@ body
     margin: 0
     font-family: Roboto, "Helvetica Neue", sans-serif
 
+::selection
+    background: var(--primary-lighter)
+
 ////////////////////////////////////////////////////////////////////////////////
 // top level classes applying to all components ////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,12 +96,38 @@ body
 .scroll-spacer
     height: 20vh
 
+.bold
+    font-weight: 500
+
+.italic
+    font-style: italic
+
 // Milkdown markdown content
+
+.markdown-wrapper > .milkdown
+    --typography: Roboto,HelveticaNeue-Light,Helvetica Neue Light,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif
+    --code: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace
+    --radius: 4px
+    --lineWidth: 1px
 
 .markdown-wrapper > .milkdown
     max-width: revert
     padding: revert
     box-shadow: revert
+    color: var(--text-primary)
+    background: var(--text-light-primary)
+    font-family: var(--typography)
+    margin-left: auto
+    margin-right: auto
+
+.markdown-wrapper > .milkdown > .editor > *
+    margin-block: inherit
+
+.markdown-wrapper > .milkdown ::selection
+    background: var(--primary-lighter)
+
+.milkdown > .editor > *
+    margin-block: 0.3rem
 
 .milkdown .slash-dropdown
     z-index: 1
@@ -145,6 +174,20 @@ body
     margin-inline: 0.2em
     opacity: 0.5
 
+.milkdown .blockquote
+    border-left: 4px solid var(--primary)
+
+.milkdown .link
+    color: var(--primary)
+
+.milkdown .link:hover
+    color: var(--primary-darker)
+    box-shadow: unset
+    background-color: var(--primary-lighter)
+
+.milkdown .link:focus,.milkdown .link:active
+    color: var(--primary-darker)
+
 // qhana form inputs (from micro frontends)
 
 form.qhana-form
@@ -154,12 +197,11 @@ form.qhana-form
     @include mat.typography-level($my-typography, 'body-1')
     font-weight: 500
     padding-inline-start: 0.5rem
-    color: var(--outline-color, currentColor)
+    color: var(--border-color, currentColor)
 
 .qhana-form-input, input.qhana-form-input, select.qhana-form-input, textarea.qhana-form-input
-    border: 2px solid var(--outline-color, currentColor)
+    border: 2px solid var(--border-color, currentColor)
     border-radius: 5px
-    width: 100%
     max-width: initial
     box-sizing: border-box
     padding-inline: 0.5rem
@@ -170,13 +212,16 @@ form.qhana-form
 
 .qhana-form-field
     margin-block-end: 0.8rem
-    --outline-color: var(--text-secondary, #333)
+    --border-color: var(--text-secondary, #333)
 
 .qhana-form-field:hover:not(:focus-within)
-    --outline-color: var(--text-primary, black)
+    --border-color: var(--text-primary, black)
 
 .qhana-form-field:focus-within
-    --outline-color: var(--primary, black)
+    --border-color: var(--primary, black)
+
+.qhana-form-input:focus-visible
+    outline: 4px solid var(--accent-darker, black)
 
 .qhana-form-submit
     margin: 0.4rem
@@ -197,10 +242,36 @@ form.qhana-form
 .qhana-form-submit:focus-visible
     outline: 4px solid var(--accent-darker, black)
 
-.qhana-error-message
+.qhana-choose-file-button
+    padding-inline: 0.5rem
+    padding-block: 1.3ex
+    color: var(--primary, purple)
+    background-color: var(--text-light-primary, white)
+    cursor: pointer
+    outline: none
+    border: 2px solid var(--primary, purple)
+    border-radius: 4px
+    font-weight: 500
+
+.qhana-choose-file-button:hover
+    background-color: var(--primary, purple)
+    color: var(--text-light-primary, white)
+
+.qhana-choose-file-button:active
+    background-color: var(--primary-lighter, purple)
+    color: var(--text-dark-primary, black)
+
+.qhana-choose-file-button:focus-visible
+    outline: 4px solid var(--accent-darker, black)
+
+.qhana-input-description
     @include mat.typography-level($my-typography, 'body-1')
+
+.qhana-input-description p
+    margin-block: 0.1em
+
+.qhana-error-message
     color: var(--warn-text, red)
-    margin-block-start: 0px
 
 .plugin-micro-frontend
     @include mat.typography-level($my-typography, 'body-1')

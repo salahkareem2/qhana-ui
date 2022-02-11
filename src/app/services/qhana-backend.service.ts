@@ -64,8 +64,24 @@ export interface TimelineStepPostData {
     processorLocation: string;
     parameters: string;
     parametersContentType: string;
-    parametersDescriptionLocation: string;
 };
+
+export interface TimelineSubStepPostData {
+    inputData: string[];
+    parameters: string;
+    parametersContentType: string;
+};
+
+
+export interface TimelineSubStepApiObject { // FIXME in backend: extends ApiObject
+    substepNr: number;
+    stepId: number;
+    inputData: string[]; // TODO check this later
+    substepId?: string;
+    href: string;
+    hrefUi?: string;
+    cleared: number; // FIXME fix this once the API correctly returns booleans...
+}
 
 export interface TimelineStepApiObject extends ApiObject {
     sequence: number;
@@ -79,9 +95,13 @@ export interface TimelineStepApiObject extends ApiObject {
     processorLocation: string;
     parameters: string;
     parametersContentType: string;
-    parametersDescriptionLocation: string;
     inputData?: ExperimentDataRef[];
     outputData?: ExperimentDataRef[];
+    progressStart?: number;
+    progressTarget?: number;
+    progressValue?: number;
+    progressUnit?: string;
+    substeps?: TimelineSubStepApiObject[],
 }
 
 export interface TimelineStepNotesApiObject extends ApiObject {
@@ -176,7 +196,7 @@ export class QhanaBackendService {
     }
 
     public getExperimentDataPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentDataApiObject>> {
-        return this.http.get<ApiObjectList<ExperimentDataApiObject>>(`${this.rootUrl}/experiments/${experimentId}/data`);
+        return this.http.get<ApiObjectList<ExperimentDataApiObject>>(`${this.rootUrl}/experiments/${experimentId}/data?page=${page}&item-count=${itemCount}`);
     }
 
     public getExperimentData(experimentId: number | string, dataName: string, version: string = "latest"): Observable<ExperimentDataApiObject> {
@@ -201,7 +221,7 @@ export class QhanaBackendService {
     }
 
     public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<TimelineStepApiObject>> {
-        return this.http.get<ApiObjectList<TimelineStepApiObject>>(`${this.rootUrl}/experiments/${experimentId}/timeline`);
+        return this.http.get<ApiObjectList<TimelineStepApiObject>>(`${this.rootUrl}/experiments/${experimentId}/timeline?page=${page}&item-count=${itemCount}`);
     }
 
     public createTimelineStep(experimentId: number | string, stepData: TimelineStepPostData): Observable<TimelineStepApiObject> {
@@ -218,5 +238,13 @@ export class QhanaBackendService {
 
     public saveTimelineStepNotes(experimentId: number | string, step: number | string, notes: string): Observable<TimelineStepNotesApiObject> {
         return this.http.put<TimelineStepNotesApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline/${step}/notes`, { notes: notes });
+    }
+
+    public saveSubStepInputData(experimentId: number | string, step: number | string, substep: number | string, data: TimelineSubStepPostData): Observable<TimelineSubStepApiObject> {
+        return this.http.post<TimelineSubStepApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`, data);
+    }
+
+    public getTimelineSubStep(experimentId: number | string, step: number | string, substep: number | string): Observable<TimelineSubStepApiObject> {
+        return this.http.get<TimelineSubStepApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`);
     }
 }

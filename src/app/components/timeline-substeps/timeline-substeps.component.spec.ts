@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PluginUiComponent } from './plugin-ui.component';
+import { TimelineSubstepsComponent } from './timeline-substeps.component';
 
 
-describe('PluginUiComponent', () => {
-    let component: PluginUiComponent;
-    let fixture: ComponentFixture<PluginUiComponent>;
+describe('TimelineSubstepsComponent', () => {
+    let component: TimelineSubstepsComponent;
+    let fixture: ComponentFixture<TimelineSubstepsComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [PluginUiComponent]
+            declarations: [TimelineSubstepsComponent]
         })
             .compileComponents();
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(PluginUiComponent);
+        fixture = TestBed.createComponent(TimelineSubstepsComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

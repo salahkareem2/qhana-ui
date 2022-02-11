@@ -1,16 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, from, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { catchError, concatMap, debounceTime, filter, mergeAll, mergeMap, take, throttleTime } from 'rxjs/operators';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
-import { QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
+import { QhanaBackendService, TimelineStepApiObject, TimelineSubStepApiObject } from 'src/app/services/qhana-backend.service';
+
+interface Progress {
+    start: number;
+    target: number;
+    value: number;
+    unit?: string;
+}
 
 @Component({
     selector: 'qhana-timeline-step',
     templateUrl: './timeline-step.component.html',
     styleUrls: ['./timeline-step.component.sass']
 })
-export class TimelineStepComponent implements OnInit {
+export class TimelineStepComponent implements OnInit, OnDestroy {
 
     private routeSubscription: Subscription | null = null;
     private stepSubscription: Subscription | null = null;
@@ -29,6 +36,8 @@ export class TimelineStepComponent implements OnInit {
     experimentId: string = "";
 
     timelineStep: TimelineStepApiObject | null = null;
+    stepProgress: Progress | null = null;
+    substeps: TimelineSubStepApiObject[] | null = null;
     stepNotes: string | null = null;
 
     notesStatus: "original" | "changed" | "saved" = "original";
@@ -138,6 +147,8 @@ export class TimelineStepComponent implements OnInit {
                 return;
             }
             this.timelineStep = stepApiObject;
+            this.stepProgress = this.getStepProgress(stepApiObject);
+            this.substeps = stepApiObject.substeps ?? null;
             if (stepApiObject.end != null) {
                 this.loadNotes(experimentId, step);
                 // step is fully realized, no need to watch
@@ -148,6 +159,21 @@ export class TimelineStepComponent implements OnInit {
             this.watching = "error";
         });
         this.stepSubscription = stepSubscription;
+    }
+
+    private getStepProgress(step: TimelineStepApiObject): Progress | null {
+        if (step.progressStart != null && step.progressTarget != null && step.progressValue != null) {
+            const progress: Progress = {
+                start: step.progressStart,
+                target: step.progressTarget,
+                value: step.progressValue,
+            };
+            if (step.progressUnit) {
+                progress.unit = step.progressUnit;
+            }
+            return progress;
+        }
+        return null;
     }
 
     loadNotes(experimentId: number | string, step: string) {

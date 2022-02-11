@@ -9,7 +9,7 @@
                 <mat-action-list class="card-list">
                     <button
                         [ngClass]="{'active-list-item': plugin.pluginDescription.identifier === activePlugin?.pluginDescription?.identifier}"
-                        mat-list-item (click)="activePlugin=plugin" *ngFor="let plugin of pluginList | async">
+                        mat-list-item (click)="changeActivePlugin(plugin)" *ngFor="let plugin of pluginList | async">
                         {{plugin.metadata.title ?? plugin.pluginDescription.name}}
                         (@{{plugin.pluginDescription.version}})
                     </button>
@@ -34,10 +34,13 @@
                             <mat-chip color="primary">{{activePlugin.metadata.pluginType ?? 'unknown'}}</mat-chip>
                             <mat-chip *ngFor="let tag of (activePlugin.metadata.tags ?? [])">{{tag}}</mat-chip>
                         </mat-chip-list>
-                        <p>{{activePlugin.metadata.description}}</p>
+                        <qhana-markdown class="plugin-description" [markdown]="activePlugin.metadata.description"
+                            [editable]="false">
+                        </qhana-markdown>
                     </mat-card-content>
                 </mat-card>
-                <qhana-plugin-ui [plugin]="activePlugin"></qhana-plugin-ui>
+                <qhana-plugin-uiframe [url]="frontendUrl" (formDataSubmit)="onPluginUiFormSubmit($event)">
+                </qhana-plugin-uiframe>
             </div>
             <div class="scroll-spacer"></div>
         </div>

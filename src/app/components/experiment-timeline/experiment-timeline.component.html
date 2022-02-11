@@ -8,18 +8,20 @@
                 <a class="t-headline title-link"
                     [routerLink]="['/experiments', experimentId, 'timeline', step.sequence]">
                     Step {{step.sequence}} ({{step.processorName}}@{{step.processorVersion}})
-                    <span [hidden]="step.status !== 'PENDING'">PENDING</span>
                 </a>
+                <qhana-step-status [step]="step" [noText]="step.status !== 'PENDING'" [spinner]="0"></qhana-step-status>
             </mat-card-title>
             <mat-card-content>
                 <dl class="step-details">
                     <div>
-                        <dt>Processor</dt>
-                        <dd>{{step.processorName}} (version {{step.processorVersion}})</dd>
+                        <dt>Status</dt>
+                        <dd>
+                            <qhana-step-status [step]="step"></qhana-step-status>
+                        </dd>
                     </div>
                     <div>
-                        <dt>Status</dt>
-                        <dd>{{step.status}}</dd>
+                        <dt>Processor</dt>
+                        <dd>{{step.processorName}} (version {{step.processorVersion}})</dd>
                     </div>
                     <div *ngIf="step.status === 'PENDING'">
                         <dt>Started at</dt>
