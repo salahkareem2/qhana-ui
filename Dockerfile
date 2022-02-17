@@ -10,6 +10,8 @@ RUN npm clean-install && npm run build
 # Actual docker container using output from builder
 FROM nginx:stable-alpine
 
+LABEL org.opencontainers.image.source="hhttps://github.com/UST-QuAntiL/qhana-ui"
+
 WORKDIR /usr/share/nginx/html
 
 ## add permissions for nginx user
