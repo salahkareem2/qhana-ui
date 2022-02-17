@@ -1,7 +1,7 @@
 <qhana-experiment-nav active="workspace"></qhana-experiment-nav>
 <div class="workspace-content">
     <div class="sidebar-container">
-        <mat-card class="sidebar">
+        <mat-card class="sidebar card">
             <mat-card-title>
                 <h3>Plugins</h3>
             </mat-card-title>
@@ -24,7 +24,7 @@
                 <p>Choose a plugin.</p>
             </div>
             <div *ngIf="activePlugin != null">
-                <mat-card class="plugin-details">
+                <mat-card class="plugin-details card">
                     <mat-card-title>
                         <h2 class="t-title">{{activePlugin.metadata.title ?? activePlugin.pluginDescription.name}}
                             (@{{activePlugin.pluginDescription.version}})</h2>

@@ -1,4 +1,4 @@
-<mat-card class="data-preview" *ngIf="dataUrl != null && effectiveMimetype != null">
+<mat-card class="data-preview card" *ngIf="dataUrl != null && effectiveMimetype != null">
     <mat-card-content>
         <ng-container [ngSwitch]="effectiveMimetype">
             <div *ngSwitchCase="'text/*'">

@@ -10,15 +10,23 @@ $my-accent: mat.define-palette(mat.$amber-palette, A200, A100, A400)
 $my-warn: mat.define-palette(mat.$red-palette)
 
 $my-theme: mat.define-light-theme((color: (primary: $my-primary,accent: $my-accent,warn: $my-warn,)))
+$my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-accent,warn: $my-warn,)))
 
 @include mat.all-component-themes($my-theme)
 
 //expose the as css variables to be used in other styles (second :root.root to get higher specificity than milkdown css which also defines --primary
 :root, :root.root
+    --background: #{mat.get-color-from-palette(mat.$light-theme-background-palette, 'background')}
+    --border-color: #aaa
+    --text: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'text')}
+    --text-inv: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'text')}
+    --text-washed: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'secondary-text')}
+    --text-disabled: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'disabled-text')}
     --primary: #{mat.get-color-from-palette($my-primary, 'default')}
     --primary-darker: #{mat.get-color-from-palette($my-primary, 'darker')}
     --primary-lighter: #{mat.get-color-from-palette($my-primary, 'lighter')}
     --primary-text: #{mat.get-color-from-palette($my-primary, 'text')}
+    --primary-text-visited: #{mat.get-color-from-palette($my-primary, 'darker')}
     --accent: #{mat.get-color-from-palette($my-accent, 'default')}
     --accent-darker: #{mat.get-color-from-palette($my-accent, 'darker')}
     --accent-lighter: #{mat.get-color-from-palette($my-accent, 'lighter')}
@@ -27,12 +35,68 @@ $my-theme: mat.define-light-theme((color: (primary: $my-primary,accent: $my-acce
     --warn-darker: #{mat.get-color-from-palette($my-warn, 'darker')}
     --warn-lighter: #{mat.get-color-from-palette($my-warn, 'lighter')}
     --warn-text: #{mat.get-color-from-palette($my-warn, 'text')}
-    --text-primary: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'text')}
-    --text-secondary: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'secondary-text')}
-    --text-disabled: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'disabled-text')}
-    --text-light-primary: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'text')}
-    --text-light-secondary: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'secondary-text')}
-    --text-light-disabled: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'disabled-text')}
+    --text-primary: #{mat.get-color-from-palette($my-primary, 'default-contrast')}
+    --text-primary-lighter: var(--text, black)
+    --text-primary-darker: var(--text-primary)
+    --text-accent: #{mat.get-color-from-palette($my-accent, 'default-contrast')}
+    //--text-accent-lighter: #{mat.get-color-from-palette($my-accent, 'lighter-contrast'}
+    //--text-accent-darker: #{mat.get-color-from-palette($my-accent, 'darker-contrast'}
+    --text-warn: #{mat.get-color-from-palette($my-warn, 'default-contrast')}
+    //--text-warn-lighter: #{mat.get-color-from-palette($my-warn, 'lighter-contrast'}
+    //--text-warn-darker: #{mat.get-color-from-palette($my-warn, 'darker-contrast'}
+    // line is for milkdown
+    --line: 150,150,150
+
+.mat-card
+    --background: #{mat.get-color-from-palette(mat.$light-theme-background-palette, 'card')}
+
+.mat-dialog
+    --background: #{mat.get-color-from-palette(mat.$light-theme-background-palette, 'dialog')}
+
+@media (prefers-color-scheme: dark)
+    :root, :root.root
+        @include mat.all-component-themes($my-dark-theme)
+        --background: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'background')}
+        --border-color: #555
+        --text: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'text')}
+        --text-inv: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'text')}
+        --text-washed: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'secondary-text')}
+        --text-disabled: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'disabled-text')}
+        --primary: #{mat.get-color-from-palette($my-primary, 'default')}
+        --primary-darker: #{mat.get-color-from-palette($my-primary, 'darker')}
+        --primary-lighter: #{mat.get-color-from-palette($my-primary, 'lighter')}
+        --primary-text: #{mat.get-color-from-palette($my-primary, A100)}
+        --primary-text-visited: #{mat.get-color-from-palette($my-primary, A200)}
+        --accent: #{mat.get-color-from-palette($my-accent, 'default')}
+        --accent-darker: #{mat.get-color-from-palette($my-accent, 'darker')}
+        --accent-lighter: #{mat.get-color-from-palette($my-accent, 'lighter')}
+        --accent-text: #{mat.get-color-from-palette($my-accent, 'text')}
+        --warn: #{mat.get-color-from-palette($my-warn, 'default')}
+        --warn-darker: #{mat.get-color-from-palette($my-warn, 'darker')}
+        --warn-lighter: #{mat.get-color-from-palette($my-warn, 'lighter')}
+        --warn-text: #{mat.get-color-from-palette($my-warn, 'text')}
+        --text-primary: #{mat.get-color-from-palette($my-primary, 'default-contrast')}
+        --text-primary-lighter: var(--text-inv, black)
+        --text-primary-darker: var(--text-primary)
+        --text-accent: #{mat.get-color-from-palette($my-accent, 'default-contrast')}
+        //--text-accent-lighter: #{mat.get-color-from-palette($my-accent, 'lighter-contrast'}
+        //--text-accent-darker: #{mat.get-color-from-palette($my-accent, 'darker-contrast'}
+        --text-warn: #{mat.get-color-from-palette($my-warn, 'default-contrast')}
+        //--text-warn-lighter: #{mat.get-color-from-palette($my-warn, 'lighter-contrast'}
+        //--text-warn-darker: #{mat.get-color-from-palette($my-warn, 'darker-contrast'}
+        // line is for milkdown
+        --line: 170,170,170
+
+    .mat-card
+        --background: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'card')}
+        --border-color: #888
+
+    .mat-dialog
+        --background: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'dialog')}
+
+    .card.mat-card
+        box-shadow: none
+        border: 2px solid var(--border-color)
 
 $my-typography: mat.define-typography-config()
 
@@ -56,15 +120,33 @@ $my-typography: mat.define-typography-config()
 .t-paragraph
     @include mat.typography-level($my-typography, 'body-1')
 
+.text
+    color: var(--text, black)
+
+.text-primary
+    color: var(--text-primary)
+
+.text-light-primary
+    color: var(--text-light-primary)
+
 html, body
     height: 100%
 
 body
     margin: 0
     font-family: Roboto, "Helvetica Neue", sans-serif
+    background-color: var(--background, white)
+    color: var(--text, black)
+
+a
+    color: var(--primary-text)
+
+a:hover, a:visited
+    color: var(--primary-text-visited)
 
 ::selection
-    background: var(--primary-lighter)
+    background-color: var(--primary-lighter)
+    color: var(--text-primary-lighter, black)
 
 ////////////////////////////////////////////////////////////////////////////////
 // top level classes applying to all components ////////////////////////////////
@@ -88,10 +170,10 @@ body
     gap: 1rem
 
 .title-link
-    color: var(--primary)
+    color: var(--primary-text)
 
 .title-link:visited
-    color: var(--primary-darker)
+    color: var(--primary-text-visited)
 
 .scroll-spacer
     height: 20vh
@@ -102,6 +184,11 @@ body
 .italic
     font-style: italic
 
+// material extra styles
+.card.mat-card
+    color: var(--text)
+    background-color: var(--background)
+
 // Milkdown markdown content
 
 .markdown-wrapper > .milkdown
@@ -110,21 +197,28 @@ body
     --radius: 4px
     --lineWidth: 1px
 
+.milkdown .ProseMirror-selectednode
+    outline: var(--lineWidth) solid var(--border-color)
+
 .markdown-wrapper > .milkdown
     max-width: revert
     padding: revert
     box-shadow: revert
-    color: var(--text-primary)
-    background: var(--text-light-primary)
+    color: var(--text)
+    background: var(--background)
     font-family: var(--typography)
     margin-left: auto
     margin-right: auto
+
+.markdown-wrapper > .milkdown > .editor
+    padding: unset
 
 .markdown-wrapper > .milkdown > .editor > *
     margin-block: inherit
 
 .markdown-wrapper > .milkdown ::selection
     background: var(--primary-lighter)
+    color: var(--text-primary-lighter)
 
 .milkdown > .editor > *
     margin-block: 0.3rem
@@ -178,15 +272,47 @@ body
     border-left: 4px solid var(--primary)
 
 .milkdown .link
-    color: var(--primary)
+    color: var(--primary-text)
 
 .milkdown .link:hover
-    color: var(--primary-darker)
+    color: var(--primary-text-visited)
     box-shadow: unset
-    background-color: var(--primary-lighter)
 
 .milkdown .link:focus,.milkdown .link:active
-    color: var(--primary-darker)
+    color: var(--primary-text-visited)
+
+.milkdown .code-fence
+    .token.comment
+        color: var(--text-washed)
+
+    .token.punctuation
+        color: var(--accent)
+        font-weight: bolder
+
+    .token.function
+        color: var(--accent)
+        font-weight: bolder
+
+    .token.operator
+        color: var(--accent)
+        font-weight: bolder
+
+    .token.keyword
+        color: var(--accent-darker)
+        font-weight: bold
+
+    .token.builtin
+        color: var(--accent)
+        font-weight: bolder
+
+    .token.property
+        color: var(--primary-text)
+
+    .token.number
+        color: var(--primary-text)
+
+    .token.string
+        color: var(--primary-text)
 
 // qhana form inputs (from micro frontends)
 
@@ -200,6 +326,8 @@ form.qhana-form
     color: var(--border-color, currentColor)
 
 .qhana-form-input, input.qhana-form-input, select.qhana-form-input, textarea.qhana-form-input
+    color: var(--text)
+    background-color: var(--background)
     border: 2px solid var(--border-color, currentColor)
     border-radius: 5px
     max-width: initial
@@ -212,13 +340,13 @@ form.qhana-form
 
 .qhana-form-field
     margin-block-end: 0.8rem
-    --border-color: var(--text-secondary, #333)
+    --border-color: var(--text-washed, #333)
 
 .qhana-form-field:hover:not(:focus-within)
-    --border-color: var(--text-primary, black)
+    --border-color: var(--text, black)
 
 .qhana-form-field:focus-within
-    --border-color: var(--primary, black)
+    --border-color: var(--primary-text, black)
 
 .qhana-form-input:focus-visible
     outline: 4px solid var(--accent-darker, black)
@@ -227,7 +355,7 @@ form.qhana-form
     margin: 0.4rem
     padding-inline: 1em
     background-color: var(--primary, purple)
-    color: var(--text-light-primary, white)
+    color: var(--text-primary, white)
     cursor: pointer
     outline: none
     border: none
@@ -245,17 +373,17 @@ form.qhana-form
 .qhana-choose-file-button
     padding-inline: 0.5rem
     padding-block: 1.3ex
-    color: var(--primary, purple)
-    background-color: var(--text-light-primary, white)
+    color: var(--primary-text, purple)
+    background-color: var(--background, white)
     cursor: pointer
     outline: none
-    border: 2px solid var(--primary, purple)
+    border: 2px solid var(--primary-text, purple)
     border-radius: 4px
     font-weight: 500
 
 .qhana-choose-file-button:hover
     background-color: var(--primary, purple)
-    color: var(--text-light-primary, white)
+    color: var(--text-primary, white)
 
 .qhana-choose-file-button:active
     background-color: var(--primary-lighter, purple)

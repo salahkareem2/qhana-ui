@@ -1,7 +1,7 @@
 <qhana-experiment-nav active="data"></qhana-experiment-nav>
 <div class="big-content" *ngIf="data != null">
     <h1 class="t-page-headline">Data</h1>
-    <mat-card class="data-card">
+    <mat-card class="data-card card">
         <mat-card-title class="t-headline">{{data?.name}}</mat-card-title>
         <mat-card-content>
             <dl class="data-details">
@@ -20,7 +20,8 @@
                 <div>
                     <dt>Dowload link</dt>
                     <dd>
-                        <a [href]="downloadUrl" target="_blank" rel="noopener noreferrer" mat-flat-button>
+                        <a class="download-button" [href]="downloadUrl" target="_blank" rel="noopener noreferrer"
+                            mat-flat-button>
                             Dowload as File
                         </a>
                     </dd>
