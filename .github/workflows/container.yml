@@ -43,10 +43,8 @@ jobs:
                   target: builder
                   tags: qhana-ui-source
                   labels: ${{ steps.meta.outputs.labels }}
-                  outputs: type=docker,dest=/tmp/source-image.tar
-            - name: Load Source Image
+            - name: List Images in Local Cache
               run: |
-                  docker load --input /tmp/source-image.tar
                   docker image ls -a
             - name: Build and push Docker image
               uses: docker/build-push-action@v2

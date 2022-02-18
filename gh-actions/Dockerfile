@@ -12,7 +12,7 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && chmod -R 755 /usr/share/nginx/
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-COPY --from=qhana-ui-source /app/dist/qhana-ui/ .
+COPY --from=qhana-ui-source:latest /app/dist/qhana-ui/ .
 
 # port is configured in nginx.conf (but must be >1000 for unpriviledged users)
 EXPOSE 8080
