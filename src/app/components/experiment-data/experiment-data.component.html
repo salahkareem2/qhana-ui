@@ -3,7 +3,7 @@
     <h1 class="t-page-headline">Experiment Data</h1>
 
     <div class="page-item-list">
-        <mat-card class="page-item" *ngFor="let data of experimentData | async">
+        <mat-card class="page-item card" *ngFor="let data of experimentData | async">
             <mat-card-title>
                 <a class="t-headline title-link"
                     [routerLink]="['/experiments', experimentId, 'data', data.name, {version: data.version.toString()}]">{{data.name}}</a>
@@ -24,15 +24,15 @@
                     </div>
                     <div>
                         <dt>Dowload link</dt>
-                        <dd><a href="{{backendUrl}}{{data.download}}" target="_blank" rel="noopener noreferrer"
-                                mat-flat-button>Dowload as File</a></dd>
+                        <dd><a class="download-button" href="{{backendUrl}}{{data.download}}" target="_blank"
+                                rel="noopener noreferrer" mat-flat-button>Dowload as File</a></dd>
                     </div>
                 </dl>
             </mat-card-content>
         </mat-card>
     </div>
 
-    <mat-paginator (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="10"
+    <mat-paginator class="paginator" (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="10"
         [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
     </mat-paginator>
     <div class="scroll-spacer"></div>

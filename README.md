@@ -15,7 +15,7 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 
 Build the image with: `docker build -t qhana-ui .`
 
-Run a container with this image and bind it to port 4200 with `docker run -p 4200:4200 qhana-ui` if you want to run the container detached add the flag `-d`.
+Run a container with this image and bind it to port 8080 with `docker run -p 8080:8080 qhana-ui` if you want to run the container detached add the flag `-d`.
 
 
 ## Code scaffolding

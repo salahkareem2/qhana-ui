@@ -6,7 +6,7 @@
     </div>
 
     <div class="page-item-list">
-        <mat-card class="page-item" *ngFor="let experiment of experiments | async">
+        <mat-card class="page-item card" *ngFor="let experiment of experiments | async">
             <mat-card-title>
                 <a class="t-headline title-link"
                     [routerLink]="['/experiments', experiment.experimentId, 'info']">{{experiment.name}}</a>

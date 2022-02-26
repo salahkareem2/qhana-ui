@@ -1,2 +1,7 @@
 .git
 node_modules
+*.spec.*
+dist
+.vscode
+.idea
+

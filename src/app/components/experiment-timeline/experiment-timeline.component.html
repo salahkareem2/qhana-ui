@@ -3,7 +3,7 @@
     <h1 class="t-page-headline">Experiment Timeline</h1>
 
     <div class="page-item-list">
-        <mat-card class="page-item" *ngFor="let step of timelineSteps | async">
+        <mat-card class="page-item card" *ngFor="let step of timelineSteps | async">
             <mat-card-title>
                 <a class="t-headline title-link"
                     [routerLink]="['/experiments', experimentId, 'timeline', step.sequence]">

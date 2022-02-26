@@ -1,13 +1,16 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx } from '@milkdown/core';
+import { commandsCtx, defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx, schemaCtx, themeToolCtx } from '@milkdown/core';
 import { clipboard } from '@milkdown/plugin-clipboard';
 import { cursor } from '@milkdown/plugin-cursor';
+import { diagram } from '@milkdown/plugin-diagram';
 import { emoji } from '@milkdown/plugin-emoji';
 import { history } from '@milkdown/plugin-history';
 import { indent } from '@milkdown/plugin-indent';
-import { Listener, listener, listenerCtx } from '@milkdown/plugin-listener';
+import { listener, listenerCtx } from '@milkdown/plugin-listener';
 import { math } from '@milkdown/plugin-math';
-import { defaultActions, slash, slashPlugin } from '@milkdown/plugin-slash';
+import { prism } from '@milkdown/plugin-prism';
+import { createDropdownItem, defaultActions, slash, slashPlugin } from '@milkdown/plugin-slash';
+import { WrappedAction } from '@milkdown/plugin-slash/lib/src/item';
 import { tooltip } from '@milkdown/plugin-tooltip';
 import { gfm } from '@milkdown/preset-gfm';
 import { nord } from '@milkdown/theme-nord';
@@ -32,28 +35,36 @@ export class MarkdownComponent implements OnChanges {
     constructor() { }
 
     ngAfterViewInit() {
+        try {
+            // try to fix problems with whitespace in css variables declaration...
+            // whitespace trips up mermaid diagram rendering but there is no clear place
+            // where that whitespace is introduced...
+            const styleRoot = getComputedStyle(document.documentElement);
+            const bg = styleRoot.getPropertyValue("--background");
+            if (bg.length > bg.trim().length) {
+                document.documentElement.style.setProperty("--background", bg.trim())
+            }
+        } catch { /* I don't care about errors here */ }
+
         const nativeElement = this.editorRef?.nativeElement;
 
         if (nativeElement != null) {
-            const listeners: Listener = {
-                markdown: [
-                    (getMarkdown) => {
-                        if (this.editable) {
-                            this.markdownChanges.emit(getMarkdown())
-                        }
-                    },
-                ],
-            };
 
             Editor.make()
                 .config((ctx) => {
                     ctx.set(rootCtx, nativeElement);
                     ctx.set(editorViewOptionsCtx, { editable: () => this.editable ?? false });
                     ctx.set(defaultValueCtx, this.markdown);
-                    ctx.set(listenerCtx, listeners);
+                    ctx.get(listenerCtx).markdownUpdated((ctx, markdown) => {
+                        if (this.editable) {
+                            this.markdownChanges.emit(markdown)
+                        }
+                    });
                 })
                 .use(nord)
                 .use(gfm)
+                .use(prism)
+                .use(diagram)
                 .use(math)
                 .use(clipboard)
                 .use(listener)
@@ -64,8 +75,16 @@ export class MarkdownComponent implements OnChanges {
                 .use(tooltip)
                 .use(slash.configure(slashPlugin, {
                     config: (ctx) => {
-                        // Get default slash plugin items
-                        const actions = defaultActions(ctx);
+
+                        const extraActions: Array<WrappedAction & { keyword: string[]; typeName: string }> = [
+                            {
+                                id: 'diagram',
+                                dom: createDropdownItem(ctx.get(themeToolCtx), 'Diagram', 'code'),
+                                command: () => ctx.get(commandsCtx).callByName('TurnIntoDiagram'),
+                                keyword: ['diagram', 'mermaid'],
+                                typeName: 'diagram',
+                            },
+                        ]
 
                         // Define a status builder
                         return ({ isTopLevel, content, parentNode, state }) => {
@@ -82,16 +101,20 @@ export class MarkdownComponent implements OnChanges {
 
                             // Define the placeholder & actions (dropdown items) you want to display depending on content
                             if (content.startsWith('/')) {
+                                const { nodes } = ctx.get(schemaCtx);
+                                const userInput = content.slice(1).toLocaleLowerCase();
+                                const filteredActions = extraActions.filter((action) => !!nodes[action.typeName] && action.keyword.some((keyword) => keyword.includes(userInput)))
+                                    .map(({ keyword, typeName, ...action }) => action);
 
                                 return content === '/'
                                     ? {
                                         placeholder: 'Type to filter...',
-                                        actions,
+                                        // Get default slash plugin items
+                                        actions: [...defaultActions(ctx), ...filteredActions],
                                     }
                                     : {
-                                        actions: actions.filter(({ keyword }) =>
-                                            keyword.some((key) => key.includes(content.slice(1).toLocaleLowerCase())),
-                                        ),
+                                        // get the filtered actions list
+                                        actions: [...defaultActions(ctx, content), ...filteredActions],
                                     };
                             }
 
