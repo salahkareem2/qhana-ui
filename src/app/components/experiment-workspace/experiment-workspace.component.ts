@@ -1,11 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-<<<<<<< HEAD
 import { Observable, Subscription, of } from 'rxjs';
 import { map } from "rxjs/operators";
-=======
-import { Observable, Subscription } from 'rxjs';
->>>>>>> origin/feature/microfrontend-refactor
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
 import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
@@ -22,10 +18,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
 
     experimentId: string | null = null;
 
-<<<<<<< HEAD
     searchValue: string = "";
-=======
->>>>>>> origin/feature/microfrontend-refactor
     pluginList: Observable<QhanaPlugin[]> | null = null;
     filteredPluginList: Observable<QhanaPlugin[]> | null = null;
 
@@ -48,7 +41,6 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
         this.routeSubscription?.unsubscribe();
     }
 
-<<<<<<< HEAD
     changeFilterPluginList(): void {
         let searchValue: string = this.searchValue.toLowerCase();
         if (this.pluginList == null || !this.searchValue || this.searchValue.trim() === "") {
@@ -72,8 +64,6 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
         }
     }
 
-=======
->>>>>>> origin/feature/microfrontend-refactor
     changeActivePlugin(plugin: QhanaPlugin) {
         if (plugin == null || plugin === this.activePlugin) {
             this.activePlugin = null;

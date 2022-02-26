@@ -13,12 +13,8 @@
                 <mat-action-list class="card-list">
                     <button
                         [ngClass]="{'active-list-item': plugin.pluginDescription.identifier === activePlugin?.pluginDescription?.identifier}"
-<<<<<<< HEAD
                         mat-list-item (click)="changeActivePlugin(plugin)"
                         *ngFor="let plugin of filteredPluginList | async">
-=======
-                        mat-list-item (click)="changeActivePlugin(plugin)" *ngFor="let plugin of pluginList | async">
->>>>>>> origin/feature/microfrontend-refactor
                         {{plugin.metadata.title ?? plugin.pluginDescription.name}}
                         (@{{plugin.pluginDescription.version}})
                     </button>

@@ -58,8 +58,6 @@ function isDataUrlRequest(data: any): data is DataUrlRequest {
     return true;
 }
 
-<<<<<<< HEAD
-=======
 interface DataUrlInfoRequest {
     type: "request-data-url";
     inputKey: string;
@@ -82,7 +80,6 @@ function isDataUrlInfoRequest(data: any): data is DataUrlInfoRequest {
     return true;
 }
 
->>>>>>> origin/feature/microfrontend-refactor
 
 @Component({
     selector: 'qhana-plugin-uiframe',
@@ -105,18 +102,6 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     loading: boolean = true;
     error: { code: number, status: string } | null = null;
 
-<<<<<<< HEAD
-    listenerAbortController = new AbortController();
-
-    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService) {
-        this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about//blank");
-        this.frontendUrl = this.blank;
-        // see workaround in app.component.ts before fiddling with this event listener!
-        (window as any).addEventListener(
-            "message",
-            (event: MessageEvent) => this.handleMicroFrontendEvent(event),
-            { signal: this.listenerAbortController.signal }
-=======
     private dialogActive = false;
 
     listenerFunction = (event: MessageEvent) => this.handleMicroFrontendEvent(event);
@@ -127,17 +112,11 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         window.addEventListener(
             "message",
             this.listenerFunction,
->>>>>>> origin/feature/microfrontend-refactor
         );
     }
 
     ngOnDestroy(): void {
-<<<<<<< HEAD
-        // see workaround in app.component.ts before fiddling with this event listener!
-        this.listenerAbortController.abort();
-=======
         window.removeEventListener("message", this.listenerFunction);
->>>>>>> origin/feature/microfrontend-refactor
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -155,11 +134,6 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     }
 
     private selectInputData(request: DataUrlRequest) {
-<<<<<<< HEAD
-        // TODO
-        const dialogRef = this.dialog.open(ChooseDataComponent, { data: { acceptedDataType: request.acceptedInputType, acceptedContentTypes: request.acceptedContentTypes } });
-        dialogRef.afterClosed().subscribe((result: ExperimentDataApiObject) => {
-=======
         if (this.dialogActive) {
             return; // only ever show one dialog at a time
         }
@@ -170,7 +144,6 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             if (result == null) {
                 return; // nothing was selected
             }
->>>>>>> origin/feature/microfrontend-refactor
             let url = result.download;
             if (url.startsWith("/")) {
                 url = this.backend.backendRootUrl + url;
@@ -187,8 +160,6 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         });
     }
 
-<<<<<<< HEAD
-=======
     private handleInputDataInfoRequest(request: DataUrlInfoRequest) {
         // http://localhost:9090/experiments/1/data/out.txt/download?version=2
         if (!request.dataUrl.startsWith(this.backend.backendRootUrl)) {
@@ -212,7 +183,6 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         }
     }
 
->>>>>>> origin/feature/microfrontend-refactor
     private sendMessage(message: any) {
         const iframe: HTMLIFrameElement | null = this.uiframe?.nativeElement ?? null;
         iframe?.contentWindow?.postMessage?.(message, this.pluginOrigin ?? "*");
@@ -261,10 +231,6 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 }
                 this.selectInputData(data);
             }
-<<<<<<< HEAD
-        }
-        console.log(event.data) // TODO  remove later
-=======
             if (data?.type === "request-data-url-info") {
                 if (!isDataUrlInfoRequest(data)) {
                     return;
@@ -278,6 +244,5 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 console.log(data) //TODO
             }
         }
->>>>>>> origin/feature/microfrontend-refactor
     }
 }
