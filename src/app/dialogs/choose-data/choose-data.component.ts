@@ -60,7 +60,7 @@ export class ChooseDataComponent implements OnInit {
                     matching.add(item['@self']);
                 }
             }
-            matching.add(item['@self']); // FIXME remove this line
+            // matching.add(item['@self']); // FIXME remove this line
             items.push(item);
         });
         this.collectionSize = dataPage.itemCount;
