@@ -52,6 +52,7 @@ export class CurrentExperimentService {
             this.setNewValues(null, null);
             return;
         }
+        console.log("fetch new experiment")
         this.backend.getExperiment(experimentId).pipe(take(1)).subscribe(
             experiment => this.setNewValues(experimentId, experiment),
             err => this.setNewValues(experimentId, { "@self": "error", experimentId: parseInt(experimentId), name: "Error", description: err.toString() }),
@@ -62,7 +63,8 @@ export class CurrentExperimentService {
         if (this.currentExperimentId.getValue() !== experimentId) {
             this.currentExperimentId.next(experimentId);
         }
-        if (this.currentExperiment.getValue() !== experiment) {
+        const current = this.currentExperiment.getValue();
+        if (current != experiment || current?.name !== experiment?.name || current?.description !== experiment?.description) {
             this.currentExperiment.next(experiment);
         }
     }
