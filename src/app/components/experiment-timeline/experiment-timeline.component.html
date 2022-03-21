@@ -19,6 +19,12 @@
                             <qhana-step-status [step]="step"></qhana-step-status>
                         </dd>
                     </div>
+                    <div *ngIf="step.status !== 'PENDING'">
+                        <dt>Result Quality</dt>
+                        <dd>
+                            {{step.resultQuality}}
+                        </dd>
+                    </div>
                     <div>
                         <dt>Processor</dt>
                         <dd>{{step.processorName}} (version {{step.processorVersion}})</dd>

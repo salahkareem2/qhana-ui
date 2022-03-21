@@ -36,6 +36,7 @@ export class TimelineStepComponent implements OnInit, OnDestroy {
     experimentId: string = "";
 
     timelineStep: TimelineStepApiObject | null = null;
+    resultQuality: "UNKNOWN" | "NEUTRAL" | "GOOD" | "BAD" | "ERROR" | "UNUSABLE" = "UNKNOWN";
     stepProgress: Progress | null = null;
     substeps: TimelineSubStepApiObject[] | null = null;
     stepNotes: string | null = null;
@@ -147,6 +148,7 @@ export class TimelineStepComponent implements OnInit, OnDestroy {
                 return;
             }
             this.timelineStep = stepApiObject;
+            this.resultQuality = stepApiObject.resultQuality;
             this.stepProgress = this.getStepProgress(stepApiObject);
             this.substeps = stepApiObject.substeps ?? null;
             if (stepApiObject.end != null) {
@@ -201,6 +203,15 @@ export class TimelineStepComponent implements OnInit, OnDestroy {
         this.backend.saveTimelineStepNotes(this.experimentId, this.stepSequence, text).subscribe(result => {
             this.lastSavedNotes = text;
             this.notesStatus = 'saved';
+        });
+    }
+
+    saveResultQuality(newQuality: "UNKNOWN" | "NEUTRAL" | "GOOD" | "BAD" | "ERROR" | "UNUSABLE") {
+        if (this.stepSequence == null) {
+            return;
+        }
+        this.backend.saveTimelineStepResultQuality(this.experimentId, this.stepSequence, newQuality).subscribe(result => {
+            // assume everything is ok (the correct result quality will already be selected)
         });
     }
 
