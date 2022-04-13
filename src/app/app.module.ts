@@ -55,6 +55,7 @@ import { SubstepsDetailsComponent } from './components/substeps-details/substeps
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
 import { TimelineSubstepsComponent } from './components/timeline-substeps/timeline-substeps.component';
 import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component';
+import { ChoosePluginComponent } from './dialogs/choose-plugin/choose-plugin.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
 import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
 
@@ -79,6 +80,7 @@ import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.compon
         MarkdownComponent,
         PluginUiframeComponent,
         ChooseDataComponent,
+        ChoosePluginComponent,
         TimelineSubstepsComponent,
         SubstepsDetailsComponent,
         StepStatusComponent,

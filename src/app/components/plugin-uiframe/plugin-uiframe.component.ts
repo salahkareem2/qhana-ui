@@ -2,6 +2,8 @@ import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Outpu
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
+import { ChoosePluginComponent } from 'src/app/dialogs/choose-plugin/choose-plugin.component';
+import { QhanaPlugin } from 'src/app/services/plugins.service';
 import { ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 export interface FormSubmitData {
@@ -37,6 +39,14 @@ interface DataUrlRequest {
     inputKey: string;
     acceptedInputType: string;
     acceptedContentTypes: string[];
+}
+
+interface PluginUrlRequest {
+    type: "request-plugin-url";
+    inputKey: string;
+    pluginTags: string[];
+    pluginName?: string;
+    pluginVersion?: string;
 }
 
 function isDataUrlRequest(data: any): data is DataUrlRequest {
@@ -131,6 +141,28 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         this.pluginOrigin = (new URL(url)).origin;
         this.frontendHeight = 100;
         this.frontendUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+
+    private selectPlugin(request: PluginUrlRequest) {
+        if (this.dialogActive) {
+            return; // only ever show one dialog at a time
+        }
+        this.dialogActive = true;
+        const dialogRef = this.dialog.open(ChoosePluginComponent, { data: request });
+        dialogRef.afterClosed().subscribe((result: QhanaPlugin) => {
+            this.dialogActive = false;
+            if (result == null) {
+                return; // nothing was selected
+            }
+            let url = result.url;
+            this.sendMessage({
+                type: "plugin-url-response",
+                inputKey: request.inputKey,
+                pluginUrl: url,
+                pluginName: result.metadata.title ?? result.pluginDescription.name,
+                pluginVersion: result.pluginDescription.version,
+            });
+        });
     }
 
     private selectInputData(request: DataUrlRequest) {
