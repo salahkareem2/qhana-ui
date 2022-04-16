@@ -1,0 +1,24 @@
+<h1 mat-dialog-title>Choose data</h1>
+<div mat-dialog-content>
+    <div>
+        <mat-selection-list [multiple]="false" color="primary" #selection>
+            <mat-list-option *ngFor="let plugin of pluginList" [value]="plugin">
+                <p>
+                    <span class="bold">
+                        {{plugin.metadata.title ?? plugin.pluginDescription.name}}
+                    </span>
+                    <span>
+                        ({{plugin.pluginDescription.version}})
+                    </span>
+                </p>
+            </mat-list-option>
+        </mat-selection-list>
+    </div>
+</div>
+<div class="dialog-actions" mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-button [mat-dialog-close]="selection.selectedOptions.selected[0]?.value"
+        [disabled]="selection.selectedOptions.isEmpty()">
+        Choose
+    </button>
+</div>

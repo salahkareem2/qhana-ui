@@ -35,6 +35,22 @@
                         </div>
                     </dd>
                 </div>
+                <div *ngIf="timelineStep.status !== 'PENDING'">
+                    <dt>Result Quality</dt>
+                    <dd>
+                        <mat-form-field appearance="fill">
+                            <mat-label>Result Quality</mat-label>
+                            <mat-select [value]="resultQuality" (valueChange)="saveResultQuality($event)">
+                                <mat-option [value]="'UNKNOWN'">unknown</mat-option>
+                                <mat-option [value]="'NEUTRAL'">neutral</mat-option>
+                                <mat-option [value]="'GOOD'">good</mat-option>
+                                <mat-option [value]="'BAD'">bad</mat-option>
+                                <mat-option [value]="'ERROR'">error</mat-option>
+                                <mat-option [value]="'UNUSABLE'">unusable</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </dd>
+                </div>
                 <div *ngIf="timelineStep.status === 'PENDING'">
                     <dt>Started at</dt>
                     <dd>{{timelineStep.start | date:'HH:mm:ss (dd MMMM YYYY)'}}</dd>

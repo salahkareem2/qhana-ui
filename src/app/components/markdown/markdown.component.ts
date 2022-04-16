@@ -1,4 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { commandsCtx, defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx, schemaCtx, themeToolCtx } from '@milkdown/core';
 import { clipboard } from '@milkdown/plugin-clipboard';
 import { cursor } from '@milkdown/plugin-cursor';
@@ -14,6 +15,7 @@ import { WrappedAction } from '@milkdown/plugin-slash/lib/src/item';
 import { tooltip } from '@milkdown/plugin-tooltip';
 import { gfm } from '@milkdown/preset-gfm';
 import { nord } from '@milkdown/theme-nord';
+import { MarkdownHelpDialog } from 'src/app/dialogs/markdown-help/markdown-help.component';
 
 
 @Component({
@@ -25,6 +27,7 @@ export class MarkdownComponent implements OnChanges {
 
     @Input() markdown: string = "";
     @Input() editable: boolean = false;
+    @Input() showHelp: boolean = true;
 
     @Output() markdownChanges: EventEmitter<string> = new EventEmitter();
 
@@ -32,7 +35,7 @@ export class MarkdownComponent implements OnChanges {
 
     private editor: Editor | null = null;
 
-    constructor() { }
+    constructor(public dialog: MatDialog) { }
 
     ngAfterViewInit() {
         try {
@@ -134,6 +137,10 @@ export class MarkdownComponent implements OnChanges {
         if (changes.markdown != null) {
             this.editor?.config((ctx) => ctx.set(defaultValueCtx, this.markdown));
         }
+    }
+
+    showMarkdownHelp() {
+        this.dialog.open(MarkdownHelpDialog, {});
     }
 
 }

@@ -90,9 +90,19 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
     .mat-card
         --background: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'card')}
         --border-color: #888
+        --text-primary: #{mat.get-color-from-palette($my-primary, 'card-contrast')}
+        --text-primary-lighter: var(--text-inv, black)
+        --text-primary-darker: var(--text-primary)
+        --text-accent: #{mat.get-color-from-palette($my-accent, 'card-contrast')}
+        --text-warn: #{mat.get-color-from-palette($my-warn, 'card-contrast')}
 
     .mat-dialog
         --background: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'dialog')}
+        --text-primary: #{mat.get-color-from-palette($my-primary, 'dialog-contrast')}
+        --text-primary-lighter: var(--text-inv, black)
+        --text-primary-darker: var(--text-primary)
+        --text-accent: #{mat.get-color-from-palette($my-accent, 'dialog-contrast')}
+        --text-warn: #{mat.get-color-from-palette($my-warn, 'dialog-contrast')}
 
     .card.mat-card
         box-shadow: none
@@ -138,15 +148,19 @@ body
     background-color: var(--background, white)
     color: var(--text, black)
 
-a
+::any-link
     color: var(--primary-text)
 
-a:hover, a:visited
+::any-link:hover, ::any-link:visited
     color: var(--primary-text-visited)
 
 ::selection
     background-color: var(--primary-lighter)
     color: var(--text-primary-lighter, black)
+
+// overwrite flex or grid display for hidden nodes
+*[hidden]
+    display: none !important
 
 ////////////////////////////////////////////////////////////////////////////////
 // top level classes applying to all components ////////////////////////////////
@@ -280,6 +294,10 @@ a:hover, a:visited
 
 .milkdown .link:focus,.milkdown .link:active
     color: var(--primary-text-visited)
+
+.milkdown .code-inline
+    background-color: var(--background)
+    color: var(--text-washed)
 
 .milkdown .code-fence
     .token.comment

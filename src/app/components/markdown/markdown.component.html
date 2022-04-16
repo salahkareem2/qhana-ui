@@ -1,1 +1,7 @@
-<div class="markdown-wrapper" #milkdown></div>
+<div class="container">
+    <div class="markdown-wrapper" #milkdown></div>
+    <button class="help-button" mat-icon-button aria-label="Show markdown help." (click)="showMarkdownHelp()"
+        *ngIf="editable && showHelp">
+        <mat-icon>help</mat-icon>
+    </button>
+</div>

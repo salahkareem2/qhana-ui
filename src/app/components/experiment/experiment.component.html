@@ -5,8 +5,40 @@
         <a [routerLink]="['/experiments']" mat-raised-button color="primary">Change Experiment</a>
     </div>
     <mat-card class="experiment-card card">
-        <mat-card-title class="t-headline">{{experiment?.name}}</mat-card-title>
-        <mat-card-content>{{experiment?.description}}</mat-card-content>
+        <mat-card-title class="t-headline experiment-title">
+            <span [hidden]="experimentName != null">
+                {{experiment?.name}}
+            </span>
+            <mat-form-field class="form-field experiment-title-input" *ngIf="experimentName != null">
+                <mat-label>Experiment Name</mat-label>
+                <input matInput [(ngModel)]="experimentName" (ngModelChange)="updateTitle($event)" required
+                    minlength="1">
+            </mat-form-field>
+            <button class="edit-title-button" mat-icon-button aria-label="Edit the experiment title."
+                (click)="editExperimentName()" [hidden]="experimentName != null">
+                <mat-icon>edit</mat-icon>
+            </button>
+            <button class="cancel-edit-title-button" mat-icon-button aria-label="Stop editing the experiment title."
+                (click)="cancelEditExperimentName()" [hidden]="experimentName == null">
+                <mat-icon>cancel</mat-icon>
+            </button>
+        </mat-card-title>
+        <mat-card-content>
+            <qhana-markdown class="description" [markdown]="experiment?.description ?? ''"
+                (markdownChanges)="updateDescription($event)" [editable]="true">
+            </qhana-markdown>
+        </mat-card-content>
+
     </mat-card>
+    <div class="updates">
+        <div class="update-status" *ngIf="updateStatus === 'changed'">
+            <span>pending changes</span>
+            <mat-spinner mode="indeterminate" diameter="30" color="primary"></mat-spinner>
+        </div>
+        <div class="update-status" *ngIf="updateStatus === 'saved'">
+            <span>saved</span>
+            <mat-icon aria-hidden="true">checkmark</mat-icon>
+        </div>
+    </div>
     <div class="scroll-spacer"></div>
 </div>

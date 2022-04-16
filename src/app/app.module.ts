@@ -37,6 +37,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { StepStatusComponent } from './components-small/step-status/step-status.component';
 import { DataDetailComponent } from './components/data-detail/data-detail.component';
 import { DataPreviewComponent } from './components/data-preview/data-preview.component';
 import { ExperimentDataComponent } from './components/experiment-data/experiment-data.component';
@@ -50,12 +51,13 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { PluginUiframeComponent } from './components/plugin-uiframe/plugin-uiframe.component';
 import { PreviewListComponent } from './components/preview-list/preview-list.component';
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
+import { SubstepsDetailsComponent } from './components/substeps-details/substeps-details.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
 import { TimelineSubstepsComponent } from './components/timeline-substeps/timeline-substeps.component';
 import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component';
+import { ChoosePluginComponent } from './dialogs/choose-plugin/choose-plugin.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
-import { SubstepsDetailsComponent } from './components/substeps-details/substeps-details.component';
-import { StepStatusComponent } from './components-small/step-status/step-status.component';
+import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
 
 
 
@@ -78,9 +80,11 @@ import { StepStatusComponent } from './components-small/step-status/step-status.
         MarkdownComponent,
         PluginUiframeComponent,
         ChooseDataComponent,
+        ChoosePluginComponent,
         TimelineSubstepsComponent,
         SubstepsDetailsComponent,
         StepStatusComponent,
+        MarkdownHelpDialog,
     ],
     imports: [
         BrowserModule,

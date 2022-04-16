@@ -1,0 +1,9 @@
+<h1 mat-dialog-title>Markdown Help</h1>
+<div mat-dialog-content>
+    <qhana-markdown [markdown]="helptext" [editable]="true" [showHelp]="false"></qhana-markdown>
+</div>
+<div class="dialog-actions" mat-dialog-actions>
+    <button mat-button (click)="onOk()">
+        Close Help
+    </button>
+</div>

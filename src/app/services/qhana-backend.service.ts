@@ -88,6 +88,7 @@ export interface TimelineStepApiObject extends ApiObject {
     start: string;
     end: string;
     status: string;
+    resultQuality: "UNKNOWN" | "NEUTRAL" | "GOOD" | "BAD" | "ERROR" | "UNUSABLE";
     resultLog?: string;
     notes: string;
     processorName: string;
@@ -106,6 +107,10 @@ export interface TimelineStepApiObject extends ApiObject {
 
 export interface TimelineStepNotesApiObject extends ApiObject {
     notes: string;
+}
+
+export interface TimelineStepResultQuality {
+    resultQuality: string;
 }
 
 @Injectable({
@@ -195,6 +200,10 @@ export class QhanaBackendService {
         return this.http.get<ExperimentApiObject>(`${this.rootUrl}/experiments/${experimentId}`);
     }
 
+    public updateExperiment(experimentId: number | string, name: string, description: string): Observable<ExperimentApiObject> {
+        return this.http.put<ExperimentApiObject>(`${this.rootUrl}/experiments/${experimentId}`, { name, description });
+    }
+
     public getExperimentDataPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentDataApiObject>> {
         return this.http.get<ApiObjectList<ExperimentDataApiObject>>(`${this.rootUrl}/experiments/${experimentId}/data?page=${page}&item-count=${itemCount}`);
     }
@@ -234,6 +243,10 @@ export class QhanaBackendService {
 
     public getTimelineStepNotes(experimentId: number | string, step: number | string): Observable<TimelineStepNotesApiObject> {
         return this.http.get<TimelineStepNotesApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline/${step}/notes`);
+    }
+
+    public saveTimelineStepResultQuality(experimentId: number | string, step: number | string, newQuality: "UNKNOWN" | "NEUTRAL" | "GOOD" | "BAD" | "ERROR" | "UNUSABLE"): Observable<null> {
+        return this.http.put<null>(`${this.rootUrl}/experiments/${experimentId}/timeline/${step}`, { resultQuality: newQuality });
     }
 
     public saveTimelineStepNotes(experimentId: number | string, step: number | string, notes: string): Observable<TimelineStepNotesApiObject> {
