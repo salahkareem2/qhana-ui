@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { commandsCtx, defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx, schemaCtx, themeToolCtx } from '@milkdown/core';
+import { commandsCtx, defaultValueCtx, Editor, editorStateCtx, editorViewCtx, editorViewOptionsCtx, parserCtx, rootCtx, schemaCtx, themeToolCtx } from '@milkdown/core';
 import { clipboard } from '@milkdown/plugin-clipboard';
 import { cursor } from '@milkdown/plugin-cursor';
 import { diagram } from '@milkdown/plugin-diagram';
@@ -132,10 +132,22 @@ export class MarkdownComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.editable != null) {
+            // FIXME this may not work (in this case use an action to change this context like below)
             this.editor?.config((ctx) => ctx.set(editorViewOptionsCtx, { editable: () => this.editable ?? false }));
         }
         if (changes.markdown != null) {
-            this.editor?.config((ctx) => ctx.set(defaultValueCtx, this.markdown));
+            this.editor?.action((ctx) => {
+                const parser = ctx.get(parserCtx); // get parser and parse markdown
+                const nodes = parser(this.markdown);
+                if (nodes != null) {
+                    const oldState = ctx.get(editorStateCtx);
+                    const transaction = oldState.tr // create new transaction
+                    transaction.replaceWith(0, transaction.doc.content.size - 1, nodes); // replace the whole document
+                    const view = ctx.get(editorViewCtx);
+                    view.dispatch(transaction); // update view
+                    ctx.set(editorStateCtx, oldState.apply(transaction)) // update editor state seperately
+                }
+            });
         }
     }
 
