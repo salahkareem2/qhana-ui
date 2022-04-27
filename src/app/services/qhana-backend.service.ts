@@ -229,6 +229,10 @@ export class QhanaBackendService {
         }));
     }
 
+    public getExperimentDataContent(downloadLink: string): Observable<Blob> {
+        return this.http.get(downloadLink, { responseType: "blob" })
+    }
+
     public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<TimelineStepApiObject>> {
         return this.http.get<ApiObjectList<TimelineStepApiObject>>(`${this.rootUrl}/experiments/${experimentId}/timeline?page=${page}&item-count=${itemCount}`);
     }
