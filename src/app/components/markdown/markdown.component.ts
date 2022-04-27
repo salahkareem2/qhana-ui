@@ -131,11 +131,9 @@ export class MarkdownComponent implements OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.editable != null) {
-            // FIXME this may not work (in this case use an action to change this context like below)
-            this.editor?.config((ctx) => ctx.set(editorViewOptionsCtx, { editable: () => this.editable ?? false }));
-        }
+        // FIXME add forced state update once milkdown is updated
         if (changes.markdown != null) {
+            // FIXME use provided milkdown action to replace the document once milkdown is updated
             this.editor?.action((ctx) => {
                 const parser = ctx.get(parserCtx); // get parser and parse markdown
                 const nodes = parser(this.markdown);
