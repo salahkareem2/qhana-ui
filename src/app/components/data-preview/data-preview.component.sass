@@ -1,8 +1,15 @@
 
-.preview-card
+.preview-header
+    display: flex
+    justify-content: space-between
+
+.data-preview
     padding: 0px
+    max-height: 90vh
+    overflow-y: auto
 
 .preview-frame
+    display: block
     width: 100%
     min-height: 10rem
     max-height: 80vh
@@ -14,3 +21,7 @@
 
 .preview-image.large-content
     min-height: max(40rem, 60vh)
+
+.markdown-preview
+    display: block
+    margin: 1em

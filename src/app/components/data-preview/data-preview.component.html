@@ -1,17 +1,38 @@
-<mat-card class="data-preview card" *ngIf="dataUrl != null && effectiveMimetype != null">
+<div class="preview-header">
+    <div>
+        <ng-content></ng-content>
+    </div>
+    <mat-form-field appearance="fill">
+        <mat-label>Preview With:</mat-label>
+        <mat-select [(ngModel)]="chosenPreview">
+            <mat-option *ngFor="let option of previewOptions" [value]="option">{{option.name}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+<qhana-plugin-uiframe [url]="getPreviewUrl(chosenPreview)"
+    *ngIf="chosenPreview != null && chosenPreview.type === 'plugin'"></qhana-plugin-uiframe>
+<mat-card class="data-preview card"
+    *ngIf="dataUrl != null && effectiveMimetype != null && chosenPreview?.type !== 'plugin'">
     <mat-card-content>
-        <ng-container [ngSwitch]="effectiveMimetype">
-            <div *ngSwitchCase="'text/*'">
-                <iframe class="preview-frame" [src]="dataUrl" frameborder="0" sandbox></iframe>
-            </div>
-            <div *ngSwitchCase="'text/html'">
-                <iframe class="preview-frame large-content" [src]="dataUrl" frameborder="0"
-                    sandbox="allow-forms allow-scripts" allow="fullscreen"></iframe>
-            </div>
-            <div *ngSwitchCase="'image/*'">
-                <img class="preview-image large-content" [src]="dataUrl">
-            </div>
-            <div *ngSwitchDefault>No Preview</div>
+        <ng-container *ngIf="chosenPreview != null && chosenPreview.type === 'internal'">
+            <ng-container [ngSwitch]="effectiveMimetype">
+                <div *ngSwitchCase="'text/*'">
+                    <iframe class="preview-frame" [src]="dataUrl" frameborder="0" sandbox></iframe>
+                </div>
+                <div *ngSwitchCase="'text/html'">
+                    <iframe class="preview-frame large-content" [src]="dataUrl" frameborder="0"
+                        sandbox="allow-forms allow-scripts" allow="fullscreen"></iframe>
+                </div>
+                <div *ngSwitchCase="'text/markdown'">
+                    <qhana-markdown class="markdown-preview" [markdown]="content"></qhana-markdown>
+                </div>
+                <div *ngSwitchCase="'image/*'">
+                    <img class="preview-image large-content" [src]="dataUrl">
+                </div>
+                <div *ngSwitchDefault>No Preview</div>
+            </ng-container>
         </ng-container>
+        <p *ngIf="previewOptions.length === 0">No Preview Available</p>
+        <p *ngIf="previewOptions.length >= 0 && chosenPreview == null">Select a Preview Option</p>
     </mat-card-content>
 </mat-card>

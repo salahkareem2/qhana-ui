@@ -1,6 +1,7 @@
 <ng-container *ngFor="let data of resolvedDataList">
-    <a [routerLink]="['/experiments', experimentId, 'data', data.name, {version: data.version}]">
-        <h5>{{data.name}} (version {{data.version}})</h5>
-    </a>
-    <qhana-data-preview [data]="data"></qhana-data-preview>
+    <qhana-data-preview [data]="data">
+        <a [routerLink]="['/experiments', experimentId, 'data', data.name, {version: data.version}]">
+            <h5>{{data.name}} (version {{data.version}})</h5>
+        </a>
+    </qhana-data-preview>
 </ng-container>
