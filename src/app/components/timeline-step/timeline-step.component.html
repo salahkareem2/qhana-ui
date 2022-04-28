@@ -70,11 +70,15 @@
                     <dt>Processor Location</dt>
                     <dd>{{timelineStep.processorLocation}}</dd>
                 </div>
-                <div>
-                    <dt>Result Log</dt>
-                    <dd>{{timelineStep.resultLog}}</dd>
-                </div>
             </dl>
+            <details class="collapsible-item" [open]="timelineStep.status === 'PENDING'">
+                <summary class="summary-item">Result Log</summary>
+                {{timelineStep.resultLog}}
+            </details>
+            <details class="collapsible-item">
+                <summary class="summary-item">Parameters</summary>
+                <qhana-data-preview [data]="timelineStep"></qhana-data-preview>
+            </details>
         </mat-card-content>
     </mat-card>
     <div class="notes-title" *ngIf="timelineStep.status !== 'PENDING'">

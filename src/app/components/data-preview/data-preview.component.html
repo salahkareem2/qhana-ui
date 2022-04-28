@@ -26,6 +26,9 @@
                 <div *ngSwitchCase="'text/markdown'">
                     <qhana-markdown class="markdown-preview" [markdown]="content"></qhana-markdown>
                 </div>
+                <div *ngSwitchCase="'application/x-www-form-urlencoded'">
+                    <qhana-markdown class="markdown-preview" [markdown]="content"></qhana-markdown>
+                </div>
                 <div *ngSwitchCase="'image/*'">
                     <img class="preview-image large-content" [src]="dataUrl">
                 </div>
