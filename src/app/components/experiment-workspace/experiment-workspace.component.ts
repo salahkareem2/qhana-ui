@@ -50,7 +50,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
                 this.pluginList.pipe(
                     map(pluginList =>
                         pluginList.filter(plugin => {
-                            console.log(plugin.metadata);
+                            // console.log(plugin.metadata);
                             return (plugin.pluginDescription.name.toLowerCase().includes(searchValue) ||
                                 plugin.pluginDescription.apiRoot.toLowerCase().includes(searchValue) ||
                                 plugin.pluginDescription.version.toLowerCase().includes(searchValue) ||
