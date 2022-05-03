@@ -30,6 +30,34 @@
         </mat-card-content>
     </mat-card>
 
+    <mat-card class="card mt-2">
+        <mat-card-title>
+            <h3>LaTeX Renderer URL</h3>
+        </mat-card-title>
+        <mat-card-content>
+            <p><span style="font-weight: 700;">Current Value:</span> {{latexUrl}}</p>
+            <div class="url-form-group">
+                <mat-form-field class="form-field short-field">
+                    <mat-label>Protocol</mat-label>
+                    <input matInput autocomplete="false" [(ngModel)]="latexProtocol">
+                </mat-form-field>
+                <mat-form-field class="form-field long-field">
+                    <mat-label>Hostname</mat-label>
+                    <input matInput autocomplete="false" [(ngModel)]="latexHostname">
+                </mat-form-field>
+                <mat-form-field class="form-field short-field">
+                    <mat-label>Port</mat-label>
+                    <input matInput autocomplete="false" type="number" [(ngModel)]="latexPort">
+                </mat-form-field>
+                <mat-form-field class="form-field long-field">
+                    <mat-label>Path</mat-label>
+                    <input matInput autocomplete="false" [(ngModel)]="latexPath">
+                </mat-form-field>
+            </div>
+            <button mat-flat-button color="primary" (click)="updateLatexUrl()">Update LaTeX Renderer URL</button>
+        </mat-card-content>
+    </mat-card>
+
     <h2>Plugin Endpoints</h2>
 
     <div class="page-item-list">

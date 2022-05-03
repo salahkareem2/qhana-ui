@@ -31,12 +31,19 @@ export class SettingsPageComponent implements OnInit {
     port: string | null = null;
     path: string | null = null;
 
+    latexUrl: string;
+    latexProtocol: string | null = null;
+    latexHostname: string | null = null;
+    latexPort: string | null = null;
+    latexPath: string | null = null;
+
     endpoints: PluginEndpointApiObject[] = [];
     endpointUrl: string | null = null;
     endpointType: string | null = "PluginRunner";
 
     constructor(private backend: QhanaBackendService) {
         this.backendUrl = backend.backendRootUrl;
+        this.latexUrl = backend.latexRendererUrl;
     }
 
     ngOnInit(): void {
@@ -65,6 +72,24 @@ export class SettingsPageComponent implements OnInit {
         const path = this.path ? this.path : undefined;
         this.backend.changeBackendUrl(protocol, hostname, port, path);
         this.backendUrl = this.backend.backendRootUrl;
+    }
+
+    updateLatexUrl() {
+        let protocol: string | null | undefined = this.latexProtocol;
+        if (protocol != null && protocol !== "") {
+            if (protocol.startsWith("https")) {
+                protocol = "https:";
+            } else {
+                protocol = "http:";
+            }
+        } else {
+            protocol = undefined;
+        }
+        const hostname = this.latexHostname ? this.latexHostname : undefined;
+        const port = this.latexPort ? this.latexPort : undefined;
+        const path = this.latexPath ? this.latexPath : undefined;
+        this.backend.changeLatexUrl(protocol, hostname, port, path);
+        this.latexUrl = this.backend.latexRendererUrl;
     }
 
     removePluginEndpoint(endpoint: PluginEndpointApiObject) {

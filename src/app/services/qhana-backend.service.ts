@@ -120,12 +120,19 @@ export class QhanaBackendService {
 
     private rootUrl: string;
 
+    private latexUrl: string;
+
     public get backendRootUrl() {
         return this.rootUrl;
     }
 
+    public get latexRendererUrl() {
+        return this.latexUrl;
+    }
+
     constructor(private http: HttpClient) {
         this.rootUrl = this.getBackendUrlFromConfig();
+        this.latexUrl = this.getLatexUrlFromConfig();
     }
 
     private getBackendUrlFromConfig() {
@@ -166,6 +173,47 @@ export class QhanaBackendService {
 
         // set new URL
         this.rootUrl = this.getBackendUrlFromConfig();
+    }
+
+    private getLatexUrlFromConfig() {
+        // http://localhost:5030/renderLatex
+        let protocol = window?.location?.protocol ?? "http:";
+        let hostname = window?.location?.hostname ?? "localhost";
+        let port = "5030";
+        let path = "/renderLatex";
+        if (localStorage) {
+            protocol = localStorage.getItem("QHAna_latex_protocol") ?? protocol;
+            hostname = localStorage.getItem("QHAna_latex_hostname") ?? hostname;
+            port = localStorage.getItem("QHAna_latex_port") ?? port;
+            path = localStorage.getItem("QHAna_latex_path") ?? path;
+        }
+        return `${protocol}//${hostname}:${port}${path}`;
+    }
+
+    public changeLatexUrl(protocol?: string, hostname?: string, port?: string, path?: string) {
+        if (protocol == null) {
+            localStorage.removeItem("QHAna_latex_protocol");
+        } else {
+            localStorage.setItem("QHAna_latex_protocol", protocol);
+        }
+        if (hostname == null) {
+            localStorage.removeItem("QHAna_latex_hostname");
+        } else {
+            localStorage.setItem("QHAna_latex_hostname", hostname);
+        }
+        if (port == null) {
+            localStorage.removeItem("QHAna_latex_port");
+        } else {
+            localStorage.setItem("QHAna_latex_port", port);
+        }
+        if (path == null) {
+            localStorage.removeItem("QHAna_latex_path");
+        } else {
+            localStorage.setItem("QHAna_latex_path", path);
+        }
+
+        // set new URL
+        this.latexUrl = this.getLatexUrlFromConfig();
     }
 
     public resetBackendUrl() {

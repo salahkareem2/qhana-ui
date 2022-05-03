@@ -18,6 +18,7 @@ import { gfm } from '@milkdown/preset-gfm';
 import { EditorState, liftListItem, MarkType, redo, setBlockType, sinkListItem, TextSelection, undo, wrapIn } from '@milkdown/prose';
 import { forceUpdate, replaceAll } from '@milkdown/utils';
 import { MarkdownHelpDialog } from 'src/app/dialogs/markdown-help/markdown-help.component';
+import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
 import { latex, latexNode } from './milkdown-latex';
 import { QhanaTheme } from './milkdown-utils';
 
@@ -53,7 +54,7 @@ export class MarkdownComponent implements OnChanges {
 
     private editor: Editor | null = null;
 
-    constructor(public dialog: MatDialog) { }
+    constructor(public dialog: MatDialog, private backend: QhanaBackendService) { }
 
     ngAfterViewInit() {
         try {
@@ -118,7 +119,7 @@ export class MarkdownComponent implements OnChanges {
                 .use(prism)
                 .use(diagram)
                 .use(latex.configure(latexNode, {
-                    latexRendererUrl: "http://localhost:5030/renderLatex", // TODO load latex renderer URL from some config!
+                    latexRendererUrl: this.backend.latexRendererUrl, // TODO load latex renderer URL from some config!
                 }))
                 .use(math)
                 .use(clipboard)
