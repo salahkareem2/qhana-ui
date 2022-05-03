@@ -146,15 +146,19 @@ export const latexNode = createNode<string, Options>((utils, options) => {
                         if (!code) {
                             renderer.preview.innerHTML = placeholder.empty;
                         } else {
-                            const packagesRegex = /(?<=^\s*)\\use[a-zA-Z]+(\[[^\]]*\])?(\{[^\}]+\})/gm;
-                            const packages = packagesRegex.exec(code) ?? defaultPackages;
-                            const imageFormatRegex = /(?<=^\s*%\s*format\s*[:=]\s*)([a-zA-Z-]+)(?=>\s*$)/gm;
-                            const outputFormat = imageFormatRegex.exec(code)?.[0] ?? imageFormat;
-                            const stripImageFormatRegex = /^\s*%\s*format\s*[:=]\s*([a-zA-Z-]+)\s*$/gm;
+                            const packagesRegex = /(?:^[\t ]*)(\\use[a-zA-Z]+(?:\[[^\]]*\])?(?:\{[^\}]+\}))/gm;
+                            const foundPackages = [];
+                            let currentPackage = packagesRegex.exec(code);
+                            while (currentPackage != null) {
+                                foundPackages.push(currentPackage[1])
+                                currentPackage = packagesRegex.exec(code);
+                            }
+                            const packages = foundPackages.length > 0 ? foundPackages : defaultPackages;
+                            const imageFormatRegex = /(?:%[\t ]*format\s*[:=]\s*)([a-zA-Z-]+)(?:[\t ]*$)/gm;
+                            const outputFormat = imageFormatRegex.exec(code)?.[1] ?? imageFormat;
+                            const stripImageFormatRegex = /%[^\n]*$/gm;
 
                             const processedCode = code.replace(packagesRegex, "").replace(stripImageFormatRegex, "");
-
-                            console.log(processedCode, outputFormat);
 
                             const imageUrl = new URL(latexRendererUrl);
                             imageUrl.searchParams.set("content", processedCode);
@@ -163,6 +167,14 @@ export const latexNode = createNode<string, Options>((utils, options) => {
                                 imageUrl.searchParams.append("packages", latexPackage);
                             });
 
+                            if (false) {
+                                // debug output
+                                console.log("Output Format:", imageUrl.searchParams.get("output"))
+                                console.log("Packages:", imageUrl.searchParams.getAll("packages"))
+                                console.log("Content:", imageUrl.searchParams.get("content"))
+                            }
+
+                            // TODO debounce actual rendering
                             renderer.preview.innerHTML = `<img src="${imageUrl}">`;
                         }
                     } catch (err) {
