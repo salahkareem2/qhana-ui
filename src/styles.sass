@@ -14,9 +14,9 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
 
 @include mat.all-component-themes($my-theme)
 
-//expose the as css variables to be used in other styles (second :root.root to get higher specificity than milkdown css which also defines --primary
-:root, :root.root
+:root
     --background: #{mat.get-color-from-palette(mat.$light-theme-background-palette, 'background')}
+    --background-card: #ddd
     --border-color: #aaa
     --text: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'text')}
     --text-inv: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'text')}
@@ -49,14 +49,16 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
 
 .mat-card
     --background: #{mat.get-color-from-palette(mat.$light-theme-background-palette, 'card')}
+    --background-card: #bbb
 
 .mat-dialog
     --background: #{mat.get-color-from-palette(mat.$light-theme-background-palette, 'dialog')}
 
 @media (prefers-color-scheme: dark)
-    :root, :root.root
+    :root
         @include mat.all-component-themes($my-dark-theme)
         --background: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'background')}
+        --background-card: #777
         --border-color: #555
         --text: #{mat.get-color-from-palette(mat.$dark-theme-foreground-palette, 'text')}
         --text-inv: #{mat.get-color-from-palette(mat.$light-theme-foreground-palette, 'text')}
@@ -89,6 +91,7 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
 
     .mat-card
         --background: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'card')}
+        --background-card: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'background')}
         --border-color: #888
         --text-primary: #{mat.get-color-from-palette($my-primary, 'card-contrast')}
         --text-primary-lighter: var(--text-inv, black)
@@ -205,14 +208,230 @@ body
 
 // Milkdown markdown content
 
-.markdown-wrapper > .milkdown
-    --typography: Roboto,HelveticaNeue-Light,Helvetica Neue Light,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif
-    --code: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace
-    --radius: 4px
-    --lineWidth: 1px
+.markdown-wrapper .milkdown
+    box-shadow: none
+.markdown-wrapper .milkdown-menu
+    border-radius: 4px
+    padding-top: 6px
+    overflow-x: scroll
+.markdown-wrapper .milkdown-menu .button
+    background-color: unset
+.markdown-wrapper .milkdown-menu::-webkit-scrollbar
+    height: 6px
+.markdown-wrapper .milkdown-menu::-webkit-scrollbar-thumb
+    border: none
+.milkdown-menu .menu-selector-list
+    overflow-x: hidden
+.milkdown-menu .divider
+    background-color: var(--border-color)
+    margin-inline: 0.2em
+.milkdown-menu .button
+    margin-inline: 0.2em
+.milkdown-menu .button:hover
+    background-color: var(--background-card)
+    color: var(--text)
+.milkdown-menu .button.active
+    background-color: var(--primary)
+    color: var(--text-primary)
+.milkdown-menu .button .icon
+    transition-duration: 0.15s
+    transition-timing-function: ease-out
+.milkdown-menu .icon
+    color: inherit
+.milkdown-menu .icon:hover
+    background-color: initial
+.milkdown-menu .menu-selector-wrapper
+    border: none
+.milkdown-menu .menu-selector-wrapper .menu-selector
+    margin: 0.5em
+    padding: 0.25em
+    width: auto
+.milkdown-menu .menu-selector-wrapper .menu-selector .icon
+    width: 1em
+    transition-duration: 0s
+.milkdown-menu .menu-selector-wrapper .menu-selector:hover
+    background-color: var(--background-card)
+.milkdown-menu .menu-selector-wrapper:not(.fold) .menu-selector
+    background-color: var(--primary)
+    color: var(--text-primary)
+.milkdown-menu .menu-selector-wrapper:not(.fold) .menu-selector .menu-selector-value
+    color: var(--text-primary)
+.milkdown-menu .menu-selector-list
+    border-radius: 4px
+.milkdown-menu .menu-selector-list-item:hover
+    background-color: var(--background-card)
+    color: var(--text)
+.milkdown-menu .menu-selector-list-item.active
+    background-color: var(--primary)
+    color: var(--text-primary)
 
 .milkdown .ProseMirror-selectednode
     outline: var(--lineWidth) solid var(--border-color)
+.milkdown ::selection
+    background: var(--primary-lighter)
+    color: var(--text-primary-lighter)
+.milkdown
+    h1,h2,h3,h4,h5,h6
+        margin-block: 0.5em
+.milkdown hr
+    height: 1px
+    background-color: var(--border-color)
+.milkdown blockquote
+    padding-left: 38px
+    border-left: 4px solid var(--primary)
+    margin-inline-start: 0.0em
+.milkdown .code-fence pre
+    padding-inline: 1em
+.milkdown .code-fence_selector
+    padding-inline-start: 1em
+    justify-content: space-between
+    background-color: var(--background)
+    border: 1px solid var(--border-color)
+.milkdown .code-fence_selector-list
+    background-color: var(--background)
+.milkdown .code-fence_selector-list-item:hover
+    background-color: var(--primary)
+    color: var(--text-primary)
+.milkdown .image
+    display: inline-block
+    margin: 0 auto
+    object-fit: contain
+    width: 100%
+    position: relative
+    height: auto
+    text-align: center
+
+.milkdown .task-list-item
+    display: flex
+    flex-direction: row
+    align-items: flex-start
+    > label > .icon
+        width: 1em
+        height: 1em
+        display: flex
+        align-items: center
+
+.milkdown .task-list-item .icon::after
+    display: none
+
+.milkdown input
+    caret-color: var(--text)
+.milkdown .editor
+    caret-color: var(--text)
+
+.milkdown .tooltip
+    background-color: var(--background)
+    border: 1px solid var(--border-color)
+
+.milkdown .tooltip .icon:hover
+    background-color: var(--background-card)
+
+.milkdown .tooltip .icon.active
+    background-color: var(--primary)
+    color: var(--text-primary)
+
+.milkdown .tooltip-input
+    position: absolute
+    border-radius: 4px
+    background-color: var(--background)
+    border: 1px solid var(--border-color)
+
+.milkdown .tooltip-input input
+    padding-inline: 0.5em
+    padding-block: 0.3em
+
+.milkdown .tooltip-input button
+    color: var(--text)
+    border-left: 1px solid var(--border-color)
+    border-top-right-radius: 4px
+    border-bottom-right-radius: 4px
+
+.milkdown .tooltip-input button:hover
+    background-color: var(--background-card)
+
+.milkdown .tooltip-input button.active
+    background-color: var(--primary)
+    color: var(--text-primary)
+
+.milkdown .milkdown-cell-point
+    display: flex
+    align-items: center
+
+.milkdown .milkdown-cell-point .icon
+    width: 1em
+    height: 1em
+    line-height: 1.1em
+
+.milkdown .table-tooltip
+    position: absolute
+    background-color: var(--background)
+    border: 1px solid var(--border-color)
+
+.milkdown .table-tooltip .icon:hover
+    background-color: var(--background-card)
+
+.milkdown .table-tooltip .icon.active
+    background-color: var(--primary)
+    color: var(--text-primary)
+
+.milkdown .milkdown-emoji-filter
+    background-color: var(--background)
+    border: 1px solid var(--border-color)
+
+.milkdown .milkdown-emoji-filter_item:hover
+    background-color: var(--background-card)
+
+.milkdown .milkdown-emoji-filter_item.active
+    background-color: var(--primary)
+    color: var(--text-primary)
+
+.milkdown .slash-dropdown
+    background-color: var(--background)
+    border: 1px solid var(--border-color)
+    width: auto
+
+.milkdown .slash-dropdown-item
+    padding-inline-start: 0px
+    gap: unset
+
+.milkdown .slash-dropdown-item:hover
+    background-color: var(--background-card)
+
+.milkdown .slash-dropdown-item.active
+    background-color: var(--primary)
+    color: var(--text-primary)
+
+.milkdown .slash-dropdown-item.active .icon
+    color: var(--text-primary)
+
+.milkdown .slash-dropdown-item .icon::after
+    display: none
+
+.milkdown .code-inline
+    background-color: var(--text)
+    color: var(--text-inv)
+    padding-inline: 0.2em
+    padding-block: 0.1em
+    border-radius: 4px
+
+.milkdown .footnote-definition
+    border: 1px solid var(--border-color)
+    background-color: var(--background)
+    padding: 1em
+    display: flex
+    flex-direction: row
+.milkdown .footnote-definition > .footnote-definition_content
+    flex: 1
+    width: calc(100% - 1em)
+.footnote-definition_content > dd
+    margin-inline-start: 1em
+
+.footnote-definition_content > dt
+    color: var(--text-washed)
+    font-weight: 500
+
+.milkdown .footnote-definition > .footnote-definition_anchor
+    width: 1em
 
 .markdown-wrapper > .milkdown
     max-width: revert
@@ -229,17 +448,6 @@ body
 
 .markdown-wrapper > .milkdown > .editor > *
     margin-block: inherit
-
-.markdown-wrapper > .milkdown > .editor
-    h1,h2,h3,h4,h5,h6
-        margin-block: 0.5em !important
-
-.markdown-wrapper > .milkdown ::selection
-    background: var(--primary-lighter)
-    color: var(--text-primary-lighter)
-
-.milkdown > .editor > *
-    margin-block: 0.3rem
 
 .milkdown .slash-dropdown
     z-index: 1
@@ -286,9 +494,6 @@ body
     margin-inline: 0.2em
     opacity: 0.5
 
-.milkdown .blockquote
-    border-left: 4px solid var(--primary)
-
 .milkdown .link
     color: var(--primary-text)
 
@@ -298,10 +503,6 @@ body
 
 .milkdown .link:focus,.milkdown .link:active
     color: var(--primary-text-visited)
-
-.milkdown .code-inline
-    background-color: var(--background)
-    color: var(--text-washed)
 
 .milkdown .code-fence
     .token.comment
