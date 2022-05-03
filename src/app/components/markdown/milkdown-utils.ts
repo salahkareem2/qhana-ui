@@ -206,10 +206,6 @@ export const QhanaTheme = themeFactory((emotion, manager) => {
             return;
         }
 
-        if (cssVar === "--text") {
-            console.log(key, color, rgb)
-        }
-
         return `rgba(${rgb?.join(', ')}, ${(opacity || 1) * defaultOpacity})`;
     });
     manager.set(ThemeSize, (key) => {
