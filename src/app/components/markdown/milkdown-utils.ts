@@ -166,10 +166,10 @@ const colorMap = {
 }
 
 export const QhanaTheme = themeFactory((emotion, manager) => {
-    const documentStyles = (document.querySelector("body") as any)?.computedStyleMap();
+    const documentStyles = getComputedStyle(document.body);
     manager.set(ThemeColor, ([key, opacity]) => {
         let cssVar = colorMap[key] ?? "--text";
-        let color: string = documentStyles.get(cssVar).toString().trim();
+        let color: string = documentStyles.getPropertyValue(cssVar).toString().trim();
         if (color === "white") {
             color = "#ffffff";
         }
