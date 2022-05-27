@@ -638,3 +638,34 @@ form.qhana-form
 
 .plugin-micro-frontend h4
     @include mat.typography-level($my-typography, 'subheading-1')
+
+.qhana-table
+    flex-direction: row
+    flex-wrap: wrap
+    overflow: auto
+    border: 2px solid var(--border-color, currentColor)
+    border-radius: 5px
+.qhana-table table
+    border-collapse: collapse
+.qhana-table td, .qhana-table th
+    border: 2px solid var(--border-color, currentColor)
+    text-align: left
+    padding: 0.5em
+.qhana-table th
+    padding-top: 1em
+    padding-bottom: 1em
+    position: sticky
+    top: 0
+    z-index: 2
+    background-color: var(--primary, purple)
+    text-decoration-color: white
+.qhana-table tr:hover
+    background-color: var(--primary, currentColor)
+.qhana-table tr:first-child th
+    border-top: 0
+.qhana-table tr:last-child td
+    border-bottom: 0
+.qhana-table tr td:first-child, .qhana-table tr th:first-child
+    border-left: 0
+.qhana-table tr td:last-child, .qhana-table tr th:last-child
+    border-right: 0
