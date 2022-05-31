@@ -37,6 +37,8 @@
         "@milkdown/preset-gfm": "^6.0.0",
         "@milkdown/prose": "^6.0.0",
         "@milkdown/theme-nord": "^6.0.0",
+        "@fontsource/roboto": "^4.5.7",
+        "material-icons": "^1.10.11",
         "rxjs": "~6.6.7",
         "tslib": "^2.2.0",
         "zone.js": "~0.11.4"
