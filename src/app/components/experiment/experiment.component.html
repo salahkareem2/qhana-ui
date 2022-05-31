@@ -24,7 +24,7 @@
             </button>
         </mat-card-title>
         <mat-card-content>
-            <qhana-markdown class="description" [markdown]="experiment?.description ?? ''"
+            <qhana-markdown class="description" [markdown]="experimentDescription"
                 (markdownChanges)="updateDescription($event)" [editable]="true">
             </qhana-markdown>
         </mat-card-content>

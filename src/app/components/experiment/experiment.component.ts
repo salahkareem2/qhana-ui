@@ -29,7 +29,8 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     experiment: ExperimentApiObject | null = null;
 
     experimentName: string | null = null;
-    experimentDescription: string = "";
+    experimentDescription: string = ""; // only updated on initial experiment load
+    currentExperimentDescription: string = "";
 
     constructor(private route: ActivatedRoute, private experimentService: CurrentExperimentService, private backend: QhanaBackendService) { }
 
@@ -44,6 +45,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             this.experiment = experiment;
             this.lastSavedDescription = experiment?.description ?? "";
             this.experimentDescription = experiment?.description ?? "";
+            this.currentExperimentDescription = experiment?.description ?? "";
         });
         this.autoSaveTitleSubscription = this.titleUpdates.pipe(
             filter(value => value != null && value !== this.lastSavedTitle),
@@ -85,7 +87,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
                 return;
             }
         }
-        this.experimentDescription = newDescription;
+        this.currentExperimentDescription = newDescription;
         if (newDescription !== this.lastSavedDescription) {
             this.updateStatus = 'changed';
         }
@@ -96,7 +98,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
         if (newTitle == null) {
             return;
         }
-        const description = this.experimentDescription;
+        const description = this.currentExperimentDescription;
         if (newTitle === this.lastSavedTitle && description == this.lastSavedDescription) {
             return; // title is already saved!
         }
