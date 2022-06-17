@@ -3,7 +3,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
 import { ChoosePluginComponent } from 'src/app/dialogs/choose-plugin/choose-plugin.component';
-import { QhanaPlugin } from 'src/app/services/plugins.service';
+import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
+import { take } from 'rxjs/operators';
 import { ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 export interface FormSubmitData {
@@ -39,14 +40,6 @@ interface DataUrlRequest {
     inputKey: string;
     acceptedInputType: string;
     acceptedContentTypes: string[];
-}
-
-interface PluginUrlRequest {
-    type: "request-plugin-url";
-    inputKey: string;
-    pluginTags: string[];
-    pluginName?: string;
-    pluginVersion?: string;
 }
 
 function isDataUrlRequest(data: any): data is DataUrlRequest {
@@ -90,6 +83,54 @@ function isDataUrlInfoRequest(data: any): data is DataUrlInfoRequest {
     return true;
 }
 
+interface PluginUrlRequest {
+    type: "request-plugin-url";
+    inputKey: string;
+    pluginTags: string[];
+    pluginName?: string;
+    pluginVersion?: string;
+}
+
+function isPluginUrlRequest(data: any): data is PluginUrlRequest {
+    if (data == null) {
+        return false;
+    }
+    if (data.type !== "request-plugin-url") {
+        return false;
+    }
+    if (data.inputKey == null || data.pluginTags == null) {
+        return false;
+    }
+    if (typeof data.inputKey !== "string" || (data.pluginName && (typeof data.pluginName !== "string")) || (data.pluginVersion && (typeof data.pluginVersion !== "string"))) {
+        return false;
+    }
+    if (!Array.isArray(data.pluginTags)) {
+        return false;
+    }
+    return true;
+}
+
+interface PluginUrlInfoRequest {
+    type: "request-plugin-url";
+    inputKey: string;
+    pluginUrl: string;
+}
+
+function isPluginUrlInfoRequest(data: any): data is PluginUrlInfoRequest {
+    if (data == null) {
+        return false;
+    }
+    if (data.type !== "request-plugin-url-info") {
+        return false;
+    }
+    if (data.inputKey == null || data.pluginUrl == null) {
+        return false;
+    }
+    if (typeof data.inputKey !== "string" || typeof data.pluginUrl !== "string") {
+        return false;
+    }
+    return true;
+}
 
 @Component({
     selector: 'qhana-plugin-uiframe',
@@ -116,7 +157,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
 
     listenerFunction = (event: MessageEvent) => this.handleMicroFrontendEvent(event);
 
-    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService) {
+    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService, private pluginService: PluginsService) {
         this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about://blank");
         this.frontendUrl = this.blank;
         window.addEventListener(
@@ -190,6 +231,18 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 version: result.version,
             });
         });
+    }
+
+    private handlePluginInfoRequest(request: PluginUrlInfoRequest) {
+        this.pluginService.plugins.pipe(take(1)).subscribe((pluginList => {
+            const plugin = pluginList.find(plugin => plugin.url === request.pluginUrl);
+            this.sendMessage({
+                type: "plugin-url-response",
+                inputKey: request.inputKey,
+                pluginDescription: plugin?.pluginDescription,
+                metadata: plugin?.metadata,
+            })
+        }));
     }
 
     private handleInputDataInfoRequest(request: DataUrlInfoRequest) {
@@ -270,10 +323,16 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 this.handleInputDataInfoRequest(data);
             }
             if (data.type === "request-plugin-url") {
-                console.log(data) //TODO
+                if (!isPluginUrlRequest(data)) {
+                    return;
+                }
+                this.selectPlugin(data);
             }
             if (data.type === "request-plugin-url-info") {
-                console.log(data) //TODO
+                if (!isPluginUrlInfoRequest(data)) {
+                    return;
+                }
+                this.handlePluginInfoRequest(data);
             }
         }
     }

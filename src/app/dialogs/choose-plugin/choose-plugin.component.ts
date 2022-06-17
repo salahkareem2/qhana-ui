@@ -24,6 +24,7 @@ export class ChoosePluginComponent implements OnInit {
     ngOnInit(): void {
         this.pluginsService.plugins.pipe(take(1)).subscribe((pluginList => {
             this.unfilteredPlugins = pluginList
+            this.filterPluginList();
         }));
     }
 
