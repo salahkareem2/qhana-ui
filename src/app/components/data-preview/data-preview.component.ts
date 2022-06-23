@@ -21,7 +21,7 @@ function isDataApiObject(input: ExperimentDataApiObject | TimelineStepApiObject 
     return false;
 }
 
-function isStepApiObject(input: ExperimentDataApiObject | TimelineStepApiObject | TimelineSubStepApiObject): input is TimelineStepApiObject | TimelineSubStepApiObject {
+function isStepLikeApiObject(input: ExperimentDataApiObject | TimelineStepApiObject | TimelineSubStepApiObject): input is TimelineStepApiObject | TimelineSubStepApiObject {
     if ((input as any).parametersContentType != null && (input as any).parameters != null) {
         return true;
     }
@@ -63,11 +63,11 @@ export class DataPreviewComponent implements OnChanges {
                 dataType: this.data.type,
                 contentType: this.data.contentType,
             };
-        } else if (isStepApiObject(this.data)) {
+        } else if (isStepLikeApiObject(this.data)) {
             previewData = {
-                url: this.backend.backendRootUrl + this.data.parameters,
+                url: this.backend.backendRootUrl + (this.data.parameters ?? ""),
                 dataType: "parameters",
-                contentType: this.data.parametersContentType,
+                contentType: this.data.parametersContentType ?? "",
             };
         }
         this.previewData = previewData;
