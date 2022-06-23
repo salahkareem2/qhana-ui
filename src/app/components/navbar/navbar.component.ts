@@ -28,9 +28,11 @@ export class NavbarComponent {
     @Input() title: string = "";
 
     currentExperiment: Observable<string | null>;
+    experimentId: Observable<string | null>;
 
     constructor(private experiment: CurrentExperimentService) {
         this.currentExperiment = this.experiment.experimentName;
+        this.experimentId = this.experiment.experimentId;
     }
 
 }

@@ -1,10 +1,36 @@
-<mat-toolbar color="primary">
+<mat-toolbar class="nav-bar" color="primary">
     <a class="logo-link" [routerLink]="['/']">
-        <img class="app-logo" height="86%" src="assets/QHAna_logo_notext_inv.png" alt="QHAna logo">
+        <img class="app-logo" height="3rem" src="assets/QHAna_logo_notext_inv.png" alt="QHAna logo">
         <span>{{title}}</span>
     </a>
+
+    <ng-container *ngIf="(currentExperiment|async) != null">
+        <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'info']"
+            routerLinkActive="active">
+            Info
+        </a>
+        <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'workspace']"
+            routerLinkActive="active">
+            Workspace
+        </a>
+        <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'data']"
+            routerLinkActive="active">
+            Data
+        </a>
+        <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'timeline']"
+            routerLinkActive="active">
+            Timeline
+        </a>
+    </ng-container>
+
     <div class="toolbar-spacer"></div>
-    <span [hidden]="(currentExperiment|async) == null">Experiment: {{currentExperiment|async}}</span>
+    <div [hidden]="(currentExperiment|async) == null">
+        <span>{{currentExperiment|async}}</span>
+        <a class="navigation-link" mat-icon-button [hidden]="(currentExperiment|async) == null" [routerLink]="['/']"
+            aria-label="change experiment">
+            <mat-icon>swap_horiz</mat-icon>
+        </a>
+    </div>
     <a class="settings-link" [routerLink]="['/settings']">
         <mat-icon aria-hidden="false" aria-label="Settings">settings</mat-icon>
     </a>
