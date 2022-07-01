@@ -117,5 +117,8 @@
             }
         }
     },
-    "defaultProject": "qhana-ui"
+    "defaultProject": "qhana-ui",
+    "cli": {
+      "analytics": false
+    }
 }
