@@ -65,7 +65,7 @@ export class DataPreviewComponent implements OnChanges {
             };
         } else if (isStepLikeApiObject(this.data)) {
             previewData = {
-                url: this.backend.backendRootUrl + (this.data.parameters ?? ""),
+                url: this.backend.backendRootUrl + this.data.parameters,
                 dataType: "parameters",
                 contentType: this.data.parametersContentType ?? "",
             };
