@@ -4,7 +4,7 @@ import { Subscription, merge, Observable, of } from 'rxjs';
 import { map, catchError } from "rxjs/operators";
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { isInstanceOfPluginStatus, PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
-import { TemplatesService, TemplateDescription, QhanaTemplate, TemplateCategory, pluginFilterMatchesTags } from 'src/app/services/templates.service';
+import { TemplatesService, TemplateDescription, QhanaTemplate, TemplateCategory, pluginMatchesFilter } from 'src/app/services/templates.service';
 import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
 import { FormSubmitData } from '../plugin-uiframe/plugin-uiframe.component';
 import TimeAgo from 'javascript-time-ago';
@@ -165,7 +165,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
                         return 0;
                     }
                 ).filter(
-                    plugin => pluginFilterMatchesTags(plugin.pluginDescription.tags, categoryDesc.pluginFilter, plugin.pluginDescription.name)
+                    plugin => pluginMatchesFilter(plugin.pluginDescription, categoryDesc.pluginFilter)
                 ))
             ) ?? of([]);
 
