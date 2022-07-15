@@ -2,7 +2,8 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
-import { ExperimentDataApiObject, QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
+import { ExperimentDataApiObject, QhanaBackendService, TimelineStepApiObject, TimelineSubStepApiObject } from 'src/app/services/qhana-backend.service';
+import { TimelineSubstepsComponent } from '../timeline-substeps/timeline-substeps.component';
 
 const SPECIAL_MIMETYPES = new Set(["text/html", "text/markdown", "application/x-www-form-urlencoded"]);
 const NO_INTERNAL_PREVIEW = new Set(["text/csv"]);
@@ -13,14 +14,14 @@ interface PreviewOption {
     plugin?: QhanaPlugin,
 }
 
-function isDataApiObject(input: ExperimentDataApiObject | TimelineStepApiObject): input is ExperimentDataApiObject {
+function isDataApiObject(input: ExperimentDataApiObject | TimelineStepApiObject | TimelineSubStepApiObject): input is ExperimentDataApiObject {
     if ((input as any).contentType != null && (input as any).download != null) {
         return true;
     }
     return false;
 }
 
-function isStepApiObject(input: ExperimentDataApiObject | TimelineStepApiObject): input is TimelineStepApiObject {
+function isStepLikeApiObject(input: ExperimentDataApiObject | TimelineStepApiObject | TimelineSubStepApiObject): input is TimelineStepApiObject | TimelineSubStepApiObject {
     if ((input as any).parametersContentType != null && (input as any).parameters != null) {
         return true;
     }
@@ -40,7 +41,7 @@ interface PreviewData {
 })
 export class DataPreviewComponent implements OnChanges {
 
-    @Input() data: ExperimentDataApiObject | TimelineStepApiObject | null = null;
+    @Input() data: ExperimentDataApiObject | TimelineStepApiObject | TimelineSubStepApiObject | null = null;
 
     previewData: PreviewData | null = null;
 
@@ -62,11 +63,11 @@ export class DataPreviewComponent implements OnChanges {
                 dataType: this.data.type,
                 contentType: this.data.contentType,
             };
-        } else if (isStepApiObject(this.data)) {
+        } else if (isStepLikeApiObject(this.data)) {
             previewData = {
                 url: this.backend.backendRootUrl + this.data.parameters,
                 dataType: "parameters",
-                contentType: this.data.parametersContentType,
+                contentType: this.data.parametersContentType ?? "",
             };
         }
         this.previewData = previewData;
@@ -126,7 +127,6 @@ export class DataPreviewComponent implements OnChanges {
                 })
             }
             if (mimetype === "application/x-www-form-urlencoded") {
-                console.log(downloadUrl)
                 this.backend.getExperimentDataContent(downloadUrl).subscribe((blob) => {
                     if (blob.type === mimetype && blob.size < 1048576) {
                         // preview must be of the correct mimetype and not too large!

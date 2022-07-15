@@ -73,14 +73,17 @@ export interface TimelineSubStepPostData {
 };
 
 
-export interface TimelineSubStepApiObject { // FIXME in backend: extends ApiObject
+export interface TimelineSubStepApiObject {
     substepNr: number;
     stepId: number;
-    inputData: string[]; // TODO check this later
+    inputData?: ExperimentDataRef[];
     substepId?: string;
     href: string;
     hrefUi?: string;
-    cleared: number; // FIXME fix this once the API correctly returns booleans...
+    cleared: boolean;
+    parameters?: string;
+    parametersContentType?: string;
+
 }
 
 export interface TimelineStepApiObject extends ApiObject {
