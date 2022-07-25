@@ -18,6 +18,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 export interface ApiObject {
     "@self": string;
@@ -139,16 +140,18 @@ export class QhanaBackendService {
     }
 
     private getBackendUrlFromConfig() {
-        let protocol = window?.location?.protocol ?? "http:";
-        let hostname = window?.location?.hostname ?? "localhost";
-        let port = "9090";
-        let path = "";
+        let protocol = environment.QHANA_BACKEND_PROTOCOL;
+        let hostname = environment.QHANA_BACKEND_HOSTNAME;
+        let port = environment.QHANA_BACKEND_PORT;
+        let path = environment.QHANA_BACKEND_PATH;
+
         if (localStorage) {
             protocol = localStorage.getItem("QHAna_backend_protocol") ?? protocol;
             hostname = localStorage.getItem("QHAna_backend_hostname") ?? hostname;
             port = localStorage.getItem("QHAna_backend_port") ?? port;
             path = localStorage.getItem("QHAna_backend_path") ?? path;
         }
+        
         return `${protocol}//${hostname}:${port}${path}`;
     }
 

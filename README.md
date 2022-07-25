@@ -34,6 +34,21 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
+## Docker
+
+Build the container with `docker build -t qhana-ui .`
+
+Run the container with `docker run -p 8080:8080 qhana-ui`
+
+### Environment variables for the Docker image
+
+- `QHANA_BACKEND_PROTOCOL`: default protocol for the QHAna backend e.g. `http:`
+- `QHANA_BACKEND_HOSTNAME`: default hostname for the QHAna backend e.g. `localhost`
+- `QHANA_BACKEND_PORT`: default port for the QHAna backend e.g. `9090`
+- `QHANA_BACKEND_PATH`: default path for the QHAna backend e.g. `/path`
+
+They can be added to the run command if you want to change them temporarily e.g. `-e QHANA_BACKEND_PORT=9999` or to the dockerfile if you want to change them permanently e.g. `ENV QHANA_BACKEND_PORT=9999`.
+
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
