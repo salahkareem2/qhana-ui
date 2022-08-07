@@ -17,7 +17,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, from, Observable, of } from 'rxjs';
-import { connectableObservableDescriptor } from 'rxjs/internal/observable/ConnectableObservable';
 import { catchError, map, mergeAll, mergeMap, toArray } from 'rxjs/operators';
 import { PluginDescription, QhanaPlugin } from './plugins.service';
 import { QhanaBackendService } from './qhana-backend.service';
