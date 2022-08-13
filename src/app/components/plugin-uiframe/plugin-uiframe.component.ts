@@ -1,11 +1,13 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { take } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
 import { ChoosePluginComponent } from 'src/app/dialogs/choose-plugin/choose-plugin.component';
 import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
-import { ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { ApiObjectList, ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 export interface FormSubmitData {
     type: "form-submit";
@@ -116,6 +118,11 @@ interface PluginUrlInfoRequest {
     pluginUrl: string;
 }
 
+interface ImplementationItem {
+    name: string,
+    download: string
+}
+
 function isPluginUrlInfoRequest(data: any): data is PluginUrlInfoRequest {
     if (data == null) {
         return false;
@@ -149,6 +156,8 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     pluginOrigin: string | null = null;
     frontendUrl: SafeResourceUrl;
     frontendHeight: number = 100;
+    itemsPerPage: number = 100;
+    experimentId: number | null = null;
 
     loading: boolean = true;
     error: { code: number, status: string } | null = null;
@@ -157,13 +166,16 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
 
     listenerFunction = (event: MessageEvent) => this.handleMicroFrontendEvent(event);
 
-    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService, private pluginService: PluginsService) {
+    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService, private pluginService: PluginsService, private route: ActivatedRoute) {
         this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about://blank");
         this.frontendUrl = this.blank;
         window.addEventListener(
             "message",
             this.listenerFunction,
         );
+        this.route.params.subscribe(params => {
+            this.experimentId = params?.experimentId ?? null;
+        });
     }
 
     ngOnDestroy(): void {
@@ -273,6 +285,48 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         iframe?.contentWindow?.postMessage?.(message, this.pluginOrigin ?? "*");
     }
 
+    loadImplementations(): void {
+        const firstPage = this.loadImplementationsFromPage(0);
+        let implementations: ImplementationItem[];
+        
+
+        firstPage?.subscribe(
+            (page) => {
+                const quantumCircFilter = (e: ExperimentDataApiObject) => e.contentType === "application/qasm";
+                const nameAndLink = (e: ExperimentDataApiObject) => ({
+                    name: e.name,
+                    download: this.backend.backendRootUrl + e.download
+                });
+                const getImplementationsFromPage = (page: ApiObjectList<ExperimentDataApiObject>) => {
+                    return page.items.filter(quantumCircFilter).map(nameAndLink);
+                };
+
+                implementations = getImplementationsFromPage(page);
+
+                for (let i = 1; i < page.itemCount / this.itemsPerPage; i++) {
+                    this.loadImplementationsFromPage(i)?.pipe(
+                        map(page => getImplementationsFromPage(page)),
+                    ).subscribe(
+                        data => implementations.concat(data)
+                    )
+                }
+
+                let msg = {
+                    type: 'implementations-response',
+                    implementations
+                }
+                this.sendMessage(msg);
+            }
+        );
+    }
+
+    loadImplementationsFromPage(num: number): Observable<ApiObjectList<ExperimentDataApiObject>> | null {
+        if (this.experimentId == null) {
+            return null;
+        }
+        return this.backend.getExperimentDataPage(this.experimentId, num, this.itemsPerPage);
+    }
+
     private handleMicroFrontendEvent(event: MessageEvent) {
         if (this.pluginOrigin == null || event.origin !== this.pluginOrigin) {
             return; // unsafe event
@@ -298,6 +352,9 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             if (data === "ui-loading") {
                 this.loading = true;
                 this.uiframe?.nativeElement?.blur();
+            }
+            if (data === "implementations-request") {
+                this.loadImplementations();
             }
         } else { // assume object message
             if (data?.type === "ui-resize") {
