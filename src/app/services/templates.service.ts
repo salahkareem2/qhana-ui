@@ -146,7 +146,8 @@ export class TemplatesService {
 }
 
 function isInstanceOfPluginFilterOr(pluginFilter: PluginFilterExpr): pluginFilter is PluginFilterOr {
-    if (pluginFilter != null && Object.keys(pluginFilter) === ['or']) {
+    const keys = Object.keys(pluginFilter);
+    if (pluginFilter != null && keys.length === 1 && keys.includes('or')) {
         const _or = (pluginFilter as PluginFilterOr).or;
         return _or != null && Array.isArray(_or);
     }
@@ -154,7 +155,8 @@ function isInstanceOfPluginFilterOr(pluginFilter: PluginFilterExpr): pluginFilte
 }
 
 function isInstanceOfPluginFilterAnd(pluginFilter: PluginFilterExpr): pluginFilter is PluginFilterAnd {
-    if (pluginFilter != null && Object.keys(pluginFilter) === ['and']) {
+    const keys = Object.keys(pluginFilter);
+    if (pluginFilter != null && keys.length == 1 && keys.includes('and')) {
         const _and = (pluginFilter as PluginFilterAnd).and;
         return _and != null && Array.isArray(_and);
     }
@@ -162,7 +164,8 @@ function isInstanceOfPluginFilterAnd(pluginFilter: PluginFilterExpr): pluginFilt
 }
 
 function isInstanceOfPluginFilterNot(pluginFilter: PluginFilterExpr): pluginFilter is PluginFilterNot {
-    if (pluginFilter != null && Object.keys(pluginFilter) === ['not']) {
+    const keys = Object.keys(pluginFilter);
+    if (pluginFilter != null && keys.length === 1 && keys.includes('not')) {
         const _not = (pluginFilter as PluginFilterNot).not;
         return _not != null && isInstanceOfPluginFilter(_not);
     }
