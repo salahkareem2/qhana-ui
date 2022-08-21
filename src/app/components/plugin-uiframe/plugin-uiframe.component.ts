@@ -2,8 +2,8 @@ import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Outpu
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { concatAll, map, mergeAll, take, toArray } from 'rxjs/operators';
 import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
 import { ChoosePluginComponent } from 'src/app/dialogs/choose-plugin/choose-plugin.component';
 import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
@@ -120,7 +120,8 @@ interface PluginUrlInfoRequest {
 
 interface ImplementationItem {
     name: string,
-    download: string
+    download: string,
+    version: string
 }
 
 function isPluginUrlInfoRequest(data: any): data is PluginUrlInfoRequest {
@@ -287,37 +288,44 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
 
     loadImplementations(): void {
         const firstPage = this.loadImplementationsFromPage(0);
-        let implementations: ImplementationItem[];
         
-
-        firstPage?.subscribe(
-            (page) => {
-                const quantumCircFilter = (e: ExperimentDataApiObject) => e.contentType === "application/qasm";
-                const nameAndLink = (e: ExperimentDataApiObject) => ({
-                    name: e.name,
-                    download: this.backend.backendRootUrl + e.download
-                });
-                const getImplementationsFromPage = (page: ApiObjectList<ExperimentDataApiObject>) => {
-                    return page.items.filter(quantumCircFilter).map(nameAndLink);
-                };
-
-                implementations = getImplementationsFromPage(page);
-
-                for (let i = 1; i < page.itemCount / this.itemsPerPage; i++) {
-                    this.loadImplementationsFromPage(i)?.pipe(
-                        map(page => getImplementationsFromPage(page)),
-                    ).subscribe(
-                        data => implementations.concat(data)
-                    )
+        firstPage?.pipe(
+            map(firstPage => {
+                let pages: Observable<ApiObjectList<ExperimentDataApiObject>>[] = [of(firstPage)]
+                for (let i = 1; i < firstPage.itemCount / this.itemsPerPage; i++) {
+                    const page = this.loadImplementationsFromPage(i)
+                    if (page !== null) {
+                        pages.push(page)
+                    }
                 }
-
-                let msg = {
-                    type: 'implementations-response',
-                    implementations
-                }
-                this.sendMessage(msg);
+                return pages;
+            }),
+            mergeAll(),
+            map(wholePage => 
+                wholePage.pipe(
+                    map(apiObjectList => apiObjectList.items.filter(experminetData => experminetData.contentType === "application/qasm")),
+                    map(dataItems => dataItems.map(item => this.backend.getExperimentData(this.experimentId ?? 0, item.name, item.version))), // TODO: null check
+                    mergeAll(),
+                    concatAll(),
+                )
+            ),
+            concatAll(),
+            map(dataItem => this.backend.getTimelineStep(this.experimentId ?? 0, dataItem.producedBy ?? 0).pipe( // TODO: null check
+                map(step => ({
+                    name: dataItem.name + ' ' + step.processorName,
+                    download: this.backend.backendRootUrl + dataItem.download,
+                    version: dataItem.version
+                })),
+            )),
+            concatAll(),
+            toArray()
+        ).subscribe(implementations => {
+            const msg = {
+                type: 'implementations-response',
+                implementations
             }
-        );
+            this.sendMessage(msg);
+        });
     }
 
     loadImplementationsFromPage(num: number): Observable<ApiObjectList<ExperimentDataApiObject>> | null {
