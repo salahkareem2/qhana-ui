@@ -121,7 +121,8 @@ interface PluginUrlInfoRequest {
 interface ImplementationItem {
     name: string,
     download: string,
-    version: string
+    version: string,
+    type: string
 }
 
 function isPluginUrlInfoRequest(data: any): data is PluginUrlInfoRequest {
@@ -303,7 +304,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             mergeAll(),
             map(wholePage => 
                 wholePage.pipe(
-                    map(apiObjectList => apiObjectList.items.filter(experminetData => experminetData.contentType === "application/qasm")),
+                    map(apiObjectList => apiObjectList.items.filter(experminetData => experminetData.contentType === "application/qasm" || experminetData.contentType === "application/qiskit")),
                     map(dataItems => dataItems.map(item => this.backend.getExperimentData(this.experimentId ?? 0, item.name, item.version))), // TODO: null check
                     mergeAll(),
                     concatAll(),
@@ -314,7 +315,8 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 map(step => ({
                     name: dataItem.name + ' ' + step.processorName,
                     download: this.backend.backendRootUrl + dataItem.download,
-                    version: dataItem.version
+                    version: dataItem.version,
+                    type: dataItem.contentType.split("/")[1]
                 })),
             )),
             concatAll(),
