@@ -118,13 +118,6 @@ interface PluginUrlInfoRequest {
     pluginUrl: string;
 }
 
-interface ImplementationItem {
-    name: string,
-    download: string,
-    version: string,
-    type: string
-}
-
 function isPluginUrlInfoRequest(data: any): data is PluginUrlInfoRequest {
     if (data == null) {
         return false;
