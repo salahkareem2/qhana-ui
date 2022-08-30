@@ -153,6 +153,8 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     frontendHeight: number = 100;
     itemsPerPage: number = 100;
     experimentId: number | null = null;
+    isNisqPlugin: boolean = false;
+    fullscreen: boolean = false;
 
     loading: boolean = true;
     error: { code: number, status: string } | null = null;
@@ -189,6 +191,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         this.pluginOrigin = (new URL(url)).origin;
         this.frontendHeight = 100;
         this.frontendUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        this.isNisqPlugin = false;
     }
 
     private selectPlugin(request: PluginUrlRequest) {
@@ -280,7 +283,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         iframe?.contentWindow?.postMessage?.(message, this.pluginOrigin ?? "*");
     }
 
-    loadImplementations(): void {
+    private loadImplementations(): void {
         const firstPage = this.loadImplementationsFromPage(0);
         
         firstPage?.pipe(
@@ -323,7 +326,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         });
     }
 
-    loadImplementationsFromPage(num: number): Observable<ApiObjectList<ExperimentDataApiObject>> | null {
+    private loadImplementationsFromPage(num: number): Observable<ApiObjectList<ExperimentDataApiObject>> | null {
         if (this.experimentId == null) {
             return null;
         }
@@ -357,6 +360,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 this.uiframe?.nativeElement?.blur();
             }
             if (data === "implementations-request") {
+                this.isNisqPlugin = true;
                 this.loadImplementations();
             }
         } else { // assume object message
