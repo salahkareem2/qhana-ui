@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { concatAll, map, mergeAll, take, toArray } from 'rxjs/operators';
+import { concatAll, filter, map, mergeAll, take, toArray } from 'rxjs/operators';
 import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
 import { ChoosePluginComponent } from 'src/app/dialogs/choose-plugin/choose-plugin.component';
 import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
@@ -301,7 +301,8 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             map(wholePage => 
                 wholePage.pipe(
                     map(apiObjectList => apiObjectList.items.filter(experminetData => experminetData.contentType === "application/qasm" || experminetData.contentType === "application/qiskit")),
-                    map(dataItems => dataItems.map(item => this.backend.getExperimentData(this.experimentId ?? 0, item.name, item.version))), // TODO: null check
+                    map(dataItems => dataItems.map(item => this.experimentId ? this.backend.getExperimentData(this.experimentId, item.name, item.version) : undefined)),
+                    filter((experimentData): experimentData is Observable<ExperimentDataApiObject>[] => !!experimentData),
                     mergeAll(),
                     concatAll(),
                 )
