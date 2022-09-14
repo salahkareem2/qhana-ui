@@ -7,7 +7,7 @@ import { concatAll, filter, map, mergeAll, take, toArray } from 'rxjs/operators'
 import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
 import { ChoosePluginComponent } from 'src/app/dialogs/choose-plugin/choose-plugin.component';
 import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
-import { ApiObjectList, ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { ApiObjectList, ExperimentDataApiObject, TimelineStepApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 export interface FormSubmitData {
     type: "form-submit";
@@ -132,6 +132,13 @@ function isPluginUrlInfoRequest(data: any): data is PluginUrlInfoRequest {
         return false;
     }
     return true;
+}
+
+interface ImplementationInfo {
+    name: string;
+    download: string;
+    version: string;
+    type: string;
 }
 
 @Component({
@@ -308,14 +315,16 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 )
             ),
             concatAll(),
-            map(dataItem => this.backend.getTimelineStep(this.experimentId ?? 0, dataItem.producedBy ?? 0).pipe( // TODO: null check
-                map(step => ({
-                    name: dataItem.name + ' ' + step.processorName,
-                    download: this.backend.backendRootUrl + dataItem.download,
-                    version: dataItem.version,
-                    type: dataItem.contentType.split("/")[1]
-                })),
-            )),
+            map(dataItem => (this.experimentId && dataItem.producedBy) ?
+                this.backend.getTimelineStep(this.experimentId, dataItem.producedBy).pipe(
+                    map(step => ({
+                        name: dataItem.name + ' ' + step.processorName,
+                        download: this.backend.backendRootUrl + dataItem.download,
+                        version: dataItem.version,
+                        type: dataItem.contentType.split("/")[1]
+                    })),
+                ) : of(undefined)),
+            filter((implementation): implementation is Observable<ImplementationInfo> => !!implementation),
             concatAll(),
             toArray()
         ).subscribe(implementations => {
