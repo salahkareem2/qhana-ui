@@ -218,7 +218,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 return; // nothing was selected
             }
             let url = result.download;
-            if (url.startsWith("/")) {
+            if (url.startsWith("/")) { // TODO: check
                 url = this.backend.backendRootUrl + url;
             }
             this.sendMessage({
