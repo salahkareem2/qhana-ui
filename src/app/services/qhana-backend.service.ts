@@ -135,7 +135,7 @@ export class QhanaBackendService {
     }
 
     constructor(private http: HttpClient) {
-        this.rootUrl = this.getBackendUrlFromConfig();
+        this.rootUrl = this.getBackendUrlFromConfig().replace(/\/+$/, '');;
         this.latexUrl = this.getLatexUrlFromConfig();
     }
 
@@ -151,7 +151,7 @@ export class QhanaBackendService {
             port = localStorage.getItem("QHAna_backend_port") ?? port;
             path = localStorage.getItem("QHAna_backend_path") ?? path;
         }
-        
+
         return `${protocol}//${hostname}:${port}${path}`;
     }
 
@@ -178,7 +178,7 @@ export class QhanaBackendService {
         }
 
         // set new URL
-        this.rootUrl = this.getBackendUrlFromConfig();
+        this.rootUrl = this.getBackendUrlFromConfig().replace(/\/+$/, '');;
     }
 
     private getLatexUrlFromConfig() {
