@@ -58,14 +58,26 @@ export class DataPreviewComponent implements OnChanges {
         if (this.data == null) {
             // todo nothing to preview
         } else if (isDataApiObject(this.data)) {
+            let url = this.data.download
+            if (this.data.download.startsWith("/")) {
+                url = this.backend.backendRootUrl + url;
+            }
             previewData = {
-                url: this.backend.backendRootUrl + this.data.download,
+                url: url,
                 dataType: this.data.type,
                 contentType: this.data.contentType,
             };
         } else if (isStepLikeApiObject(this.data)) {
+            let url = ""
+            if (this.data.parameters && this.data.parameters.startsWith("/")) {
+                url = this.backend.backendRootUrl + this.data.parameters;
+            } else if (this.data.parameters) {
+                url = this.data.parameters
+            } else {
+                // should not happen
+            }
             previewData = {
-                url: this.backend.backendRootUrl + this.data.parameters,
+                url: url,
                 dataType: "parameters",
                 contentType: this.data.parametersContentType ?? "",
             };

@@ -36,7 +36,11 @@ export class DataDetailComponent implements OnInit, OnDestroy {
 
     loadData(experimentId: number, dataName: string, version: string | null) {
         this.backend.getExperimentData(experimentId, dataName, version ?? 'latest').pipe(take(1)).subscribe(data => {
-            this.downloadUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.backend.backendRootUrl + data.download);
+            let url = data.download
+            if (data.download.startsWith("/")) {
+                url = this.backend.backendRootUrl + url
+            }
+            this.downloadUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
             this.data = data;
         });
     }
