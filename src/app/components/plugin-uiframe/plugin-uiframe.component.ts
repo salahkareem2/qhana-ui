@@ -319,7 +319,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 this.backend.getTimelineStep(this.experimentId, dataItem.producedBy).pipe(
                     map(step => ({
                         name: dataItem.name + ' ' + step.processorName,
-                        download: this.backend.backendRootUrl + dataItem.download,
+                        download: dataItem.download,
                         version: dataItem.version,
                         type: dataItem.contentType.split("/")[1]
                     })),
