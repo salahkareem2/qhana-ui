@@ -160,7 +160,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     frontendHeight: number = 100;
     itemsPerPage: number = 100;
     experimentId: number | null = null;
-    isNisqPlugin: boolean = false;
+    hasFullscreenMode: boolean = false;
     fullscreen: boolean = false;
 
     loading: boolean = true;
@@ -198,7 +198,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         this.pluginOrigin = (new URL(url)).origin;
         this.frontendHeight = 100;
         this.frontendUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-        this.isNisqPlugin = false;
+        this.hasFullscreenMode = false;
     }
 
     private selectPlugin(request: PluginUrlRequest) {
@@ -291,6 +291,9 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     }
 
     private loadImplementations(): void {
+        const allowedContentTypes: Set<string> = new Set(["application/qasm", "application/qiskit"]);
+        const contentTypeToType = (contentType: string) => contentType.split("/")[1];
+        
         const firstPage = this.loadImplementationsFromPage(0);
         
         firstPage?.pipe(
@@ -307,23 +310,28 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             mergeAll(),
             map(wholePage => 
                 wholePage.pipe(
-                    map(apiObjectList => apiObjectList.items.filter(experminetData => experminetData.contentType === "application/qasm" || experminetData.contentType === "application/qiskit")),
+                    map(apiObjectList => apiObjectList.items.filter(experminetData => allowedContentTypes.has(experminetData.contentType))),
                     map(dataItems => dataItems.map(item => this.experimentId ? this.backend.getExperimentData(this.experimentId, item.name, item.version) : undefined)),
-                    filter((experimentData): experimentData is Observable<ExperimentDataApiObject>[] => !!experimentData),
+                    filter((experimentData): experimentData is Observable<ExperimentDataApiObject>[] => Boolean(experimentData)),
                     mergeAll(),
                     concatAll(),
                 )
             ),
             concatAll(),
-            map(dataItem => (this.experimentId && dataItem.producedBy) ?
-                this.backend.getTimelineStep(this.experimentId, dataItem.producedBy).pipe(
-                    map(step => ({
-                        name: dataItem.name + ' ' + step.processorName,
-                        download: dataItem.download,
-                        version: dataItem.version,
-                        type: dataItem.contentType.split("/")[1]
-                    })),
-                ) : of(undefined)),
+            map(dataItem => {
+                if (this.experimentId && dataItem.producedBy) {
+                    return this.backend.getTimelineStep(this.experimentId, dataItem.producedBy).pipe(
+                        map(step => ({
+                            name: dataItem.name + ' ' + step.processorName,
+                            download: dataItem.download,
+                            version: dataItem.version,
+                            type: contentTypeToType(dataItem.contentType)
+                        })),
+                    )
+                } else {
+                    return of(undefined);
+                }
+            }),
             filter((implementation): implementation is Observable<ImplementationInfo> => !!implementation),
             concatAll(),
             toArray()
@@ -370,7 +378,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 this.uiframe?.nativeElement?.blur();
             }
             if (data === "implementations-request") {
-                this.isNisqPlugin = true;
+                this.hasFullscreenMode = true;
                 this.loadImplementations();
             }
         } else { // assume object message

@@ -10,7 +10,7 @@
         <p>{{error.status}}</p>
         <button mat-stroked-button color="warn" (click)="error=null">dismiss</button>
     </div>
-    <button mat-icon-button *ngIf="isNisqPlugin" class="fsbutton mat-raised-button mat-primary" (click)="fullscreen=!fullscreen">
+    <button mat-icon-button *ngIf="hasFullscreenMode" class="fsbutton mat-raised-button mat-primary" (click)="fullscreen=!fullscreen">
         <mat-icon *ngIf="fullscreen" inline="false" aria-hidden="true">fullscreen_exit</mat-icon>
         <mat-icon *ngIf="!fullscreen" inline="false" aria-hidden="true">fullscreen</mat-icon>
     </button>
