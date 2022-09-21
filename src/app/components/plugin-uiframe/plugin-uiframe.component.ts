@@ -134,6 +134,12 @@ function isPluginUrlInfoRequest(data: any): data is PluginUrlInfoRequest {
     return true;
 }
 
+const allowedImplementationContentTypes: Set<string> = new Set(["application/qasm", "application/qiskit"]);
+const implementationsContentTypeMap: Map<string, string> = new Map([
+    ["application/qasm", "qasm"],
+    ["application/qiskit", "qiskit"]
+])
+
 interface ImplementationInfo {
     name: string;
     download: string;
@@ -291,8 +297,6 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     }
 
     private loadImplementations(): void {
-        const allowedContentTypes: Set<string> = new Set(["application/qasm", "application/qiskit"]);
-        const contentTypeToType = (contentType: string) => contentType.split("/")[1];
         
         const firstPage = this.loadImplementationsFromPage(0);
         
@@ -310,7 +314,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             mergeAll(),
             map(wholePage => 
                 wholePage.pipe(
-                    map(apiObjectList => apiObjectList.items.filter(experminetData => allowedContentTypes.has(experminetData.contentType))),
+                    map(apiObjectList => apiObjectList.items.filter(experimentData => allowedImplementationContentTypes.has(experimentData.contentType))),
                     map(dataItems => dataItems.map(item => this.experimentId ? this.backend.getExperimentData(this.experimentId, item.name, item.version) : undefined)),
                     filter((experimentData): experimentData is Observable<ExperimentDataApiObject>[] => Boolean(experimentData)),
                     mergeAll(),
@@ -325,7 +329,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                             name: dataItem.name + ' ' + step.processorName,
                             download: dataItem.download,
                             version: dataItem.version,
-                            type: contentTypeToType(dataItem.contentType)
+                            type: implementationsContentTypeMap.get(dataItem.contentType) ?? "unknown"
                         })),
                     )
                 } else {
@@ -378,7 +382,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 this.uiframe?.nativeElement?.blur();
             }
             if (data === "implementations-request") {
-                this.hasFullscreenMode = true;
+                this.hasFullscreenMode = true; // TODO: Set when other message is sent (e.g. "enable-fullscreen")
                 this.loadImplementations();
             }
         } else { // assume object message
