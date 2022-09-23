@@ -1,4 +1,4 @@
-<mat-card class="microfrontend-container card" [hidden]="frontendUrl === blank">
+<mat-card class="microfrontend-container card" [ngClass]="fullscreen ? 'fullscreen' : ''" [hidden]="frontendUrl === blank">
     <iframe seamless class="frontend-frame" [src]="frontendUrl" frameborder="0" scroll="no" [height]="frontendHeight"
         sandbox="allow-forms allow-scripts allow-same-origin" allow="fullscreen" #uiframe></iframe>
     <div class="ui-loading-blend" *ngIf="loading">
@@ -10,4 +10,8 @@
         <p>{{error.status}}</p>
         <button mat-stroked-button color="warn" (click)="error=null">dismiss</button>
     </div>
+    <button mat-icon-button *ngIf="hasFullscreenMode" class="fsbutton mat-raised-button mat-primary" (click)="fullscreen=!fullscreen">
+        <mat-icon *ngIf="fullscreen" inline="false" aria-hidden="true">fullscreen_exit</mat-icon>
+        <mat-icon *ngIf="!fullscreen" inline="false" aria-hidden="true">fullscreen</mat-icon>
+    </button>
 </mat-card>
