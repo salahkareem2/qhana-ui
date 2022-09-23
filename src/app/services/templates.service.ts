@@ -136,6 +136,19 @@ export class TemplatesService {
             from(observables).pipe(
                 mergeAll(),
                 toArray(),
+                map(templateDescriptions => {
+                    let res: TemplateDescription[] = [];
+                    let idsAdded: Set<string> = new Set();
+
+                    templateDescriptions.forEach(templateDescription => {
+                        if (!idsAdded.has(templateDescription.identifier)) {
+                            res.push(templateDescription);
+                            idsAdded.add(templateDescription.identifier);
+                        }
+                    });
+
+                    return res;
+                })
             ).subscribe(templates => {
                 templates.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
                 this.templatesSubject.next(templates);
