@@ -137,13 +137,13 @@ export class TemplatesService {
                 mergeAll(),
                 toArray(),
                 map(templateDescriptions => {
-                    var res: TemplateDescription[] = [];
-                    var idsAdded: string[] = [];
+                    let res: TemplateDescription[] = [];
+                    let idsAdded: Set<string> = new Set();
 
                     templateDescriptions.forEach(templateDescription => {
-                        if (!idsAdded.includes(templateDescription.identifier)) {
+                        if (!idsAdded.has(templateDescription.identifier)) {
                             res.push(templateDescription);
-                            idsAdded.push(templateDescription.identifier);
+                            idsAdded.add(templateDescription.identifier);
                         }
                     });
 
