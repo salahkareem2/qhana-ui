@@ -63,10 +63,15 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
                 this.templates.getTemplate(templateId).subscribe(
                     template => {
                         this.changeActiveTemplate(template);
-                        if (params.categoryId != null && this.activeTemplate != null) {
-                            this.activeCategory = this.activeTemplate.categories.find(
-                                category => category.identifier === params.categoryId
-                            ) ?? null;
+                        
+                        if (this.activeTemplate != null) {
+                            if (params.categoryId == null) {
+                                this.activeCategory = this.activeTemplate?.categories[0] ?? null;
+                            } else {
+                                this.activeCategory = this.activeTemplate.categories.find(
+                                    category => category.identifier === params.categoryId
+                                ) ?? null;
+                            }
                         }
                     }
                 );
