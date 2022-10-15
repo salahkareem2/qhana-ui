@@ -16,6 +16,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { DefaultTitleStrategy } from '@angular/router';
 import { BehaviorSubject, from, Observable, of } from 'rxjs';
 import { catchError, map, mergeAll, mergeMap, toArray } from 'rxjs/operators';
 import { PluginDescription, QhanaPlugin } from './plugins.service';
@@ -88,6 +89,8 @@ type PluginFilterExpr = PluginFilterOr | PluginFilterAnd | PluginFilterNot | str
 export class TemplatesService {
     private loading: boolean = false;
     private templatesSubject: BehaviorSubject<TemplateDescription[]> = new BehaviorSubject<TemplateDescription[]>([]);
+    
+    public defaultTemplateId = 'all-plugins';
 
     get templates() {
         return this.templatesSubject.asObservable();
@@ -122,7 +125,7 @@ export class TemplatesService {
             observables.push(of({
                 name: 'All Plugins',
                 description: 'Display All Loaded Plugins',
-                identifier: 'all-plugins',
+                identifier: this.defaultTemplateId,
                 categories: [
                     {
                         name: 'All Plugins',
