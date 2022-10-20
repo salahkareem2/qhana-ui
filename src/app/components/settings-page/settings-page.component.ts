@@ -14,49 +14,78 @@
  * limitations under the License.
  */
 
-import { Component, OnInit } from '@angular/core';
-import { take } from 'rxjs/operators';
-import { PluginEndpointApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { ApiLink, GenericApiObject } from 'src/app/services/api-data-types';
+import { PluginRegistryBaseService } from 'src/app/services/registry.service';
+import { ServiceRegistryService } from 'src/app/services/service-registry.service';
 
 @Component({
     selector: 'qhana-settings-page',
     templateUrl: './settings-page.component.html',
     styleUrls: ['./settings-page.component.sass']
 })
-export class SettingsPageComponent implements OnInit {
+export class SettingsPageComponent implements OnInit, OnDestroy {
 
-    backendUrl: string;
+    registryUrl: string;
+
     protocol: string | null = null;
     hostname: string | null = null;
     port: string | null = null;
     path: string | null = null;
 
-    latexUrl: string;
-    latexProtocol: string | null = null;
-    latexHostname: string | null = null;
-    latexPort: string | null = null;
-    latexPath: string | null = null;
+    backendUrl: string | null = null;
+    latexUrl: string | null = null;
 
-    endpoints: PluginEndpointApiObject[] = [];
-    endpointUrl: string | null = null;
-    endpointType: string | null = "PluginRunner";
+    // service form
+    currentServiceUpdateLink: ApiLink | null = null;
+    highlightedServices: Set<string> = new Set();
+    serviceIdentifier: string | null = null;
+    serviceUrl: string | null = null;
+    serviceName: string | null = null;
+    serviceDescriptionInput: string = "";
+    serviceDescription: string | null = null;
 
-    constructor(private backend: QhanaBackendService) {
-        this.backendUrl = backend.backendRootUrl;
-        this.latexUrl = backend.latexRendererUrl;
+    // seed form
+    newSeedUrl: string | null = null;
+
+
+    createServiceLink: ApiLink | null = null;
+    createSeedLink: ApiLink | null = null;
+
+    private backendUrlSubscription: Subscription | null = null;
+    private latexUrlSubscription: Subscription | null = null;
+
+    constructor(private registry: PluginRegistryBaseService, private serviceRegistry: ServiceRegistryService) {
+        this.registryUrl = registry.registryRootUrl;
     }
 
     ngOnInit(): void {
-        this.refreshEndpointList();
+        this.backendUrlSubscription = this.serviceRegistry.backendRootUrl.subscribe(url => this.backendUrl = url);
+        this.latexUrlSubscription = this.serviceRegistry.latexRendererUrl.subscribe(url => this.latexUrl = url);
+        this.updateCreateUrls();
     }
 
-    refreshEndpointList() {
-        this.backend.getPluginEndpoints()
-            .pipe(take(1))
-            .subscribe(endpoints => this.endpoints = endpoints.items);
+    ngOnDestroy(): void {
+        this.backendUrlSubscription?.unsubscribe();
+        this.latexUrlSubscription?.unsubscribe();
     }
 
-    updateBackendUrl() {
+    private async updateCreateUrls() {
+        try {
+            this.createServiceLink = await this.registry.searchResolveRels(["create", "service"]);
+        } catch (error) {
+            console.warn(error)
+            this.createServiceLink = null;
+        }
+        try {
+            this.createSeedLink = await this.registry.searchResolveRels(["create", "seed"]);
+        } catch {
+            this.createSeedLink = null;
+        }
+    }
+
+    updateRegistryUrl() {
         let protocol: string | null | undefined = this.protocol;
         if (protocol != null && protocol !== "") {
             if (protocol.startsWith("https")) {
@@ -70,42 +99,79 @@ export class SettingsPageComponent implements OnInit {
         const hostname = this.hostname ? this.hostname : undefined;
         const port = this.port ? this.port : undefined;
         const path = this.path ? this.path : undefined;
-        this.backend.changeBackendUrl(protocol, hostname, port, path);
-        this.backendUrl = this.backend.backendRootUrl;
+        this.registry.changeRegistryUrl(protocol, hostname, port, path);
+        this.registryUrl = this.registry.registryRootUrl;
     }
 
-    updateLatexUrl() {
-        let protocol: string | null | undefined = this.latexProtocol;
-        if (protocol != null && protocol !== "") {
-            if (protocol.startsWith("https")) {
-                protocol = "https:";
-            } else {
-                protocol = "http:";
-            }
-        } else {
-            protocol = undefined;
+    async selectService(link: ApiLink) {
+        if (this.highlightedServices.has(link.href)) {
+            this.highlightedServices.clear();
+            this.currentServiceUpdateLink = null;
+            this.serviceName = "";
+            this.serviceIdentifier = "";
+            this.serviceUrl = "";
+            this.serviceDescriptionInput = "";
+            return;
         }
-        const hostname = this.latexHostname ? this.latexHostname : undefined;
-        const port = this.latexPort ? this.latexPort : undefined;
-        const path = this.latexPath ? this.latexPath : undefined;
-        this.backend.changeLatexUrl(protocol, hostname, port, path);
-        this.latexUrl = this.backend.latexRendererUrl;
+        const serviceResponse = await this.registry.getByApiLink(link);
+        if (serviceResponse == null) {
+            return;
+        }
+
+        const updateLink = serviceResponse.links.find(link => link.rel.some(rel => rel === "update")) || null;
+
+        const serviceApiObject: GenericApiObject = serviceResponse?.data as GenericApiObject;  // FIXME use better type + type check
+
+        this.serviceIdentifier = serviceApiObject.serviceId;
+        this.serviceUrl = serviceApiObject.url;
+        this.serviceName = serviceApiObject.name;
+        this.serviceDescriptionInput = serviceApiObject.description;
+
+        this.highlightedServices.clear();
+        this.highlightedServices.add(link.href);
+        this.currentServiceUpdateLink = updateLink;
     }
 
-    removePluginEndpoint(endpoint: PluginEndpointApiObject) {
-        this.backend.removePluginEndpoint(endpoint).subscribe(() => {
-            this.refreshEndpointList();
+    async addService() {
+        const createLink = this.createServiceLink;
+        if (createLink == null) {
+            return;
+        }
+        // TODO validate inputs
+        await this.registry.submitByApiLink(createLink, {
+            serviceId: this.serviceIdentifier,
+            url: this.serviceUrl,
+            name: this.serviceName,
+            description: this.serviceDescription,
+        });
+        this.serviceName = "";
+        this.serviceIdentifier = "";
+        this.serviceUrl = "";
+        this.serviceDescriptionInput = "";
+    }
+
+    updateService() {
+        const updateLink = this.currentServiceUpdateLink;
+        if (updateLink == null) {
+            return;
+        }
+        // TODO validate inputs
+        this.registry.submitByApiLink(updateLink, {
+            serviceId: this.serviceIdentifier,
+            url: this.serviceUrl,
+            name: this.serviceName,
+            description: this.serviceDescription,
         });
     }
 
-    addPluginEndpoint() {
-        const url = this.endpointUrl;
-        const type = this.endpointType ? this.endpointType : undefined;
-        if (url) {
-            this.backend.addPluginEndpoint(url, type).subscribe(() => {
-                this.refreshEndpointList();
-            });
+    addSeedUrl() {
+        const createLink = this.createSeedLink;
+        const endpointUrl = this.newSeedUrl;
+        if (createLink == null || endpointUrl == null) {
+            return;
         }
+        this.registry.submitByApiLink(createLink, {
+            url: endpointUrl,
+        });
     }
-
 }

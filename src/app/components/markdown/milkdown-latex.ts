@@ -47,7 +47,7 @@ export type Options = {
         empty: string;
         error: string;
     };
-    latexRendererUrl: string;
+    latexRendererUrl: string | null;
     latexPackages: string[];
     imageFormat: string | "svg" | "pdf" | "png" | "jpg";
 };

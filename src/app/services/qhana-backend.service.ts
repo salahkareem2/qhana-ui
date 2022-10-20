@@ -18,7 +18,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
+import { ServiceRegistryService } from './service-registry.service';
 
 export interface ApiObject {
     "@self": string;
@@ -122,9 +122,9 @@ export interface TimelineStepResultQuality {
 })
 export class QhanaBackendService {
 
-    private rootUrl: string;
+    private rootUrl: string | null = null;
 
-    private latexUrl: string;
+    private latexUrl: string | null = null;
 
     public get backendRootUrl() {
         return this.rootUrl;
@@ -134,96 +134,9 @@ export class QhanaBackendService {
         return this.latexUrl;
     }
 
-    constructor(private http: HttpClient) {
-        this.rootUrl = this.getBackendUrlFromConfig().replace(/\/+$/, '');;
-        this.latexUrl = this.getLatexUrlFromConfig();
-    }
-
-    private getBackendUrlFromConfig() {
-        let protocol = environment.QHANA_BACKEND_PROTOCOL;
-        let hostname = environment.QHANA_BACKEND_HOSTNAME;
-        let port = environment.QHANA_BACKEND_PORT;
-        let path = environment.QHANA_BACKEND_PATH;
-
-        if (localStorage) {
-            protocol = localStorage.getItem("QHAna_backend_protocol") ?? protocol;
-            hostname = localStorage.getItem("QHAna_backend_hostname") ?? hostname;
-            port = localStorage.getItem("QHAna_backend_port") ?? port;
-            path = localStorage.getItem("QHAna_backend_path") ?? path;
-        }
-
-        return `${protocol}//${hostname}:${port}${path}`;
-    }
-
-    public changeBackendUrl(protocol?: string, hostname?: string, port?: string, path?: string) {
-        if (protocol == null) {
-            localStorage.removeItem("QHAna_backend_protocol");
-        } else {
-            localStorage.setItem("QHAna_backend_protocol", protocol);
-        }
-        if (hostname == null) {
-            localStorage.removeItem("QHAna_backend_hostname");
-        } else {
-            localStorage.setItem("QHAna_backend_hostname", hostname);
-        }
-        if (port == null) {
-            localStorage.removeItem("QHAna_backend_port");
-        } else {
-            localStorage.setItem("QHAna_backend_port", port);
-        }
-        if (path == null) {
-            localStorage.removeItem("QHAna_backend_path");
-        } else {
-            localStorage.setItem("QHAna_backend_path", path);
-        }
-
-        // set new URL
-        this.rootUrl = this.getBackendUrlFromConfig().replace(/\/+$/, '');;
-    }
-
-    private getLatexUrlFromConfig() {
-        // http://localhost:5030/renderLatex
-        let protocol = window?.location?.protocol ?? "http:";
-        let hostname = window?.location?.hostname ?? "localhost";
-        let port = "5030";
-        let path = "/renderLatex";
-        if (localStorage) {
-            protocol = localStorage.getItem("QHAna_latex_protocol") ?? protocol;
-            hostname = localStorage.getItem("QHAna_latex_hostname") ?? hostname;
-            port = localStorage.getItem("QHAna_latex_port") ?? port;
-            path = localStorage.getItem("QHAna_latex_path") ?? path;
-        }
-        return `${protocol}//${hostname}:${port}${path}`;
-    }
-
-    public changeLatexUrl(protocol?: string, hostname?: string, port?: string, path?: string) {
-        if (protocol == null) {
-            localStorage.removeItem("QHAna_latex_protocol");
-        } else {
-            localStorage.setItem("QHAna_latex_protocol", protocol);
-        }
-        if (hostname == null) {
-            localStorage.removeItem("QHAna_latex_hostname");
-        } else {
-            localStorage.setItem("QHAna_latex_hostname", hostname);
-        }
-        if (port == null) {
-            localStorage.removeItem("QHAna_latex_port");
-        } else {
-            localStorage.setItem("QHAna_latex_port", port);
-        }
-        if (path == null) {
-            localStorage.removeItem("QHAna_latex_path");
-        } else {
-            localStorage.setItem("QHAna_latex_path", path);
-        }
-
-        // set new URL
-        this.latexUrl = this.getLatexUrlFromConfig();
-    }
-
-    public resetBackendUrl() {
-        this.changeBackendUrl(undefined, undefined, undefined, undefined);
+    constructor(private http: HttpClient, private serviceRegistry: ServiceRegistryService) {
+        this.serviceRegistry.backendRootUrl.subscribe(url => this.rootUrl = url);
+        this.serviceRegistry.latexRendererUrl.subscribe(url => this.latexUrl = url);
     }
 
     public getPluginEndpoints(): Observable<ApiObjectList<PluginEndpointApiObject>> {

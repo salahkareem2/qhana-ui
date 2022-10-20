@@ -46,6 +46,7 @@ import { ExperimentTimelineComponent } from './components/experiment-timeline/ex
 import { ExperimentWorkspaceComponent } from './components/experiment-workspace/experiment-workspace.component';
 import { ExperimentComponent } from './components/experiment/experiment.component';
 import { ExperimentsPageComponent } from './components/experiments-page/experiments-page.component';
+import { GrowingListComponent } from './components/growing-list/growing-list.component';
 import { MarkdownComponent } from './components/markdown/markdown.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { PluginUiframeComponent } from './components/plugin-uiframe/plugin-uiframe.component';
@@ -58,6 +59,7 @@ import { TimelineSubstepsComponent } from './components/timeline-substeps/timeli
 import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component';
 import { ChoosePluginComponent } from './dialogs/choose-plugin/choose-plugin.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
+import { DeleteDialog } from './dialogs/delete-dialog/delete-dialog.dialog';
 import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
 
 @NgModule({
@@ -84,6 +86,8 @@ import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.compon
         SubstepsDetailsComponent,
         StepStatusComponent,
         MarkdownHelpDialog,
+        GrowingListComponent,
+        DeleteDialog,
     ],
     imports: [
         BrowserModule,

@@ -31,7 +31,7 @@ export class TimelineStepComponent implements OnInit, OnDestroy {
 
     watching: "watching" | "paused" | "error" | null = null;
 
-    backendUrl: string;
+    backendUrl: string | null;
 
     experimentId: string = "";
     stepId: string | null = null;

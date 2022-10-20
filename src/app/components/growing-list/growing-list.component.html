@@ -1,0 +1,23 @@
+<mat-list>
+    <ng-container [ngSwitch]="link.resourceType" *ngFor="let link of items; trackBy: trackBy; last as last">
+
+        <mat-list-item *ngSwitchDefault>
+            <div class="default-content {{highlighted.has(link.href) ? 'highlighted' : ''}}">
+                <button mat-button class="list-item-title strip-button-hover" (click)="onItemClick(link)">
+                    {{link.name ?? link.href}}
+                </button>
+                <button mat-icon-button aria-label="Edit item" (click)="onItemEditClick(link)" *ngIf="editButton">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button aria-label="Delete item" (click)="onItemDeleteClick(link)" *ngIf="deleteButton">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
+            <mat-divider [inset]="true" *ngIf="!last"></mat-divider>
+        </mat-list-item>
+    </ng-container>
+</mat-list>
+<button mat-raised-button class="more-button" (click)="loadMore()" *ngIf="loadMoreApiLink != null"
+    [disabled]="isLoading || loadMoreClicked">
+    load more
+</button>

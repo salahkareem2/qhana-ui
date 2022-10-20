@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>Confirm Delete</h1>
+<div mat-dialog-content>
+    <p>Confirm deletion of {{objectType}} "{{name}}"</p>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-button color="warn" (click)="accept()">delete</button>
+    <button mat-button cdkFocusInitial (click)="reject()">cancel</button>
+</div>
