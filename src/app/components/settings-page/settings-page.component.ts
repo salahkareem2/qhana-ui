@@ -16,9 +16,9 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { ApiLink, GenericApiObject } from 'src/app/services/api-data-types';
+import { ApiLink } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
-import { ServiceRegistryService } from 'src/app/services/service-registry.service';
+import { isServiceApiObject, ServiceApiObject, ServiceRegistryService } from 'src/app/services/service-registry.service';
 
 @Component({
     selector: 'qhana-settings-page',
@@ -120,7 +120,11 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
         const updateLink = serviceResponse.links.find(link => link.rel.some(rel => rel === "update")) || null;
 
-        const serviceApiObject: GenericApiObject = serviceResponse?.data as GenericApiObject;  // FIXME use better type + type check
+        if (!isServiceApiObject(serviceResponse.data)) {
+            return;
+        }
+
+        const serviceApiObject: ServiceApiObject = serviceResponse?.data;
 
         this.serviceIdentifier = serviceApiObject.serviceId;
         this.serviceUrl = serviceApiObject.url;
