@@ -105,5 +105,36 @@
             </details>
         </mat-card-content>
     </mat-card>
+
+    <mat-card class="card mt-2">
+        <mat-card-title class="flex-title">
+            <h3 class="mt-0 mb-0">Environment</h3>
+            <button mat-icon-button aria-label="Refresh Environment Variables" (click)="env.reloadAll()">
+                <mat-icon>refresh</mat-icon>
+            </button>
+        </mat-card-title>
+        <mat-card-content>
+            <qhana-growing-list [rels]="[['collection', 'env']]" [newItemRels]="['env']" [deleteButton]="true"
+                [highlighted]="highlightedEnvVars" (clickItem)="selectEnvVar($event)" #env>
+            </qhana-growing-list>
+
+            <div class="url-form-group mt-1">
+                <mat-form-field class="form-field">
+                    <mat-label>Environment Variable Name</mat-label>
+                    <input matInput type="text" autocomplete="false" required [(ngModel)]="envVarName">
+                </mat-form-field>
+                <mat-form-field class="form-field long-field">
+                    <mat-label>Environment Variable Value</mat-label>
+                    <textarea matInput required [(ngModel)]="envVarValue"></textarea>
+                </mat-form-field>
+            </div>
+            <button mat-flat-button color="primary" (click)="addEnvVar()" [hidden]="currentEnvVarUpdateLink!=null">
+                Add Environment Variable
+            </button>
+            <button mat-flat-button color="primary" (click)="updateEnvVar()" [hidden]="currentEnvVarUpdateLink==null">
+                Update Environment Variable
+            </button>
+        </mat-card-content>
+    </mat-card>
     <div class="scroll-spacer"></div>
 </div>

@@ -17,6 +17,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ApiLink } from 'src/app/services/api-data-types';
+import { EnvApiObject, isEnvApiObject } from 'src/app/services/env.service';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { isServiceApiObject, ServiceApiObject, ServiceRegistryService } from 'src/app/services/service-registry.service';
 
@@ -49,9 +50,16 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     // seed form
     newSeedUrl: string | null = null;
 
+    // env var form
+    currentEnvVarUpdateLink: ApiLink | null = null;
+    highlightedEnvVars: Set<string> = new Set();
+    envVarName: string | null = null;
+    envVarValue: string | null = null;
+
 
     createServiceLink: ApiLink | null = null;
     createSeedLink: ApiLink | null = null;
+    createEnvVarLink: ApiLink | null = null;
 
     private backendUrlSubscription: Subscription | null = null;
     private latexUrlSubscription: Subscription | null = null;
@@ -82,6 +90,11 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
             this.createSeedLink = await this.registry.searchResolveRels(["create", "seed"]);
         } catch {
             this.createSeedLink = null;
+        }
+        try {
+            this.createEnvVarLink = await this.registry.searchResolveRels(["create", "env"]);
+        } catch {
+            this.createEnvVarLink = null;
         }
     }
 
@@ -176,6 +189,62 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
         }
         this.registry.submitByApiLink(createLink, {
             url: endpointUrl,
+        });
+    }
+
+    async selectEnvVar(link: ApiLink) {
+        if (this.highlightedEnvVars.has(link.href)) {
+            this.highlightedEnvVars.clear();
+            this.currentEnvVarUpdateLink = null;
+            this.envVarName = "";
+            this.envVarValue = "";
+            return;
+        }
+        const envResponse = await this.registry.getByApiLink(link);
+        if (envResponse == null) {
+            return;
+        }
+
+        const updateLink = envResponse.links.find(link => link.rel.some(rel => rel === "update")) || null;
+
+        if (!isEnvApiObject(envResponse.data)) {
+            return;
+        }
+
+        const envApiObject: EnvApiObject = envResponse?.data;
+
+        this.envVarName = envApiObject.name;
+        this.envVarValue = envApiObject.value;
+
+        this.highlightedEnvVars.clear();
+        this.highlightedEnvVars.add(link.href);
+        this.currentEnvVarUpdateLink = updateLink;
+    }
+
+    async addEnvVar() {
+        const createLink = this.createEnvVarLink;
+        if (createLink == null) {
+            return;
+        }
+        // TODO validate inputs
+        await this.registry.submitByApiLink(createLink, {
+            name: this.envVarName,
+            value: this.envVarValue,
+        });
+        this.envVarName = "";
+        this.envVarValue = "";
+    }
+
+    updateEnvVar() {
+        const updateLink = this.currentEnvVarUpdateLink;
+        if (updateLink == null) {
+            return;
+        }
+
+        // TODO validate inputs
+        this.registry.submitByApiLink(updateLink, {
+            name: this.envVarName,
+            value: this.envVarValue,
         });
     }
 }

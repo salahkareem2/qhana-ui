@@ -17,6 +17,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { ApiObject, isApiObject } from './api-data-types';
+import { EnvService } from './env.service';
 import { PluginRegistryBaseService } from './registry.service';
 
 
@@ -56,6 +57,7 @@ export function isServiceApiObject(obj: any): obj is ServiceApiObject {
 export class ServiceRegistryService {
 
     private registrySubscription: Subscription | null = null;
+    private urlMapSubscription: Subscription | null = null;
 
     private experimentBackendRootUrl: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
@@ -69,7 +71,7 @@ export class ServiceRegistryService {
         return this.latexRendererServiceUrl.asObservable();
     }
 
-    constructor(private registryService: PluginRegistryBaseService) {
+    constructor(private registryService: PluginRegistryBaseService, private envService: EnvService) {
         this.subscribe();
         // just kick off get, updates are handled by subscription setup above
         this.registryService.getByRel([["service", "collection"]], new URLSearchParams([["service-id", "qhana-backend,latex-renderer"]]), true);
@@ -77,6 +79,7 @@ export class ServiceRegistryService {
 
     private unsubscribe() {
         this.registrySubscription?.unsubscribe();
+        this.urlMapSubscription?.unsubscribe();
     }
 
     private subscribe() {
@@ -93,10 +96,14 @@ export class ServiceRegistryService {
                 }
             }
         }));
+        this.envService.urlMap.subscribe(() => this.onUrlMapUpdate());
     }
 
     private updateQhanaBackendUrl(newUrl: string | null) {
-        const oldUrl = this.experimentBackendRootUrl.value;
+        let oldUrl = this.experimentBackendRootUrl.value;
+        if (newUrl != null) { // pass urls through url map
+            newUrl = this.envService.mapUrl(newUrl);
+        }
         if (newUrl !== oldUrl) {
             this.experimentBackendRootUrl.next(newUrl);
         }
@@ -104,9 +111,18 @@ export class ServiceRegistryService {
 
     private updateLatexRendererUrl(newUrl: string | null) {
         const oldUrl = this.latexRendererServiceUrl.value;
+        if (newUrl != null) { // pass urls through url map
+            newUrl = this.envService.mapUrl(newUrl);
+        }
         if (newUrl !== oldUrl) {
             this.latexRendererServiceUrl.next(newUrl);
         }
+    }
+
+    private onUrlMapUpdate() {
+        // update with current value in case url map transforms this value!
+        this.updateQhanaBackendUrl(this.experimentBackendRootUrl.value);
+        this.updateLatexRendererUrl(this.latexRendererServiceUrl.value);
     }
 
 
