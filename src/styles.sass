@@ -114,6 +114,48 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
         box-shadow: none
         border: 2px solid var(--border-color)
 
+    :root // color contrast fixes:
+
+        .mat-form-field.mat-primary
+            .mat-input-element
+                caret-color: var(--primary-text)
+
+        .mat-form-field.mat-primary.mat-focused
+            .mat-form-field-label
+                color: var(--primary-text)
+
+            .mat-select-arrow
+                color: var(--primary-text)
+
+            .mat-form-field-ripple
+                background-color: var(--primary-text)
+
+        .mat-form-field.mat-form-field-appearance-outline.mat-primary.mat-focused
+            .mat-form-field-outline
+                color: var(--primary-text)
+
+        .mat-tab-nav-bar.mat-primary
+            .mat-ink-bar // tab highlights
+                background-color: var(--primary-text)
+
+        .mat-icon.mat-primary
+            color: var(--primary-text)
+
+        .mat-primary
+
+            // select options
+            .mat-option
+                color: var(--primary-text)
+
+            .mat-option.mat-active
+                color: var(--primary-text)
+
+            .mat-option.mat-option-disabled
+                color: var(--text-disabled)
+
+            .mat-option.mat-selected:not(.mat-option-disabled)
+                color: var(--primary-text)
+
 $my-typography: mat.define-typography-config()
 
 // expose typography as css classes
@@ -154,8 +196,14 @@ body
     background-color: var(--background, white)
     color: var(--text, black)
 
+a
+    color: var(--primary-text)
+
 ::any-link
     color: var(--primary-text)
+
+a:hover, a:visited
+    color: var(--primary-text-visited)
 
 ::any-link:hover, ::any-link:visited
     color: var(--primary-text-visited)
