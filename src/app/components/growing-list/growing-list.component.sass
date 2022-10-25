@@ -2,8 +2,14 @@
     margin-inline: -16px
     flex-grow: 1
     display: flex
+    max-width: calc(100% + 32px)
     gap: 0.3em
     align-items: center
+
+.default-content
+    min-height: 100%
+    padding-inline: 1rem
+    cursor: pointer
 
 .default-content:hover
     background-color: var(--primary)
@@ -16,6 +22,7 @@
 .list-item-title
     text-align: left
     flex-grow: 1
+    flex-shrink: 1
 
 .more-button
     width: 100%

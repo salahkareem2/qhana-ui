@@ -1,13 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription, Observable, of } from 'rxjs';
-import { map } from "rxjs/operators";
-import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
-import { isInstanceOfPluginStatus, PluginsService, QhanaPlugin, comparePlugins } from 'src/app/services/plugins.service';
-import { TemplatesService, TemplateDescription, QhanaTemplate, TemplateCategory, pluginMatchesFilter } from 'src/app/services/templates.service';
-import { QhanaBackendService, ApiObjectList, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
-import { FormSubmitData } from '../plugin-uiframe/plugin-uiframe.component';
 import TimeAgo from 'javascript-time-ago';
+import { Observable, Subscription } from 'rxjs';
+import { map } from "rxjs/operators";
+import { CollectionApiObject } from 'src/app/services/api-data-types';
+import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
+import { QhanaPlugin } from 'src/app/services/plugins.service';
+import { PluginApiObject } from 'src/app/services/qhana-api-data-types';
+import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { PluginRegistryBaseService } from 'src/app/services/registry.service';
+import { FormSubmitData } from '../plugin-uiframe/plugin-uiframe.component';
 
 @Component({
     selector: 'qhana-experiment-workspace',
@@ -20,16 +22,8 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
 
     experimentId: string | null = null;
 
-    searchValue: string = "";
-    pluginList: Observable<QhanaPlugin[]> | null = null;
-    templateList: Observable<TemplateDescription[]> | null = null;
-
-    filteredPluginLists: { [category: string]: Observable<QhanaPlugin[]> } = {};
-
     parameterSubscription: Subscription | null = null;
-    activeTemplate: QhanaTemplate | null = null;
-    activeCategory: TemplateCategory | null = null;
-    activePlugin: QhanaPlugin | null = null;
+    activePlugin: PluginApiObject | null = null;
 
     frontendUrl: string | null = null;
 
@@ -37,7 +31,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
     stepsPerPage: number = 100;
 
     expandedPluginDescription: boolean = false;
-    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private plugins: PluginsService, private templates: TemplatesService, private backend: QhanaBackendService, private router: Router) { }
+    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private registry: PluginRegistryBaseService, private backend: QhanaBackendService, private router: Router) { }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params.subscribe(params => {
@@ -45,88 +39,13 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
             this.experiment.setExperimentId(params?.experimentId ?? null);
         });
         this.registerParameterSubscription();
-        this.plugins.loadPlugins();
-        this.pluginList = this.plugins.plugins;
-        this.templates.loadTemplates();
-        this.templateList = this.templates.templates;
-
-        this.loadPluginStatus();
     }
 
     registerParameterSubscription() {
-        this.parameterSubscription = this.route.params.subscribe(
-            params => {
-                if (params.templateId != null) {
-                    this.templates.getTemplate(params.templateId).subscribe(
-                        template => {
-                            this.changeActiveTemplate(template);
-                            if (params.categoryId != null && this.activeTemplate != null) {
-                                this.activeCategory = this.activeTemplate.categories.find(
-                                    category => category.identifier === params.categoryId
-                                ) ?? null;
-                            }
-                        }
-                    );
-                }
-                if (params.pluginId != null) {
-                    this.plugins.getPlugin(params.pluginId).subscribe(
-                        plugin => this.changeActivePlugin(plugin)
-                    );
-                }
-            }
-        );
-    }
-
-    loadPluginStatus(): void {
-        this.timeAgo = new TimeAgo('en-US');
-
-        const firstPage = this.loadStatusFromPage(0);
-
-        firstPage?.subscribe(
-            value => { 
-                for (let i = 1; i < value.itemCount / this.stepsPerPage; i++) {
-                    this.loadStatusFromPage(i);
-                }
-            }
-        );
-    }
-
-    loadStatusFromPage(num: number): Observable<ApiObjectList<TimelineStepApiObject>> | null {
-        if (this.experimentId == null) {
-            return null;
-        }
-        const time = new Date();
-        
-        const timelinePage = this.backend.getTimelineStepsPage(this.experimentId, num, this.stepsPerPage)        
-        timelinePage.pipe(
-            map(value => value.items)
-        ).subscribe(
-            steps => steps.forEach(
-                step => this.pluginList?.subscribe(
-                    plugins => plugins.forEach(
-                        plugin => {
-                            this.updatePluginStatus(plugin, step, time);
-                        }
-                    )
-                )
-            )
-        );
-        
-        return timelinePage;
-    }
-    
-    updatePluginStatus(plugin: QhanaPlugin, step: TimelineStepApiObject, time: Date): void {
-        if (plugin.metadata?.name == step.processorName) {
-            if (isInstanceOfPluginStatus(step.status)) {
-                plugin.pluginDescription.running = step.status;
-            } else {
-                plugin.pluginDescription.running = "UNKNOWN";
-            }
-
-            const endTime = new Date(step.end).getTime()
-            plugin.pluginDescription.timeAgo = this.timeAgo?.format(endTime) ?? "";
-            plugin.pluginDescription.olderThan24 = (time.getTime() - endTime) > 24 * 60 * 60 * 1000;
-        }
+        this.parameterSubscription = this.route.queryParamMap.subscribe(params => {
+            const pluginId = params.get('plugin');
+            this.onPluginIdChange(pluginId);
+        });
     }
 
     ngOnDestroy(): void {
@@ -134,41 +53,24 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
         this.parameterSubscription?.unsubscribe();
     }
 
-    changeActiveTemplate(templateDesc: TemplateDescription | null) {
-        if (templateDesc == null) {
+    async onPluginIdChange(newPluginId: string | null) {
+        if (newPluginId == null) {
+            this.activePlugin = null;
+            this.frontendUrl = null;
             return;
         }
-
-        let categories: TemplateCategory[] = [];
-        templateDesc.categories.forEach(categoryDesc => {
-            let plugins: Observable<QhanaPlugin[]> = this.pluginList?.pipe(
-                map(pluginList => pluginList.filter(
-                    plugin => pluginMatchesFilter(plugin.pluginDescription, categoryDesc.pluginFilter)
-                ).sort(comparePlugins))
-            ) ?? of([]);
-
-            categories.push({
-                name: categoryDesc.name,
-                description: categoryDesc.description,
-                identifier: categoryDesc.identifier,
-                plugins: plugins,
-            });
-        });
-
-        this.activeTemplate = {
-            name: templateDesc.name,
-            description: templateDesc.description,
-            categories: categories,
-            templateDescription: templateDesc,
-        };
-
-        this.resetFilteredPluginLists();
-    }
-
-    private resetFilteredPluginLists() {
-        this.activeTemplate?.categories.forEach(
-            category => this.filteredPluginLists[category.name] = category.plugins
-        );
+        const pluginPage = await this.registry.getByRel<CollectionApiObject>([["plugin", "collection"]], new URLSearchParams({ "plugin-id": newPluginId }), true);
+        if (pluginPage?.data?.items?.length !== 1) {
+            console.warn(`Could not find plugin with id ${newPluginId}!`);
+            return;
+        }
+        const pluginLink = pluginPage.data.items[0];
+        const pluginResponse = await this.registry.getByApiLink<PluginApiObject>(pluginLink, null, false);
+        if (pluginResponse == null) {
+            return; // TODO error message
+        }
+        this.activePlugin = pluginResponse.data;
+        this.frontendUrl = pluginResponse.data.entryPoint.uiHref;
     }
 
     onKeyDown(event: KeyboardEvent) {
@@ -176,54 +78,6 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
             event.preventDefault();
             this.expandedPluginDescription = !this.expandedPluginDescription;
         }
-    }
-
-    changeActivePlugin(plugin: QhanaPlugin | null) {
-        if (plugin == null) {
-            this.activePlugin = null;
-            this.frontendUrl = null;
-            this.expandedPluginDescription = false;
-            return;
-        }
-        if (plugin == this.activePlugin) {
-            return;
-        }
-        let frontendUrl: string | null = plugin?.metadata?.entryPoint?.uiHref;
-        if (frontendUrl != null) {
-            const base = new URL(plugin?.url ?? "");
-            // const pluginOrigin = base.origin;
-            if (frontendUrl.startsWith("/")) {
-                frontendUrl = base.origin + frontendUrl;
-            }
-            if (frontendUrl.startsWith("./")) {
-                frontendUrl = base.href + frontendUrl;
-            }
-        }
-        this.activePlugin = plugin;
-        this.frontendUrl = frontendUrl;
-        this.expandedPluginDescription = false;
-    }
-
-    changeFilterPluginLists(): void {
-        let searchValue: string = this.searchValue.toLowerCase();
-        if (!this.searchValue || this.searchValue.trim() === "") {
-            this.resetFilteredPluginLists();
-            return;
-        }
-
-        this.activeTemplate?.categories.forEach(
-            category => this.filteredPluginLists[category.name] = category.plugins.pipe(
-                map(pluginList => pluginList.filter(
-                    plugin => plugin.pluginDescription.name.toLowerCase().includes(searchValue) ||
-                        plugin.pluginDescription.apiRoot.toLowerCase().includes(searchValue) ||
-                        plugin.pluginDescription.version.toLowerCase().includes(searchValue) ||
-                        plugin.pluginDescription.identifier.toLowerCase().includes(searchValue) ||
-                        plugin.pluginDescription.description.toLocaleLowerCase().includes(searchValue) ||
-                        plugin.pluginDescription.tags.some((tag: string) => tag.toLowerCase().includes(searchValue))
-
-                ))
-            )
-        );
     }
 
     getNumberOfSuccessfulRuns(plugins: Observable<QhanaPlugin[]>): Observable<number> {
@@ -246,9 +100,9 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
             inputData: formData.dataInputs,
             parameters: formData.formData,
             parametersContentType: formData.formDataType,
-            processorLocation: plugin.url,
-            processorName: plugin.pluginDescription.name,
-            processorVersion: plugin.pluginDescription.version,
+            processorLocation: plugin.href,
+            processorName: plugin.identifier,
+            processorVersion: plugin.version,
             resultLocation: formData.resultUrl,
         }).subscribe(timelineStep => this.router.navigate(['/experiments', experimentId, 'timeline', timelineStep.sequence.toString()]));
     }

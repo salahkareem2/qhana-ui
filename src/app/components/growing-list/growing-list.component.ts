@@ -24,6 +24,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     @Input() itemModel: string = "default";
 
     @Input() highlighted: Set<string> = new Set();
+    @Input() highlightByKey: string | null = null;
 
     @Output() itemsChanged: EventEmitter<ApiLink[]> = new EventEmitter<ApiLink[]>();
     @Output() clickItem: EventEmitter<ApiLink> = new EventEmitter<ApiLink>();
@@ -201,6 +202,14 @@ export class GrowingListComponent implements OnInit, OnDestroy {
 
     trackBy: TrackByFunction<ApiLink> = (index, item: ApiLink): string => {
         return item.href;
+    }
+
+    isHighlighted(link: ApiLink): boolean {
+        if (this.highlightByKey) {
+            const testValue = link.resourceKey?.[this.highlightByKey];
+            return testValue != null && this.highlighted.has(testValue);
+        }
+        return this.highlighted.has(link.href);
     }
 
     onItemClick(link: ApiLink) {

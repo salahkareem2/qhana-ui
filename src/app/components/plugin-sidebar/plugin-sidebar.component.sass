@@ -1,0 +1,61 @@
+.sidebar-container
+    min-height: 100%
+    display: flex
+    flex-direction: row
+
+.nav-icons
+    position: sticky
+    top: 0
+    min-height: 100vh
+    max-height: 100vh
+    overflow-y: hidden
+    display: flex
+    flex-direction: column
+    border-inline-end: 1px solid var(--background-card)
+
+.sidebar-button
+    min-width: 2.5rem
+    min-height: 2.5rem
+    padding-inline: 0px
+    display: flex
+    align-items: center
+    justify-content: center
+    background-color: transparent
+    border: none
+    color: var(--text)
+    cursor: pointer
+
+.sidebar-button.active
+    background-color: var(--background-card)
+    color: var(--text-card)
+
+.template-header
+    display: flex
+    gap: 0.3rem
+    align-content: center
+    justify-content: space-between
+    padding-inline: 1rem
+    cursor: pointer
+
+.w-100
+    width: 100%
+
+.full-width
+    width: calc(100% - 2rem)
+    margin-inline: 1rem
+
+.sidebar-expander
+    position: sticky
+    top: 0px
+    min-width: 15rem
+    width: 25vw
+    max-width: 20rem
+    background: var(--background)
+
+@media screen and (max-width: 900px)
+    .sidebar-expander[data-open=no]
+        display: none
+
+    .nav-icons[data-open=no] .sidebar-button.active
+        background-color: transparent
+        color: var(--text)

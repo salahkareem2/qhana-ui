@@ -20,7 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatCommonModule } from '@angular/material/core';
+import { MatCommonModule, MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
@@ -49,6 +49,7 @@ import { ExperimentsPageComponent } from './components/experiments-page/experime
 import { GrowingListComponent } from './components/growing-list/growing-list.component';
 import { MarkdownComponent } from './components/markdown/markdown.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { PluginSidebarComponent } from './components/plugin-sidebar/plugin-sidebar.component';
 import { PluginUiframeComponent } from './components/plugin-uiframe/plugin-uiframe.component';
 import { PreviewListComponent } from './components/preview-list/preview-list.component';
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
@@ -88,6 +89,7 @@ import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.compon
         MarkdownHelpDialog,
         GrowingListComponent,
         DeleteDialog,
+        PluginSidebarComponent,
     ],
     imports: [
         BrowserModule,
@@ -101,6 +103,7 @@ import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.compon
         MatButtonModule,
         MatCommonModule,
         MatTabsModule,
+        MatRippleModule,
         MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
