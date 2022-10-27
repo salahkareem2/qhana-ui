@@ -56,6 +56,13 @@ export interface ExperimentDataRef {
     version: string;
 }
 
+export interface TimelineStepQueryFilter {
+    itemCount?: number;
+    pluginName?: string;
+    version?: string;
+    sort?: 1 | -1 | 0;
+}
+
 export interface TimelineStepPostData {
     resultLocation: string;
     inputData: string[];
@@ -234,9 +241,21 @@ export class QhanaBackendService {
         );
     }
 
-    public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<TimelineStepApiObject>> {
+    public getTimelineStepsPage(experimentId: number | string, page: number = 0, query: TimelineStepQueryFilter = {}): Observable<ApiObjectList<TimelineStepApiObject>> {
+        const search = new URLSearchParams([["page", page.toString()], ["item-count", query.itemCount?.toString() ?? "10"]]);
+        if (query.pluginName != null) {
+            search.set("plugin-name", query.pluginName);
+        }
+        if (query.version != null) {
+            search.set("version", query.version);
+        }
+        if (query.sort != null) {
+            search.set("sort", query.sort.toString());
+        }
         return this.callWithRootUrl<ApiObjectList<TimelineStepApiObject>>(
-            rootUrl => this.http.get<ApiObjectList<TimelineStepApiObject>>(`${rootUrl}/experiments/${experimentId}/timeline?page=${page}&item-count=${itemCount}`)
+            rootUrl => this.http.get<ApiObjectList<TimelineStepApiObject>>(
+                `${rootUrl}/experiments/${experimentId}/timeline?${search.toString()}`
+            )
         );
     }
 

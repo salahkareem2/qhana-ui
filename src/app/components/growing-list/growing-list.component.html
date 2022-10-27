@@ -1,8 +1,15 @@
-<mat-list>
-    <ng-container [ngSwitch]="link.resourceType" *ngFor="let link of items; trackBy: trackBy; last as last">
+<ul class="list">
+    <ng-container [ngSwitch]="link.resourceType" *ngFor="let link of items; trackBy: trackBy">
 
-        <mat-list-item *ngSwitchDefault (click)="onItemClick(link)">
-            <div class="default-content {{isHighlighted(link) ? 'highlighted' : ''}}">
+        <li class="list-item {{isHighlighted(link) ? 'highlighted' : ''}}" *ngSwitchCase="'plugin'"
+            (click)="onItemClick(link)" [hidden]="!pluginItem.isInSearch">
+            <qhana-plugin-list-item class="default-content" [link]="link" [search]="normalizedSearch" #pluginItem>
+            </qhana-plugin-list-item>
+        </li>
+
+        <li class="list-item {{isHighlighted(link) ? 'highlighted' : ''}}" *ngSwitchDefault (click)="onItemClick(link)"
+            [hidden]="!isInSearch(link)">
+            <div class="default-content">
                 <span aria-role="button" class="list-item-title">
                     {{link.name ?? link.href}}
                 </span>
@@ -15,10 +22,9 @@
                     <mat-icon>delete</mat-icon>
                 </button>
             </div>
-            <mat-divider [inset]="true" *ngIf="!last"></mat-divider>
-        </mat-list-item>
+        </li>
     </ng-container>
-</mat-list>
+</ul>
 <button mat-raised-button class="more-button" (click)="loadMore()" *ngIf="loadMoreApiLink != null"
     [disabled]="isLoading || loadMoreClicked">
     load more

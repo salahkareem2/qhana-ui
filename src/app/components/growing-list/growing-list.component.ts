@@ -16,6 +16,12 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     @Input() newItemRels: string | string[] | null = null;
     @Input() apiLink: ApiLink | null = null;
 
+    @Input() set search(value: string | null) {
+        this.normalizedSearch = value?.toLowerCase()?.trim() ?? null;
+    }
+
+    normalizedSearch: string | null = null;
+
     @Input() editButton: boolean = false;
     @Input() deleteButton: boolean = false;
 
@@ -210,6 +216,14 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             return testValue != null && this.highlighted.has(testValue);
         }
         return this.highlighted.has(link.href);
+    }
+
+    isInSearch(link: ApiLink): boolean {
+        const search = this.normalizedSearch;
+        if (search == null || search === "") {
+            return true;
+        }
+        return link.name?.toLowerCase()?.includes(search) ?? false;
     }
 
     onItemClick(link: ApiLink) {

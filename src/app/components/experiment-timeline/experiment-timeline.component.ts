@@ -65,7 +65,7 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
         this.error = null;
         const currentRequest = { page: page, itemCount: itemCount };
         this.currentPage = currentRequest;
-        this.timelineSteps = this.backend.getTimelineStepsPage(this.experimentId, page, itemCount).pipe(
+        this.timelineSteps = this.backend.getTimelineStepsPage(this.experimentId, page, { itemCount }).pipe(
             map(value => {
                 if (this.currentPage !== currentRequest) {
                     throw Error("Cancelled by other request.");

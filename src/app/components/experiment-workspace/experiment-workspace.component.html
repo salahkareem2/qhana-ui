@@ -4,10 +4,10 @@
         <div class="main-content">
             <div class="title">
                 <h1 class="t-page-headline">Experiment Workspace</h1>
-                <a mat-icon-button aria-label="unselect plugin"
+                <!-- a mat-icon-button aria-label="unselect plugin"
                     [routerLink]="['/experiments', experimentId, 'workspace']" *ngIf="activePlugin != null">
                     <mat-icon>arrow_back</mat-icon>
-                </a>
+                </a -->
             </div>
             <div *ngIf="activePlugin == null">
                 <p>Choose a plugin.</p>
@@ -24,6 +24,8 @@
                                 [hidden]="!expandedPluginDescription">expand_more</mat-icon>
                             <span class="t-title">{{activePlugin.title ?? activePlugin.identifier}}
                                 (@{{activePlugin.version}})</span>
+                            <qhana-plugin-last-used class="plugin-status" [plugin]="activePlugin" [spinner]="20">
+                            </qhana-plugin-last-used>
                         </h2>
                     </mat-card-title>
                     <mat-card-content id="plugin-description"

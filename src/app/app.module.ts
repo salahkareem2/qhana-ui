@@ -62,6 +62,8 @@ import { ChoosePluginComponent } from './dialogs/choose-plugin/choose-plugin.com
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
 import { DeleteDialog } from './dialogs/delete-dialog/delete-dialog.dialog';
 import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
+import { PluginListItemComponent } from './components-small/plugin-list-item/plugin-list-item.component';
+import { PluginLastUsedComponent } from './components-small/plugin-last-used/plugin-last-used.component';
 
 @NgModule({
     declarations: [
@@ -90,6 +92,8 @@ import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.compon
         GrowingListComponent,
         DeleteDialog,
         PluginSidebarComponent,
+        PluginListItemComponent,
+        PluginLastUsedComponent,
     ],
     imports: [
         BrowserModule,

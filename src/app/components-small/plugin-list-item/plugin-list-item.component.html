@@ -1,0 +1,10 @@
+<div *ngIf="plugin!=null">
+    <span>
+        {{plugin.title}} ({{plugin.version}})
+        <qhana-plugin-last-used class="plugin-status" [plugin]="plugin" [color]="'accent'" [spinner]="16">
+        </qhana-plugin-last-used>
+    </span>
+    <mat-chip-list class="tags">
+        <mat-chip class="tag" *ngFor="let tag of plugin.tags">{{tag}}</mat-chip>
+    </mat-chip-list>
+</div>

@@ -14,28 +14,30 @@
         </button>
     </div>
     <div class="sidebar-expander color-scheme-card" [attr.data-open]="sidebarOpen ? 'yes' : 'no'">
-        <details [open]="activeArea === 'templates'">
-            <summary class="no-decoration" (click)="toggleTemplateHeader($event)">
-                <h2 class="template-header">
-                    {{selectedTemplateName}}
-                    <mat-icon matSuffix [hidden]="activeArea === 'templates'">expand_more</mat-icon>
-                    <mat-icon matSuffix [hidden]="activeArea !== 'templates'">expand_less</mat-icon>
-                </h2>
-            </summary>
-            <mat-divider></mat-divider>
-            <button mat-button class="w-100" (click)="selectTemplate(null)">show all plugins</button>
-            <!-- TODO add interaction/selection once templates are fully supported in the registry -->
-            <qhana-growing-list [rels]="['template', 'collection']" [newItemRels]="['template']"
-                [highlighted]="highlightedTemplates" [highlightByKey]="'templateId'"></qhana-growing-list>
-            <mat-divider></mat-divider>
-        </details>
-        <mat-form-field class="full-width" color="primary">
-            <mat-label>Search plugins</mat-label>
-            <input matInput placeholder="search" (focus)="activeArea = 'search'" #searchInput>
-            <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+        <div class="expander-head">
+            <details [open]="activeArea === 'templates'">
+                <summary class="no-decoration" (click)="toggleTemplateHeader($event)">
+                    <h2 class="template-header">
+                        {{selectedTemplateName}}
+                        <mat-icon matSuffix [hidden]="activeArea === 'templates'">expand_more</mat-icon>
+                        <mat-icon matSuffix [hidden]="activeArea !== 'templates'">expand_less</mat-icon>
+                    </h2>
+                </summary>
+                <mat-divider></mat-divider>
+                <button mat-button class="w-100" (click)="selectTemplate(null)">show all plugins</button>
+                <!-- TODO add interaction/selection once templates are fully supported in the registry -->
+                <qhana-growing-list [rels]="['template', 'collection']" [newItemRels]="['template']"
+                    [highlighted]="highlightedTemplates" [highlightByKey]="'templateId'"></qhana-growing-list>
+                <mat-divider></mat-divider>
+            </details>
+            <mat-form-field class="full-width" color="primary">
+                <mat-label>Search plugins</mat-label>
+                <input matInput placeholder="search" (focus)="activeArea = 'search'" #searchInput>
+                <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+        </div>
         <!-- TODO add template tabs once templates are fully supported in the registry -->
-        <qhana-growing-list [rels]="['plugin', 'collection']" [newItemRels]="['plugin']"
+        <qhana-growing-list [rels]="['plugin', 'collection']" [newItemRels]="['plugin']" [search]="searchInput.value"
             [highlighted]="highlightedPlugins" [highlightByKey]="'pluginId'" (clickItem)="selectPlugin($event)">
         </qhana-growing-list>
     </div>
