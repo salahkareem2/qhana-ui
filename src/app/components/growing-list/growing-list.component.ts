@@ -79,7 +79,11 @@ export class GrowingListComponent implements OnInit, OnDestroy {
                 .subscribe(newObject => this.updateQueue.next(() => this.onNewObjectQueued(newObject.new)));
         }
         this.changedItemsSubscription = this.registry.changedApiObjectSubject
-            .pipe(filter(changedObject => this.items.some(item => item.href === changedObject.changed.href)))
+            .pipe(filter(changedObject => {
+                const isInList = this.items.some(item => item.href === changedObject.changed.href);
+                const maybeNew = newItemRels != null && matchesLinkRel(changedObject.changed, newItemRels);
+                return isInList || maybeNew;
+            }))
             .subscribe(changedObject => this.updateQueue.next(() => this.onChangedObjectQueued(changedObject.changed)));
         this.deletedItemsSubscription = this.registry.deletedApiObjectSubject
             .pipe(filter(deletedObject => this.items.some(item => item.href === deletedObject.deleted.href)))
@@ -124,7 +128,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             return; // should not happen if called correctly via update queue
         }
         this.isLoading = true;
-        const response = await this.registry.getByApiLink<ApiObject>(newApiLink);
+        const response = await this.registry.getByApiLink<ApiObject>(newApiLink, null, true);
         if (response == null) {
             console.error("Api did not respond.", newApiLink);
             this.isLoading = false;
@@ -158,7 +162,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
         }
         this.isLoading = true;
         const items = this.items;
-        const response = await this.registry.getByApiLink<ApiObject>(nextLink);
+        const response = await this.registry.getByApiLink<ApiObject>(nextLink, null, true);
         if (response == null) {
             console.error("Api did not respond.", nextLink);
             this.isLoading = false;
@@ -194,6 +198,11 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             newItems[index] = changedObjectLink;
             this.items = newItems;
             this.itemsChanged.emit([...this.items]);
+        }
+
+        const newItemRels = this.newItemRels;
+        if (!existing && newItemRels && matchesLinkRel(changedObjectLink, newItemRels)) {
+            await this.onNewObjectQueued(changedObjectLink);
         }
     }
 
