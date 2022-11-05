@@ -432,7 +432,6 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 if (experimentId == null || /*plugin == null ||*/ frontendUrl == null) {
                     return; // should never happen outside of race conditions
                 }
-                console.log(data.resultData.responseURL)
                 this.backend.createTimelineStep(experimentId, {
                     inputData: [data.resultData.circuitURL], // 'http://host.docker.internal:9090/experiments/1/data/representative_circuit.qasm/download?version=2'
                     parameters: '',
