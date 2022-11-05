@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { concatAll, filter, map, mergeAll, take, toArray } from 'rxjs/operators';
 import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
@@ -176,7 +176,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
 
     listenerFunction = (event: MessageEvent) => this.handleMicroFrontendEvent(event);
 
-    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService, private pluginService: PluginsService, private route: ActivatedRoute) {
+    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService, private pluginService: PluginsService, private route: ActivatedRoute, private router: Router) {
         this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about://blank");
         this.frontendUrl = this.blank;
         window.addEventListener(
@@ -424,6 +424,24 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                     return;
                 }
                 this.handlePluginInfoRequest(data);
+            }
+            if (data.type === "nisq-analyzer-result") {
+                let experimentId = this.experimentId;
+                // const plugin = this.activePlugin;
+                const frontendUrl = ""; //this.frontendUrl?.toString();
+                if (experimentId == null || /*plugin == null ||*/ frontendUrl == null) {
+                    return; // should never happen outside of race conditions
+                }
+                console.log(data.resultData.responseURL)
+                this.backend.createTimelineStep(experimentId, {
+                    inputData: ['http://host.docker.internal:9090/experiments/1/data/representative_circuit.qasm/download?version=2'], // data.resultData.circuitName
+                    parameters: '',
+                    parametersContentType: 'json',
+                    processorLocation: '', //plugin.url,
+                    processorName: '', //plugin.pluginDescription.name,
+                    processorVersion: '', //plugin.pluginDescription.version,
+                    resultLocation: data.resultData.responseURL,
+                }).subscribe(timelineStep => this.router.navigate(['/experiments', experimentId, 'timeline', timelineStep.sequence.toString()]));
             }
         }
     }
