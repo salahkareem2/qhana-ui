@@ -434,7 +434,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 }
                 console.log(data.resultData.responseURL)
                 this.backend.createTimelineStep(experimentId, {
-                    inputData: ['http://host.docker.internal:9090/experiments/1/data/representative_circuit.qasm/download?version=2'], // data.resultData.circuitName
+                    inputData: [data.resultData.circuitURL], // 'http://host.docker.internal:9090/experiments/1/data/representative_circuit.qasm/download?version=2'
                     parameters: '',
                     parametersContentType: 'json',
                     processorLocation: '', //plugin.url,
