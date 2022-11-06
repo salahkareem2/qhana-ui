@@ -249,7 +249,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
         if (experimentId == null || plugin == null || frontendUrl == null) {
             return; // should never happen outside of race conditions
         }
-        console.log(formData)
+
         this.backend.createTimelineStep(experimentId, {
             inputData: formData.dataInputs,
             parameters: formData.formData,

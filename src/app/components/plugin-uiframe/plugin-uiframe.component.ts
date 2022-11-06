@@ -428,17 +428,16 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             if (data.type === "nisq-analyzer-result") {
                 let experimentId = this.experimentId;
                 // const plugin = this.activePlugin;
-                const frontendUrl = ""; //this.frontendUrl?.toString();
-                if (experimentId == null || /*plugin == null ||*/ frontendUrl == null) {
+                if (experimentId == null /* || plugin == null ||*/) {
                     return; // should never happen outside of race conditions
                 }
                 this.backend.createTimelineStep(experimentId, {
                     inputData: [data.resultData.circuitURL], // 'http://host.docker.internal:9090/experiments/1/data/representative_circuit.qasm/download?version=2'
                     parameters: '',
-                    parametersContentType: 'json',
-                    processorLocation: '', //plugin.url,
-                    processorName: '', //plugin.pluginDescription.name,
-                    processorVersion: '', //plugin.pluginDescription.version,
+                    parametersContentType: '',
+                    processorLocation: 'http://localhost:5005/plugins/nisq-analyzer%40v0-1-0/', //plugin.url,
+                    processorName: 'nisq-analyzer', //plugin.pluginDescription.name,
+                    processorVersion: 'v0.1.0', //plugin.pluginDescription.version,
                     resultLocation: data.resultData.responseURL,
                 }).subscribe(timelineStep => this.router.navigate(['/experiments', experimentId, 'timeline', timelineStep.sequence.toString()]));
             }
