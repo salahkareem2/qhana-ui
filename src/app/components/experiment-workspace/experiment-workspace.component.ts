@@ -40,7 +40,9 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
     stepsPerPage: number = 100;
 
     expandedPluginDescription: boolean = false;
-    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private plugins: PluginsService, private templates: TemplatesService, private backend: QhanaBackendService, private router: Router) { }
+    constructor(private route: ActivatedRoute, private router: Router,
+                private experiment: CurrentExperimentService, private plugins: PluginsService,
+                private templates: TemplatesService, private backend: QhanaBackendService) { }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params.subscribe(params => {
@@ -210,7 +212,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
             }
         }
         this.activePlugin = plugin;
-        this.frontendUrl = frontendUrl;
+        this.frontendUrl = frontendUrl + `?plugin-endpoint-url=${plugin.url}`;
         this.expandedPluginDescription = false;
     }
 
