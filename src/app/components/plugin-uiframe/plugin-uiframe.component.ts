@@ -1,13 +1,15 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Inject, Input, OnChanges, OnDestroy, Optional, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { concatAll, filter, map, mergeAll, take, toArray } from 'rxjs/operators';
 import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
 import { ChoosePluginComponent } from 'src/app/dialogs/choose-plugin/choose-plugin.component';
 import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
 import { ApiObjectList, ExperimentDataApiObject, TimelineStepApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { DataPreviewComponent } from '../data-preview/data-preview.component';
+import { ExperimentWorkspaceComponent } from '../experiment-workspace/experiment-workspace.component';
 
 export interface FormSubmitData {
     type: "form-submit";
@@ -165,7 +167,6 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     frontendUrl: SafeResourceUrl;
     frontendHeight: number = 100;
     itemsPerPage: number = 100;
-    experimentId: number | null = null;
     hasFullscreenMode: boolean = false;
     fullscreen: boolean = false;
 
@@ -176,16 +177,14 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
 
     listenerFunction = (event: MessageEvent) => this.handleMicroFrontendEvent(event);
 
-    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService, private pluginService: PluginsService, private route: ActivatedRoute, private router: Router) {
+    constructor(@Optional() private parent: ExperimentWorkspaceComponent, private sanitizer: DomSanitizer, private dialog: MatDialog,
+                private backend: QhanaBackendService, private pluginService: PluginsService, private router: Router) {
         this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about://blank");
         this.frontendUrl = this.blank;
         window.addEventListener(
             "message",
             this.listenerFunction,
         );
-        this.route.params.subscribe(params => {
-            this.experimentId = params?.experimentId ?? null;
-        });
     }
 
     ngOnDestroy(): void {
@@ -297,14 +296,18 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     }
 
     private loadImplementations(): void {
+        const experimentId = this.parent.experimentId;
+        if (experimentId == null) {
+            return;
+        }
         
-        const firstPage = this.loadImplementationsFromPage(0);
+        const firstPage = this.loadImplementationsFromPage(0, experimentId);
         
         firstPage?.pipe(
             map(firstPage => {
                 let pages: Observable<ApiObjectList<ExperimentDataApiObject>>[] = [of(firstPage)]
                 for (let i = 1; i < firstPage.itemCount / this.itemsPerPage; i++) {
-                    const page = this.loadImplementationsFromPage(i)
+                    const page = this.loadImplementationsFromPage(i, experimentId)
                     if (page !== null) {
                         pages.push(page)
                     }
@@ -315,7 +318,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             map(wholePage => 
                 wholePage.pipe(
                     map(apiObjectList => apiObjectList.items.filter(experimentData => allowedImplementationContentTypes.has(experimentData.contentType))),
-                    map(dataItems => dataItems.map(item => this.experimentId ? this.backend.getExperimentData(this.experimentId, item.name, item.version) : undefined)),
+                    map(dataItems => dataItems.map(item => this.backend.getExperimentData(experimentId, item.name, item.version))),
                     filter((experimentData): experimentData is Observable<ExperimentDataApiObject>[] => Boolean(experimentData)),
                     mergeAll(),
                     concatAll(),
@@ -323,8 +326,8 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             ),
             concatAll(),
             map(dataItem => {
-                if (this.experimentId && dataItem.producedBy) {
-                    return this.backend.getTimelineStep(this.experimentId, dataItem.producedBy).pipe(
+                if (dataItem.producedBy) {
+                    return this.backend.getTimelineStep(experimentId, dataItem.producedBy).pipe(
                         map(step => ({
                             name: dataItem.name + ' ' + step.processorName,
                             download: dataItem.download,
@@ -348,11 +351,8 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         });
     }
 
-    private loadImplementationsFromPage(num: number): Observable<ApiObjectList<ExperimentDataApiObject>> | null {
-        if (this.experimentId == null) {
-            return null;
-        }
-        return this.backend.getExperimentDataPage(this.experimentId, num, this.itemsPerPage);
+    private loadImplementationsFromPage(num: number, experimentId: string): Observable<ApiObjectList<ExperimentDataApiObject>> | null {
+        return this.backend.getExperimentDataPage(experimentId, num, this.itemsPerPage);
     }
 
     private handleMicroFrontendEvent(event: MessageEvent) {
@@ -392,7 +392,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             if (data?.type === "form-submit") {
                 if (!isFormSubmitData(data)) {
                     return;
-                }
+                }https://angular.io/guide/hierarchical-dependency-injection#resolution-modifiers
                 this.formDataSubmit.emit(data);
             }
             if (data?.type === "form-error") {
@@ -426,18 +426,18 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 this.handlePluginInfoRequest(data);
             }
             if (data.type === "nisq-analyzer-result") {
-                let experimentId = this.experimentId;
-                // const plugin = this.activePlugin;
-                if (experimentId == null /* || plugin == null ||*/) {
+                const experimentId = this.parent.experimentId;
+                const plugin = this.parent.activePlugin;
+                if (experimentId == null || plugin == null) {
                     return; // should never happen outside of race conditions
                 }
                 this.backend.createTimelineStep(experimentId, {
-                    inputData: [data.resultData.circuitURL], // 'http://host.docker.internal:9090/experiments/1/data/representative_circuit.qasm/download?version=2'
+                    inputData: [data.resultData.circuitURL],
                     parameters: '',
                     parametersContentType: '',
-                    processorLocation: 'http://localhost:5005/plugins/nisq-analyzer%40v0-1-0/', //plugin.url,
-                    processorName: 'nisq-analyzer', //plugin.pluginDescription.name,
-                    processorVersion: 'v0.1.0', //plugin.pluginDescription.version,
+                    processorLocation: plugin.url,
+                    processorName: plugin.pluginDescription.name,
+                    processorVersion: plugin.pluginDescription.version,
                     resultLocation: data.resultData.responseURL,
                 }).subscribe(timelineStep => this.router.navigate(['/experiments', experimentId, 'timeline', timelineStep.sequence.toString()]));
             }

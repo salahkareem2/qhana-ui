@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Injectable, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, Observable, of } from 'rxjs';
 import { map } from "rxjs/operators";
@@ -9,6 +9,9 @@ import { QhanaBackendService, ApiObjectList, TimelineStepApiObject } from 'src/a
 import { FormSubmitData } from '../plugin-uiframe/plugin-uiframe.component';
 import TimeAgo from 'javascript-time-ago';
 
+@Injectable({
+    providedIn: 'root'
+})
 @Component({
     selector: 'qhana-experiment-workspace',
     templateUrl: './experiment-workspace.component.html',
