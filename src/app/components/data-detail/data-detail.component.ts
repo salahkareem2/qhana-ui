@@ -3,8 +3,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { ApiLink, CollectionApiObject } from 'src/app/services/api-data-types';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 
 @Component({
     selector: 'qhana-data-detail',
@@ -20,7 +22,9 @@ export class DataDetailComponent implements OnInit, OnDestroy {
     data: ExperimentDataApiObject | null = null;
     downloadUrl: SafeResourceUrl | null = null;
 
-    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService, private sanitizer: DomSanitizer) { }
+    pluginRecommendations: ApiLink[] = [];
+
+    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService, private registry: PluginRegistryBaseService, private sanitizer: DomSanitizer) { }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params.subscribe(params => {
@@ -42,7 +46,17 @@ export class DataDetailComponent implements OnInit, OnDestroy {
             }
             this.downloadUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
             this.data = data;
+            this.loadRecommendations(data);
         });
+    }
+
+    async loadRecommendations(data: ExperimentDataApiObject) {
+        const params = new URLSearchParams();
+        params.set("data-type", data.type);
+        params.set("content-type", data.contentType);
+        params.set("experiment", this.experimentId);
+        const result = await this.registry.getByRel<CollectionApiObject>("plugin-recommendation", params);
+        this.pluginRecommendations = result?.data?.items ?? [];
     }
 
 }
