@@ -13,6 +13,7 @@ import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 })
 export class GrowingListComponent implements OnInit, OnDestroy {
     @Input() rels: string[] | string[][] | null = null;
+    @Input() query: URLSearchParams | null = null;
     @Input() newItemRels: string | string[] | null = null;
     @Input() apiLink: ApiLink | null = null;
 
@@ -38,6 +39,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     @Output() deleteItem: EventEmitter<ApiLink> = new EventEmitter<ApiLink>();
 
     private startApiLink: ApiLink | null = null;
+    private startQueryArgs: URLSearchParams | null = null;
     loadMoreApiLink: ApiLink | null = null;
     isLoading: boolean = false;
     loadMoreClicked: boolean = false;
@@ -99,8 +101,10 @@ export class GrowingListComponent implements OnInit, OnDestroy {
 
     replaceApiLink(newApiLink: ApiLink): void {
         if (newApiLink.href === this.startApiLink?.href) {
-            // nothing changed, nothing to do
-            return;
+            if (this.query === this.startQueryArgs) {
+                // nothing changed, nothing to do
+                return;
+            }
         }
         if (!matchesLinkRel(newApiLink, "page") && !matchesLinkRel(newApiLink, "collection")) {
             console.warn("The given api link does not correspond to a collection resource!", this.apiLink);
@@ -110,25 +114,27 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             console.warn("The given api link does not correspond to the first page of a paginated collection resource!", this.apiLink);
         }
         this.loadMoreApiLink = null;
-        this.updateQueue.next(() => this.replaceApiLinkQueued(newApiLink));
+        const query = this.query;
+        this.updateQueue.next(() => this.replaceApiLinkQueued(newApiLink, query));
     }
 
     reloadAll() {
         const reloadApiLink = this.startApiLink;
+        const query = this.startQueryArgs;
         if (reloadApiLink == null) {
             return;
         }
         this.loadMoreApiLink = null;
-        this.updateQueue.next(() => this.replaceApiLinkQueued(reloadApiLink));
+        this.updateQueue.next(() => this.replaceApiLinkQueued(reloadApiLink, query));
     }
 
-    async replaceApiLinkQueued(newApiLink: ApiLink) {
+    async replaceApiLinkQueued(newApiLink: ApiLink, query: URLSearchParams | null) {
         if (this.isLoading) {
             console.error("Cannot chang base api link while loading.");
             return; // should not happen if called correctly via update queue
         }
         this.isLoading = true;
-        const response = await this.registry.getByApiLink<ApiObject>(newApiLink, null, true);
+        const response = await this.registry.getByApiLink<ApiObject>(newApiLink, query, true);
         if (response == null) {
             console.error("Api did not respond.", newApiLink);
             this.isLoading = false;
@@ -140,6 +146,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             return;
         }
         this.startApiLink = newApiLink;
+        this.startQueryArgs = query;
         this.items = [...response.data.items];
         this.loadMoreApiLink = response.links.find(link => matchesLinkRel(link, "next")) ?? null;
         this.isLoading = false;
