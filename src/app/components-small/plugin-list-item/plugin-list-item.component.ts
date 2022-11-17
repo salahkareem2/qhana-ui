@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { ApiLink } from 'src/app/services/api-data-types';
 import { PluginApiObject } from 'src/app/services/qhana-api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
@@ -35,7 +36,7 @@ export class PluginListItemComponent implements OnChanges {
         if (this.link == null) {
             this.plugin = null;
             this.searchableString = "";
-            this.isInSearch = false;
+            this.updateIsInSearch()
             return;
         }
         const pluginResponse = await this.registry.getByApiLink<PluginApiObject>(this.link);
@@ -51,18 +52,30 @@ export class PluginListItemComponent implements OnChanges {
 
     updateIsInSearch() {
         if (this.plugin == null) {
-            this.isInSearch = false;
+            this.deferredIsInSearchUpdate(false);
             return;
         }
         if (this.search == null || this.search === "") {
-            this.isInSearch = true;
+            this.deferredIsInSearchUpdate(true);
             return;
         }
         if (this.searchableString.includes(this.search)) {
-            this.isInSearch = true;
+            this.deferredIsInSearchUpdate(true);
             return;
         }
-        this.isInSearch = false;
+        this.deferredIsInSearchUpdate(false);
+    }
+
+    /**
+     * Use a separate promise to trigger angular change detection in parent
+     * component correctly.
+     *
+     * @param value the new value
+     */
+    deferredIsInSearchUpdate(value: boolean) {
+        Promise.resolve().then(() => {
+            this.isInSearch = value;
+        });
     }
 
 }
