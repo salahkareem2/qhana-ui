@@ -2,40 +2,34 @@
     <div>
         <ng-content></ng-content>
     </div>
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="outline">
         <mat-label>Preview With:</mat-label>
         <mat-select [(ngModel)]="chosenPreview">
-            <mat-option *ngFor="let option of previewOptions" [value]="option">{{option.name}}</mat-option>
+            <mat-optgroup label="Builtin Previews">
+                <mat-option *ngFor="let option of builtinPreviewOptions" [value]="option">{{option.name}}</mat-option>
+            </mat-optgroup>
+            <mat-optgroup label="Plugin Previews" *ngIf="(pluginPreviewOptions?.length ?? 0) > 0">
+                <mat-option *ngFor="let option of pluginPreviewOptions" [value]="option">{{option.name}}</mat-option>
+            </mat-optgroup>
         </mat-select>
     </mat-form-field>
 </div>
 <qhana-plugin-uiframe [url]="getPreviewUrl(chosenPreview)"
     *ngIf="chosenPreview != null && chosenPreview.type === 'plugin'"></qhana-plugin-uiframe>
-<mat-card class="data-preview card"
-    *ngIf="dataUrl != null && effectiveMimetype != null && chosenPreview?.type !== 'plugin'">
+<mat-card class="data-preview card" *ngIf="chosenPreview?.type !== 'plugin'">
     <mat-card-content>
         <ng-container *ngIf="chosenPreview != null && chosenPreview.type === 'internal'">
-            <ng-container [ngSwitch]="effectiveMimetype">
-                <div *ngSwitchCase="'text/*'">
-                    <iframe class="preview-frame" [src]="dataUrl" frameborder="0" sandbox></iframe>
-                </div>
-                <div *ngSwitchCase="'text/html'">
-                    <iframe class="preview-frame large-content" [src]="dataUrl" frameborder="0"
-                        sandbox="allow-forms allow-scripts" allow="fullscreen"></iframe>
-                </div>
-                <div *ngSwitchCase="'text/markdown'">
-                    <qhana-markdown class="markdown-preview" [markdown]="content"></qhana-markdown>
-                </div>
-                <div *ngSwitchCase="'application/x-www-form-urlencoded'">
-                    <qhana-markdown class="markdown-preview" [markdown]="content"></qhana-markdown>
-                </div>
-                <div *ngSwitchCase="'image/*'">
-                    <img class="preview-image large-content" [src]="dataUrl">
-                </div>
-                <div *ngSwitchDefault>No Preview</div>
+            <ng-container [ngSwitch]="chosenPreview.previewType">
+                <qhana-raw-text-preview [src]="downloadUrl" *ngSwitchCase="'raw-text'"></qhana-raw-text-preview>
+                <qhana-iframe-preview [src]="downloadUrl" *ngSwitchCase="'text-iframe'"></qhana-iframe-preview>
+                <qhana-iframe-preview [src]="downloadUrl" [isHtml]="true" *ngSwitchCase="'html-iframe'"></qhana-iframe-preview>
+                <qhana-markdown-preview [src]="downloadUrl" *ngSwitchCase="'markdown'"></qhana-markdown-preview>
+                <qhana-query-param-preview [src]="downloadUrl" *ngSwitchCase="'query-params'"></qhana-query-param-preview>
+                <qhana-image-preview [src]="downloadUrl" *ngSwitchCase="'image'"></qhana-image-preview>
+                <p class="preview-hint" *ngSwitchDefault>No Preview</p>
             </ng-container>
         </ng-container>
-        <p *ngIf="previewOptions.length === 0">No Preview Available</p>
-        <p *ngIf="previewOptions.length >= 0 && chosenPreview == null">Select a Preview Option</p>
+        <p class="preview-hint" *ngIf="builtinPreviewOptions.length === 0 && pluginPreviewOptions.length === 0">No Preview Available</p>
+        <p class="preview-hint" *ngIf="(builtinPreviewOptions.length > 0 || pluginPreviewOptions.length > 0) && chosenPreview == null">Select a Preview Option</p>
     </mat-card-content>
 </mat-card>

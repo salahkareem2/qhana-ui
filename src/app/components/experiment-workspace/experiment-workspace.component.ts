@@ -1,11 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import TimeAgo from 'javascript-time-ago';
-import { Observable, Subscription } from 'rxjs';
-import { map } from "rxjs/operators";
+import { Subscription } from 'rxjs';
 import { CollectionApiObject } from 'src/app/services/api-data-types';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
-import { QhanaPlugin } from 'src/app/services/plugins.service';
 import { PluginApiObject } from 'src/app/services/qhana-api-data-types';
 import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
@@ -78,15 +76,6 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
             event.preventDefault();
             this.expandedPluginDescription = !this.expandedPluginDescription;
         }
-    }
-
-    getNumberOfSuccessfulRuns(plugins: Observable<QhanaPlugin[]>): Observable<number> {
-        return plugins.pipe(
-            map(pluginList => pluginList.filter(
-                plugin => plugin.pluginDescription.running === 'SUCCESS'
-            ).length
-            )
-        );
     }
 
     onPluginUiFormSubmit(formData: FormSubmitData) {

@@ -38,6 +38,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { IframePreviewComponent } from './components-small/iframe-preview/iframe-preview.component';
+import { MarkdownPreviewComponent } from './components-small/markdown-preview/markdown-preview.component';
+import { PluginLastUsedComponent } from './components-small/plugin-last-used/plugin-last-used.component';
+import { PluginListItemComponent } from './components-small/plugin-list-item/plugin-list-item.component';
 import { StepStatusComponent } from './components-small/step-status/step-status.component';
 import { DataDetailComponent } from './components/data-detail/data-detail.component';
 import { DataPreviewComponent } from './components/data-preview/data-preview.component';
@@ -62,8 +66,9 @@ import { ChoosePluginComponent } from './dialogs/choose-plugin/choose-plugin.com
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
 import { DeleteDialog } from './dialogs/delete-dialog/delete-dialog.dialog';
 import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
-import { PluginListItemComponent } from './components-small/plugin-list-item/plugin-list-item.component';
-import { PluginLastUsedComponent } from './components-small/plugin-last-used/plugin-last-used.component';
+import { QueryParamPreviewComponent } from './components-small/query-param-preview/query-param-preview.component';
+import { ImagePreviewComponent } from './components-small/image-preview/image-preview.component';
+import { RawTextPreviewComponent } from './components-small/raw-text-preview/raw-text-preview.component';
 
 @NgModule({
     declarations: [
@@ -94,6 +99,11 @@ import { PluginLastUsedComponent } from './components-small/plugin-last-used/plu
         PluginSidebarComponent,
         PluginListItemComponent,
         PluginLastUsedComponent,
+        IframePreviewComponent,
+        MarkdownPreviewComponent,
+        QueryParamPreviewComponent,
+        ImagePreviewComponent,
+        RawTextPreviewComponent,
     ],
     imports: [
         BrowserModule,
