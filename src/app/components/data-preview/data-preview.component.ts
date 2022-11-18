@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges } from '@angular/core';
-import { ApiResponse, CollectionApiObject } from 'src/app/services/api-data-types';
+import { ApiLink, CollectionApiObject } from 'src/app/services/api-data-types';
 import { EnvService } from 'src/app/services/env.service';
-import { PluginApiObject } from 'src/app/services/qhana-api-data-types';
 import { ExperimentDataApiObject, QhanaBackendService, TimelineStepApiObject, TimelineSubStepApiObject } from 'src/app/services/qhana-backend.service';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 
@@ -20,7 +19,7 @@ interface InternalPreviewOption extends PreviewOption {
 
 interface PluginPreviewOption extends PreviewOption {
     type: "plugin";
-    plugin: PluginApiObject;
+    plugin: ApiLink;
 }
 
 function isDataApiObject(input: ExperimentDataApiObject | TimelineStepApiObject | TimelineSubStepApiObject): input is ExperimentDataApiObject {
@@ -223,11 +222,8 @@ export class DataPreviewComponent implements OnChanges {
                 query.set("input-content-type", contentType);
             }
 
-            const previewPlugins = await this.registry.getByRel<CollectionApiObject>(["plugin", "collection"], query)
-
-            const pluginPromises = previewPlugins?.data.items.map(pluginLink => this.registry.getByApiLink<PluginApiObject>(pluginLink, null, false));
-
-            Promise.all(pluginPromises ?? []).then((responses) => this.updatePluginPreviewOptions(responses))
+            this.registry.getByRel<CollectionApiObject>(["plugin", "collection"], query)
+                .then((response) => this.updatePluginPreviewOptions(response?.data?.items ?? []));
         } else {
             this.builtinPreviewOptions = [];
             this.pluginPreviewOptions = [];
@@ -236,14 +232,13 @@ export class DataPreviewComponent implements OnChanges {
         }
     }
 
-    private updatePluginPreviewOptions(responses: (ApiResponse<PluginApiObject> | null)[]) {
-        const filteredApiObjects = responses.filter(apiObject => apiObject != null) as ApiResponse<PluginApiObject>[];
+    private updatePluginPreviewOptions(pluginLinks: ApiLink[]) {
 
-        const pluginPreviewOptions: PluginPreviewOption[] = filteredApiObjects.map(apiObject => {
+        const pluginPreviewOptions: PluginPreviewOption[] = pluginLinks.map(pluginLink => {
             return {
                 type: 'plugin',
-                name: apiObject.data.title ?? apiObject.data.identifier,
-                plugin: apiObject.data
+                name: pluginLink.name ?? "Unknonw",
+                plugin: pluginLink
             }
         });
 
@@ -252,39 +247,6 @@ export class DataPreviewComponent implements OnChanges {
         if (this.chosenPreview == null || (this.chosenPreview.type == 'internal' && this.chosenPreview.specificity === 0)) {
             this.chosenPreview = pluginPreviewOptions[0] ?? this.chosenPreview;
         }
-    }
-
-    // TODO maybe refactor plugin preview into own component
-    getPreviewUrl(chosenPreview: InternalPreviewOption | PluginPreviewOption): string | null {
-        if (chosenPreview.type == "internal") {
-            return null;
-        }
-
-        const data = this.previewData;
-        const plugin = chosenPreview.plugin;
-        let frontendUrl: string | null = plugin?.entryPoint?.uiHref;
-        if (frontendUrl != null) {
-            const base = new URL(plugin?.href ?? "");
-            // const pluginOrigin = base.origin;
-            if (frontendUrl.startsWith("/")) {
-                frontendUrl = base.origin + frontendUrl;
-            }
-            if (frontendUrl.startsWith("./")) {
-                frontendUrl = base.href + frontendUrl;
-            }
-        }
-        if (frontendUrl == null) {
-            return null;
-        }
-        const url = new URL(frontendUrl);
-        const dataInput: any[] = plugin?.entryPoint?.dataInput ?? [];
-        dataInput.forEach(input => {
-            // TODO better matcher
-            if (input.required && input.contentType.some((requiredType: string) => requiredType === data?.contentType)) {
-                url.searchParams.set(input.parameter, data?.url ?? "");
-            }
-        });
-        return url.toString();
     }
 
 }

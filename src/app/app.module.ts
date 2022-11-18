@@ -69,6 +69,7 @@ import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.compon
 import { QueryParamPreviewComponent } from './components-small/query-param-preview/query-param-preview.component';
 import { ImagePreviewComponent } from './components-small/image-preview/image-preview.component';
 import { RawTextPreviewComponent } from './components-small/raw-text-preview/raw-text-preview.component';
+import { PluginPreviewComponent } from './components-small/plugin-preview/plugin-preview.component';
 
 @NgModule({
     declarations: [
@@ -104,6 +105,7 @@ import { RawTextPreviewComponent } from './components-small/raw-text-preview/raw
         QueryParamPreviewComponent,
         ImagePreviewComponent,
         RawTextPreviewComponent,
+        PluginPreviewComponent,
     ],
     imports: [
         BrowserModule,
