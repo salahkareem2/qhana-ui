@@ -78,7 +78,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             this.loadActiveTemplateFromId(this.templateId);
         });
         this.registry.resolveRecursiveRels([["plugin", "collection"]]).then((apiLink) => {
-            const pluginTypes = new Map<string, string>([["processing", "Processing Plugins"], ["conversion", "Conversion Plugins"], ["visualizing", "Visualizing Plugins"]]);
+            const pluginTypes = new Map<string, string>([["processing", "Processing Plugins"], ["conversion", "Conversion Plugins"], ["visualization", "Visualization Plugins"]]);
             pluginTypes.forEach((name, pluginType) => {
                 const query = new URLSearchParams();
                 query.set("type", pluginType)
