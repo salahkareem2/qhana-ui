@@ -1,15 +1,18 @@
 <div class="sidebar-container">
     <div class="nav-icons" [attr.data-open]="sidebarOpen ? 'yes' : 'no'">
         <button mat-ripple class="sidebar-button {{(activeArea === 'templates') ? 'active' : ''}}"
-            aria-label="choose template" (click)="switchActiveArea('templates')">
+            matTooltip="Choose Template"  matTooltipPosition="after"aria-label="choose template"
+            (click)="switchActiveArea('templates')">
             <mat-icon>menu_open</mat-icon>
         </button>
         <button mat-ripple class="sidebar-button {{(activeArea === 'search') ? 'active' : ''}}"
-            aria-label="search plugins" (click)="switchActiveArea('search')">
+            matTooltip="Search" matTooltipPosition="after" aria-label="search plugins"
+            (click)="switchActiveArea('search')">
             <mat-icon>search</mat-icon>
         </button>
-        <button mat-ripple class="sidebar-button {{(activeArea === 'plugins') ? 'active' : ''}}"
-            aria-label="choose plugin" (click)="switchActiveArea('plugins')">
+        <button mat-ripple class="sidebar-button {{(activeArea === 'plugins' && activeGroup == group) ? 'active' : ''}}"
+            [matTooltip]="group.name" matTooltipPosition="after" [attr.aria-label]="group.name"
+            (click)="switchActiveArea('plugins', group)" *ngFor="let group of pluginGroups">
             <mat-icon>extension</mat-icon>
         </button>
     </div>
@@ -24,10 +27,11 @@
                     </h2>
                 </summary>
                 <mat-divider></mat-divider>
-                <button mat-button class="w-100" (click)="selectTemplate(null)">show all plugins</button>
+                <button mat-button class="w-100 all-plugins-button" (click)="selectTemplate(null)">show all plugins</button>
+                <mat-divider></mat-divider>
                 <!-- TODO add interaction/selection once templates are fully supported in the registry -->
-                <qhana-growing-list [rels]="['template', 'collection']" [newItemRels]="['template']"
-                    [highlighted]="highlightedTemplates" [highlightByKey]="'templateId'"></qhana-growing-list>
+                <qhana-growing-list [rels]="['ws-template', 'collection']" [newItemRels]="['ws-template']"
+                    [highlighted]="highlightedTemplates" [highlightByKey]="'templateId'" (clickItem)="selectTemplate($event)"></qhana-growing-list>
                 <mat-divider></mat-divider>
             </details>
             <mat-form-field class="full-width" color="primary">
@@ -36,75 +40,22 @@
                 <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
         </div>
-        <!-- TODO add template tabs once templates are fully supported in the registry -->
-        <qhana-growing-list [rels]="['plugin', 'collection']" [newItemRels]="['plugin']" [search]="searchInput.value"
-            [highlighted]="highlightedPlugins" [highlightByKey]="'pluginId'" (clickItem)="selectPlugin($event)">
-        </qhana-growing-list>
+        <details class="plugin-group" [open]="group.open" *ngFor="let group of pluginGroups">
+            <summary class="no-decoration" (click)="togglePluginGroup(group, $event)">
+                <mat-divider></mat-divider>
+                <h3 class="plugin-group-header">
+                    <span class="plugin-group-header-text">
+                        <mat-icon>extension</mat-icon>
+                        {{group.name}}
+                    </span>
+                    <mat-icon matSuffix [hidden]="group.open">expand_more</mat-icon>
+                    <mat-icon matSuffix [hidden]="!group.open">expand_less</mat-icon>
+                </h3>
+                <mat-divider></mat-divider>
+            </summary>
+            <qhana-growing-list [apiLink]="group.link" [query]="group?.query ?? null" [search]="searchInput.value"
+                [highlighted]="highlightedPlugins" [highlightByKey]="'pluginId'" (clickItem)="selectPlugin($event)"></qhana-growing-list>
+            <mat-divider></mat-divider>
+        </details>
     </div>
-    <!--mat-card class="sidebar card">
-        <mat-card-title>
-            <mat-form-field appearance="fill" matTooltip="{{activeTemplate?.description}}" matTooltipPosition="right">
-                <mat-label>Template</mat-label>
-                <mat-select [value]="activeTemplate?.name">
-                    <mat-option *ngFor="let template of templateList | async" matTooltip="{{template.description}}"
-                        matTooltipPosition="right" value="{{template.name}}"
-                        [routerLink]="['/experiments', experimentId, 'workspace', template.identifier, template.categories[0].identifier, activePlugin?.pluginDescription?.identifier]"
-                        [routerLinkActive]="'active-list-item'">
-                        {{template.name}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-        </mat-card-title>
-        <mat-card-content>
-            <div class="sidebar-content-header">
-                <mat-form-field class="mat-form form-field" [style.width.%]="100">
-                    <mat-label>Search plugins</mat-label>
-                    <input [(ngModel)]="searchValue" (ngModelChange)="changeFilterPluginLists()" matInput>
-                </mat-form-field>
-            </div>
-            <mat-accordion [multi]="searchValue !== ''">
-                <mat-list class="card-list">
-                    <mat-expansion-panel mat-list-item *ngFor="let category of activeTemplate?.categories" [routerLink]="['/experiments', experimentId, 'workspace',
-                                        activeTemplate?.templateDescription?.identifier,
-                                        category.identifier,
-                                        activePlugin?.pluginDescription?.identifier]"
-                        expanded="{{searchValue !== '' || category.identifier === activeCategory?.identifier}}">
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>
-                                {{category.name}}
-                            </mat-panel-title>
-                            <mat-panel-description>
-                                {{category.description}}
-                            </mat-panel-description>
-                            <div class="plugin-runs"
-                                matTooltip="{{getNumberOfSuccessfulRuns(category.plugins) | async}} plugin(s) ran successful">
-                                {{getNumberOfSuccessfulRuns(category.plugins) | async}}/{{(category.plugins |
-                                async)?.length}}
-                            </div>
-                        </mat-expansion-panel-header>
-                        <mat-nav-list class="card-list">
-                            <a mat-list-item *ngFor="let plugin of filteredPluginLists[category.name] | async"
-                                [routerLink]="['/experiments', experimentId, 'workspace', activeTemplate?.templateDescription?.identifier, category.identifier, plugin.pluginDescription.identifier]">
-                                {{plugin.metadata.title ??
-                                plugin.pluginDescription.name}}(@{{plugin.metadata.version}})
-                                <mat-icon *ngIf="plugin.pluginDescription.running == 'SUCCESS'"
-                                    class="material-icon {{plugin.pluginDescription.olderThan24 ? 'color_grey' : 'color_green'}}"
-                                    inline="false" aria-hidden="true">done</mat-icon>
-                                <mat-icon *ngIf="plugin.pluginDescription.running == 'FAILURE'"
-                                    class="material-icon {{plugin.pluginDescription.olderThan24 ? 'color_grey' : ''}}"
-                                    inline="false" aria-hidden="true">error</mat-icon>
-                                <mat-icon *ngIf="plugin.pluginDescription.running == 'UNKNOWN'"
-                                    class="material-icon {{plugin.pluginDescription.olderThan24 ? 'color_grey' : 'color_red'}}"
-                                    inline="false" aria-hidden="true">question_mark</mat-icon>
-                                <mat-spinner *ngIf="plugin.pluginDescription.running == 'PENDING'" class="material-icon"
-                                    color="primary" mode="indeterminate" [diameter]=20 aria-hidden="true"></mat-spinner>
-                                <div class="time-ago" *ngIf="plugin.pluginDescription.running != 'PENDING'">
-                                    {{plugin.pluginDescription.timeAgo}}</div>
-                            </a>
-                        </mat-nav-list>
-                    </mat-expansion-panel>
-                </mat-list>
-            </mat-accordion>
-        </mat-card-content>
-    </mat-card-->
 </div>
