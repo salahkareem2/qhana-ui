@@ -101,7 +101,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             this.switchActiveTemplateLink(null);
             return;
         }
-        const activeTemplateId = this.selectedTemplate?.resourceKey?.wsTemplateId ?? null;
+        const activeTemplateId = this.selectedTemplate?.resourceKey?.uiTemplateId ?? null;
         if (newTemplateId === activeTemplateId) {
             // nothing to do, link already loaded
             return;
@@ -110,7 +110,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         this.pluginGroups = []; // hide default plugin groups while template is loading
         const query = new URLSearchParams();
         query.set("template-id", newTemplateId);
-        const templatePage = await this.registry.getByRel<PageApiObject>([["ws-template", "collection"]], query, true);
+        const templatePage = await this.registry.getByRel<PageApiObject>([["ui-template", "collection"]], query, true);
         if (templatePage?.data.collectionSize === 1) {
             // only expect one template since IDs are unique
             this.switchActiveTemplateLink(templatePage.data.items[0]);
@@ -219,7 +219,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             relativeTo: this.route,
             preserveFragment: true,
             queryParams: {
-                template: templateLink.resourceKey?.wsTemplateId ?? null,
+                template: templateLink.resourceKey?.uiTemplateId ?? null,
             },
             queryParamsHandling: 'merge',
         });

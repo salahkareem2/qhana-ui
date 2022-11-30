@@ -30,7 +30,7 @@
                 <button mat-button class="w-100 all-plugins-button" (click)="selectTemplate(null)">show all plugins</button>
                 <mat-divider></mat-divider>
                 <!-- TODO add interaction/selection once templates are fully supported in the registry -->
-                <qhana-growing-list [rels]="['ws-template', 'collection']" [newItemRels]="['ws-template']"
+                <qhana-growing-list [rels]="['ui-template', 'collection']" [newItemRels]="['ui-template']"
                     [highlighted]="highlightedTemplates" [highlightByKey]="'templateId'" (clickItem)="selectTemplate($event)"></qhana-growing-list>
                 <mat-divider></mat-divider>
             </details>
