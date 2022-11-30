@@ -56,6 +56,15 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     constructor(private registry: PluginRegistryBaseService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
+        this.updateQueueSubscription = this.updateQueue.pipe(concatMap(callback => {
+            const result = callback();
+            if (isObservable(result)) {
+                return result;
+            }
+            return from(result);
+        })).subscribe();
+
+
         if (this.apiLink != null) {
             this.replaceApiLink(this.apiLink);
             return;
@@ -64,14 +73,6 @@ export class GrowingListComponent implements OnInit, OnDestroy {
         if (rels != null) {
             this.registry.resolveRecursiveRels(rels).then((apiLink) => this.replaceApiLink(apiLink));
         }
-
-        this.updateQueueSubscription = this.updateQueue.pipe(concatMap(callback => {
-            const result = callback();
-            if (isObservable(result)) {
-                return result;
-            }
-            return from(result);
-        })).subscribe();
 
         // handle api updates
         const newItemRels = this.newItemRels;
