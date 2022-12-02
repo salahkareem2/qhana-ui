@@ -40,8 +40,10 @@
                         </div>
                     </mat-card-content>
                 </mat-card>
-                <qhana-plugin-uiframe [url]="frontendUrl" (formDataSubmit)="onPluginUiFormSubmit($event)">
-                </qhana-plugin-uiframe>
+                <mat-card class="card no-padding">
+                    <qhana-plugin-uiframe [url]="frontendUrl" (formDataSubmit)="onPluginUiFormSubmit($event)">
+                    </qhana-plugin-uiframe>
+                </mat-card>
             </div>
             <div class="scroll-spacer"></div>
         </div>
