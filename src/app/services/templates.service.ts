@@ -59,7 +59,7 @@ export class TemplatesService {
     }
 
     private async updateDefaultTemplateFromExperiment(experiment: ExperimentApiObject | null) {
-        const defaultTemplateId = experiment?.templateId ?? 1;  // FIXME use null as default!
+        const defaultTemplateId = experiment?.templateId ?? null;
 
         const currentDefaultTemplateId = this.defaultTemplateSubject.value?.self?.resourceKey?.uiTemplateId;
         if (defaultTemplateId === currentDefaultTemplateId) {
