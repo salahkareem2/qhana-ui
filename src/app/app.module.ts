@@ -70,6 +70,7 @@ import { QueryParamPreviewComponent } from './components-small/query-param-previ
 import { ImagePreviewComponent } from './components-small/image-preview/image-preview.component';
 import { RawTextPreviewComponent } from './components-small/raw-text-preview/raw-text-preview.component';
 import { PluginPreviewComponent } from './components-small/plugin-preview/plugin-preview.component';
+import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component';
 
 @NgModule({
     declarations: [
@@ -106,6 +107,7 @@ import { PluginPreviewComponent } from './components-small/plugin-preview/plugin
         ImagePreviewComponent,
         RawTextPreviewComponent,
         PluginPreviewComponent,
+        PluginTabComponent,
     ],
     imports: [
         BrowserModule,

@@ -1,10 +1,12 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { ApiLink, ApiObject, ApiResponse, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
+import { ApiLink, ApiResponse, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
+import { TemplateApiObject, TemplatesService, TemplateTabApiObject } from 'src/app/services/templates.service';
 
-interface PluginGroup {
+
+export interface PluginGroup {
     name: string;
     description?: string;
     open: boolean;
@@ -12,20 +14,6 @@ interface PluginGroup {
     query?: URLSearchParams;
 }
 
-interface TemplateApiObject extends ApiObject {  // TODO move somewhere else
-    name: string;
-    description: string;
-    tags: string[];
-    groups: ApiLink[];
-}
-
-interface TemplateTabApiObject extends ApiObject {  // TODO move somewhere else
-    name: string;
-    description: string;
-    sortKey: number;
-    pluginsFilter: string;
-    plugins: ApiLink;
-}
 
 @Component({
     selector: 'qhana-plugin-sidebar',
@@ -49,6 +37,8 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     defaultPluginGroups: PluginGroup[] = [];
 
+    defaultTemplate: TemplateApiObject | null = null;
+
     pluginGroups: PluginGroup[] = this.defaultPluginGroups;
 
     // route params
@@ -59,7 +49,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     @ViewChild('searchInput', { static: true }) searchInput: ElementRef<HTMLInputElement> | null = null;
 
-    constructor(private route: ActivatedRoute, private router: Router, private registry: PluginRegistryBaseService) { }
+    constructor(private route: ActivatedRoute, private router: Router, private templates: TemplatesService, private registry: PluginRegistryBaseService) { }
 
     ngOnInit(): void {
         this.route.queryParamMap.subscribe(params => {
@@ -90,6 +80,12 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 });
             });
         });
+        this.templates.defaultTemplate.subscribe(template => {
+            this.defaultTemplate = template;
+            if (this.templateId == null) {
+                this.switchActiveTemplateLink(template?.self ?? null);
+            }
+        })
     }
 
     ngOnDestroy(): void {

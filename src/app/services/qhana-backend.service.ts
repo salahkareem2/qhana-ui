@@ -39,6 +39,7 @@ export interface ExperimentApiObject extends ApiObject {
     experimentId: number;
     name: string;
     description: string;
+    templateId?: string | number;
 }
 
 export interface ExperimentDataApiObject extends ApiObject {
