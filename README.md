@@ -11,6 +11,8 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
+Then, make sure that the correct Plugin Seed URLs is set on the Settings page. If not manually specify a URL (e.g. `http://localhost:5005` if the plugin runner runs on port `5005`). Also specify the QHAna Backend service by clicking navigating to "All services" in the "Services" card and insert the backend service info (e.g. Service URL `http://localhost:9090` if the backend is running on port `9090`). The Service Identifier must be set to `qhana-backend`. 
+
 ## Development server in docker container
 
 Build the image with: `docker build -t qhana-ui .`
