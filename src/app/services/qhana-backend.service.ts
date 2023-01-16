@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -54,6 +54,14 @@ export interface ExperimentDataApiObject extends ApiObject {
 export interface ExperimentDataRef {
     name: string;
     version: string;
+}
+
+export interface ExperimentExportApiObject extends ApiObject {
+    exportId: number;
+}
+
+export interface ExperimentExportPollObject extends ExperimentExportApiObject {
+    status: string;
 }
 
 export interface TimelineStepPostData {
@@ -260,6 +268,18 @@ export class QhanaBackendService {
 
     public cloneExperiment(experimentId: number | string): Observable<ExperimentApiObject> {
         return this.http.post<ExperimentApiObject>(`${this.rootUrl}/experiments/${experimentId}/clone`, undefined, { responseType: "json" });
+    }
+
+    public exportExperiment(experimentId: number | string, test: string): Observable<ExperimentExportApiObject> {
+        return this.http.post<ExperimentExportApiObject>(`${this.rootUrl}/experiments/${experimentId}/export`, { test });
+    }
+
+    public exportExperimentPoll(experimentId: number | string, exportId: number | string): Observable<ExperimentExportPollObject> {
+        return this.http.get<ExperimentExportPollObject>(`${this.rootUrl}/experiments/${experimentId}/export/${exportId}`, undefined);
+    }
+
+    public exportExperimentResult(experimentId: number | string, exportId: number | string): Observable<Blob> {
+        return this.http.get(`${this.rootUrl}/experiments/${experimentId}/export/${exportId}/result`, { responseType: "blob" });
     }
 
     public getExperimentDataPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentDataApiObject>> {

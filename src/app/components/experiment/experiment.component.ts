@@ -1,9 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Subscription } from 'rxjs';
-import { debounceTime, filter, map } from 'rxjs/operators';
+import { BehaviorSubject, interval, Subscription } from 'rxjs';
+import { debounceTime, filter, map, startWith, switchMap, takeWhile } from 'rxjs/operators';
+import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export-experiment.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { saveAs } from 'file-saver';
 
 @Component({
     selector: 'qhana-experiment',
@@ -32,7 +35,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     experimentDescription: string = ""; // only updated on initial experiment load
     currentExperimentDescription: string = "";
 
-    constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService) { }
+    constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService, public dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params.pipe(map(params => params.experimentId)).subscribe(experimentId => {
@@ -141,6 +144,50 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             this.experiment = result;
             this.updateStatus = 'saved';
             this.experimentService.reloadExperiment();
+        });
+    }
+
+    showExportExperimentDialog(error?: string) {
+        console.log("DIALOG")
+        const dialogRef = this.dialog.open(ExportExperimentDialog, { minWidth: "20rem", maxWidth: "40rem", width: "60%", data: { error: error } });
+        dialogRef.afterClosed().subscribe(result => {
+            // TODO
+            if (result == null) {
+                return; // dialog was cancelled
+            }
+
+            // check input data
+            if (result.test == null || result.test === "") {
+                // TODO
+                console.error("Incorrect export config!", result);
+            }
+            const experimentId = this.experimentId;
+            if (experimentId == null) {
+                return; // should never happen outside of race conditions
+            }
+            // TODO: export experiment, poll for success and download once done
+            this.backend.exportExperiment(experimentId, result.test).subscribe(exportResource => {
+                // poll until success
+                interval(1000)
+                    .pipe(
+                        startWith(0),
+                        switchMap(() => this.backend.exportExperimentPoll(experimentId, exportResource.exportId)),
+                        takeWhile(response => response.status == "PENDING")
+                    )
+                    .subscribe(response => {
+                        // TODO: what happens in case of 500?
+                        if (response.status == "SUCCESS") {
+                            this.backend.exportExperimentResult(experimentId, response.exportId).subscribe(response => {
+                                let blob = new Blob([response], { type: "application/zip" })
+                                const url = window.URL.createObjectURL(blob);
+                                saveAs(blob, "experiment-" + experimentId);
+                            }), (error: any) => console.log(`Error in downloading exported experiment: ${error}`), () => console.info("Experiment export downloaded successfully.")
+                        } else {
+                            console.error("Experiment export unsuccessful!")
+                        }
+                    })
+
+            });
         });
     }
 

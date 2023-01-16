@@ -59,6 +59,7 @@ import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component
 import { ChoosePluginComponent } from './dialogs/choose-plugin/choose-plugin.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
 import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
+import { ExportExperimentDialog } from './dialogs/export-experiment/export-experiment.component';
 
 @NgModule({
     declarations: [
@@ -84,6 +85,7 @@ import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.compon
         SubstepsDetailsComponent,
         StepStatusComponent,
         MarkdownHelpDialog,
+        ExportExperimentDialog,
     ],
     imports: [
         BrowserModule,
