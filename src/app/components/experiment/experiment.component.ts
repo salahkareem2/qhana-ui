@@ -2,9 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, interval, Subscription } from 'rxjs';
-import { debounceTime, filter, map, startWith, switchMap, takeWhile } from 'rxjs/operators';
+import { debounceTime, filter, first, map, startWith, switchMap, take, takeWhile } from 'rxjs/operators';
 import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export-experiment.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
+import { ExperimentExportPollObject } from 'src/app/services/qhana-backend.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 import { saveAs } from 'file-saver';
 
@@ -172,20 +173,28 @@ export class ExperimentComponent implements OnInit, OnDestroy {
                     .pipe(
                         startWith(0),
                         switchMap(() => this.backend.exportExperimentPoll(experimentId, exportResource.exportId)),
-                        takeWhile(response => response.status == "PENDING")
+                        filter(resp => resp.status != "PENDING"),
+                        take(1)
                     )
-                    .subscribe(response => {
-                        // TODO: what happens in case of 500?
-                        if (response.status == "SUCCESS") {
-                            this.backend.exportExperimentResult(experimentId, response.exportId).subscribe(response => {
-                                let blob = new Blob([response], { type: "application/zip" })
+                    .subscribe(resp => {
+                        console.log(resp.status)
+                        if (resp.status == "SUCCESS") {
+                            console.log("success")
+                            if (resp.file != undefined) {
+                                console.log("create download link")
+                                const blob = new Blob([resp.file as ArrayBuffer], { type: "application/zip" })
                                 const url = window.URL.createObjectURL(blob);
-                                saveAs(blob, "experiment-" + experimentId);
-                            }), (error: any) => console.log(`Error in downloading exported experiment: ${error}`), () => console.info("Experiment export downloaded successfully.")
-                        } else {
-                            console.error("Experiment export unsuccessful!")
+                                window.open(url, "_blank");
+                            } else {
+                                // should not happen
+                                console.log("Error in export experiment poll result handling.")
+                            }
+                        } else if (resp.status == "FAILURE") {
+                            console.log("Something went wrong in polling the result for experiment export.");
+                            // TODO: show error in dialog?
                         }
                     })
+
 
             });
         });

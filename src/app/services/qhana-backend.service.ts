@@ -62,6 +62,7 @@ export interface ExperimentExportApiObject extends ApiObject {
 
 export interface ExperimentExportPollObject extends ExperimentExportApiObject {
     status: string;
+    file?: ArrayBuffer;
 }
 
 export interface TimelineStepPostData {
@@ -275,11 +276,26 @@ export class QhanaBackendService {
     }
 
     public exportExperimentPoll(experimentId: number | string, exportId: number | string): Observable<ExperimentExportPollObject> {
-        return this.http.get<ExperimentExportPollObject>(`${this.rootUrl}/experiments/${experimentId}/export/${exportId}`, undefined);
+        return this.http.get(`${this.rootUrl}/experiments/${experimentId}/export/${exportId}`, { observe: 'response', responseType: 'arraybuffer' }).pipe(map(resp => {
+            if (resp.headers.get("Content-Type") == "application/json") {
+                return JSON.parse(new TextDecoder().decode(resp.body as ArrayBuffer));
+            } else if (resp.headers.get("Content-Type") == "application/zip") {
+                let result: ExperimentExportPollObject = {
+                    '@self': `${this.rootUrl}/experiments/${experimentId}/export/${exportId}`,
+                    exportId: Number(exportId),
+                    status: 'SUCCESS',
+                    file: resp.body as ArrayBuffer
+                };
+                console.log("success received" + result.status)
+                return result;
+            } else {
+                throw new Error("Experiment poll returned wrong file format: " + resp.headers.get("Content-Type"));
+            }
+        }));
     }
 
-    public exportExperimentResult(experimentId: number | string, exportId: number | string): Observable<Blob> {
-        return this.http.get(`${this.rootUrl}/experiments/${experimentId}/export/${exportId}/result`, { responseType: "blob" });
+    public exportExperimentResult(experimentId: number | string, exportId: number | string) {
+        return this.http.get(`${this.rootUrl}/experiments/${experimentId}/export/${exportId}/result`, { responseType: "arraybuffer" });
     }
 
     public getExperimentDataPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentDataApiObject>> {
