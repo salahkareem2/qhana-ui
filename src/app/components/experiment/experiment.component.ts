@@ -152,7 +152,6 @@ export class ExperimentComponent implements OnInit, OnDestroy {
         console.log("DIALOG")
         const dialogRef = this.dialog.open(ExportExperimentDialog, { minWidth: "20rem", maxWidth: "40rem", width: "60%", data: { error: error } });
         dialogRef.afterClosed().subscribe(result => {
-            // TODO
             if (result == null) {
                 return; // dialog was cancelled
             }
@@ -166,7 +165,6 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             if (experimentId == null) {
                 return; // should never happen outside of race conditions
             }
-            // TODO: export experiment, poll for success and download once done
             this.backend.exportExperiment(experimentId, result.test).subscribe(exportResource => {
                 // poll until success
                 interval(1000)
@@ -180,22 +178,18 @@ export class ExperimentComponent implements OnInit, OnDestroy {
                         console.log(resp.status)
                         if (resp.status == "SUCCESS") {
                             console.log("success")
-                            if (resp.file != undefined) {
+                            if (resp.fileLink != undefined) {
                                 console.log("create download link")
-                                const blob = new Blob([resp.file as ArrayBuffer], { type: "application/zip" })
-                                const url = window.URL.createObjectURL(blob);
-                                window.open(url, "_blank");
+                                window.open(resp.fileLink, "_blank");
                             } else {
                                 // should not happen
                                 console.log("Error in export experiment poll result handling.")
                             }
                         } else if (resp.status == "FAILURE") {
                             console.log("Something went wrong in polling the result for experiment export.");
-                            // TODO: show error in dialog?
+                            this.showExportExperimentDialog("Something went wrong. Please try again later or look at the logs.");
                         }
                     })
-
-
             });
         });
     }

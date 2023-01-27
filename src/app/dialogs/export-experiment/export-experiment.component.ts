@@ -10,7 +10,6 @@ export class ExportExperimentDialog implements OnInit {
 
   // TODO: add real config vars once backend includes functionality
   configTest: string = "";
-  error: string | undefined;
 
   constructor(public dialogRef: MatDialogRef<ExportExperimentDialog>, @Inject(MAT_DIALOG_DATA) public data: any) { }
 

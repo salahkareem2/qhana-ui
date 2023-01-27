@@ -62,7 +62,7 @@ export interface ExperimentExportApiObject extends ApiObject {
 
 export interface ExperimentExportPollObject extends ExperimentExportApiObject {
     status: string;
-    file?: ArrayBuffer;
+    fileLink?: string;
 }
 
 export interface TimelineStepPostData {
@@ -284,7 +284,7 @@ export class QhanaBackendService {
                     '@self': `${this.rootUrl}/experiments/${experimentId}/export/${exportId}`,
                     exportId: Number(exportId),
                     status: 'SUCCESS',
-                    file: resp.body as ArrayBuffer
+                    fileLink: `${this.rootUrl}/experiments/${experimentId}/export/${exportId}`
                 };
                 console.log("success received" + result.status)
                 return result;
