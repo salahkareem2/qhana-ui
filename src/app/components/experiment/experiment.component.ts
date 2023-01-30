@@ -5,9 +5,7 @@ import { BehaviorSubject, interval, Subscription } from 'rxjs';
 import { debounceTime, filter, first, map, startWith, switchMap, take, takeWhile } from 'rxjs/operators';
 import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export-experiment.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
-import { ExperimentExportPollObject } from 'src/app/services/qhana-backend.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
-import { saveAs } from 'file-saver';
 
 @Component({
     selector: 'qhana-experiment',
@@ -175,7 +173,6 @@ export class ExperimentComponent implements OnInit, OnDestroy {
                         take(1)
                     )
                     .subscribe(resp => {
-                        console.log(resp.status)
                         if (resp.status == "SUCCESS") {
                             console.log("success")
                             if (resp.fileLink != undefined) {

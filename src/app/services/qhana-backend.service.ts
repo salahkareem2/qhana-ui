@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { EventListenerFocusTrapInertStrategy } from '@angular/cdk/a11y';
+import { HttpClient, HttpEventType, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -63,6 +64,20 @@ export interface ExperimentExportApiObject extends ApiObject {
 export interface ExperimentExportPollObject extends ExperimentExportApiObject {
     status: string;
     fileLink?: string;
+}
+
+export interface ExperimentImportApiObject extends ApiObject {
+    progress: number,
+    uploadStatus: "PENDING" | "DONE" | "FAILURE" | "OTHER",
+    importId?: number;
+}
+
+export interface ExperimentImportPollObject extends ApiObject {
+    importId: number,
+    status: string;
+    experimentId?: number;
+    name?: string;
+    description?: string;
 }
 
 export interface TimelineStepPostData {
@@ -294,8 +309,41 @@ export class QhanaBackendService {
         }));
     }
 
-    public exportExperimentResult(experimentId: number | string, exportId: number | string) {
-        return this.http.get(`${this.rootUrl}/experiments/${experimentId}/export/${exportId}/result`, { responseType: "arraybuffer" });
+    public importExperiment(experimentZip: File): Observable<ExperimentImportApiObject> {
+        const formData: FormData = new FormData();
+        formData.append("file", experimentZip, experimentZip.name);
+
+        return this.http.post(`${this.rootUrl}/experiments/import`, formData, {
+            observe: "events", responseType: "json", reportProgress: true
+        }).pipe(
+            map(event => {
+                if (event.type == HttpEventType.UploadProgress) {
+                    const progress = Math.round(100 * event.loaded / (event.total != undefined ? event.total : 100));
+                    return {
+                        "@self": `${this.rootUrl}/experiments/import`,
+                        progress: progress,
+                        uploadStatus: "PENDING"
+                    }
+                } else if (event instanceof HttpResponse) {
+                    return {
+                        "@self": `${this.rootUrl}/experiments/import`,
+                        progress: 100,
+                        uploadStatus: "DONE",
+                        importId: JSON.parse(JSON.stringify(event.body)).importId
+                    }
+                } else {
+                    return {
+                        "@self": `${this.rootUrl}/experiments/import`,
+                        progress: 0,
+                        uploadStatus: "OTHER",
+                    }
+                }
+            })
+        );
+    }
+
+    public importExperimentPoll(importId: number): Observable<ExperimentImportPollObject> {
+        return this.http.get<ExperimentImportPollObject>(`${this.rootUrl}/experiments/import/${importId}`, { responseType: "json" });
     }
 
     public getExperimentDataPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentDataApiObject>> {

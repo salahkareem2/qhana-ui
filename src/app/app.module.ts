@@ -60,6 +60,7 @@ import { ChoosePluginComponent } from './dialogs/choose-plugin/choose-plugin.com
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
 import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
 import { ExportExperimentDialog } from './dialogs/export-experiment/export-experiment.component';
+import { ImportExperimentDialog } from './dialogs/import-experiment/import-experiment.component';
 
 @NgModule({
     declarations: [
@@ -86,6 +87,7 @@ import { ExportExperimentDialog } from './dialogs/export-experiment/export-exper
         StepStatusComponent,
         MarkdownHelpDialog,
         ExportExperimentDialog,
+        ImportExperimentDialog,
     ],
     imports: [
         BrowserModule,

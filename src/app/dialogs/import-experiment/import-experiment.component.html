@@ -1,0 +1,22 @@
+<input type="file" #file style="display: none" (change)="onFileAdded()" />
+<div class="container" fxLayout="column" fxLayoutAlign="space-evenly stretch">
+    <h1 mat-dialog-title>Import Experiment</h1>
+
+    <!-- This is the content of the dialog, containing a list of the files to upload -->
+    <mat-dialog-content fxFlex>
+        <mat-list-item *ngIf="addedFile != undefined">
+            <h4 mat-line>{{addedFile.name}}</h4>
+            <mat-progress-bar *ngIf="uploadStatus == 'PENDING'"
+                [mode]="uploadStatus == 'PENDING' ? 'buffer' : 'determinate'" [value]="progress"></mat-progress-bar>
+        </mat-list-item>
+        <div>
+            <button [disabled]="uploading" mat-raised-button color="primary" class="add-files-btn" (click)="addFile()">
+                Upload File
+            </button>
+        </div>
+    </mat-dialog-content>
+    <div class="dialog-actions" mat-dialog-actions>
+        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-button (click)="import()" [disabled]="!addedFile">Import Experiment</button>
+    </div>
+</div>

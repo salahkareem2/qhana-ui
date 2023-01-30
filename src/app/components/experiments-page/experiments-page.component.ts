@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { CreateExperimentDialog } from 'src/app/dialogs/create-experiment/create-experiment.component';
+import { ImportExperimentDialog } from 'src/app/dialogs/import-experiment/import-experiment.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
@@ -89,4 +90,20 @@ export class ExperimentsPageComponent implements OnInit {
         });
     }
 
+    showImportExperimentDialog() {
+        console.log("DIALOG")
+        const dialogRef = this.dialog.open(ImportExperimentDialog, { minWidth: "20rem", maxWidth: "40rem", width: "60%" });
+        dialogRef.afterClosed().subscribe(result => {
+            if (result == null) {
+                return; // dialog was cancelled
+            }
+
+            if (result.experimentId == undefined) {
+                console.error("Incorrect experiment data!", result);
+                return;
+            }
+
+            this.router.navigate(["/experiments", result.experimentId.toString(), "info"]);
+        });
+    }
 }
