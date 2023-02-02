@@ -15,12 +15,12 @@ export class ImportExperimentDialog implements OnInit {
   @ViewChild('file') file: any;
   addedFile: File | undefined;
   progress: number = 0;
-  uploadStatus: "PENDING" | "DONE" | "FAILURE" | "OTHER" = "PENDING";
-  canBeClosed = true;
-  uploading = false;
+  uploadStatus: "PENDING" | "DONE" | "FAILURE" | "OTHER" | "NOT_STARTED" = "NOT_STARTED";
+  polling: "NOT_STARTED" | "PENDING" | "DONE" = "NOT_STARTED";
+  pollingResult: string = "";
+  uploading: boolean = false;
   error: string | undefined;
-
-  configTest: string = "";
+  waiting: boolean = false;
 
   constructor(public dialogRef: MatDialogRef<ImportExperimentDialog>, private backend: QhanaBackendService, @Inject(MAT_DIALOG_DATA) public data: any) { }
 
@@ -69,7 +69,6 @@ export class ImportExperimentDialog implements OnInit {
       .pipe(
         filter(resp => {
           if (resp.uploadStatus == "PENDING" || resp.uploadStatus == "DONE") {
-            // TODO: update on UI 
             this.progress = resp.progress;
             this.uploadStatus = resp.uploadStatus;
           }
@@ -80,9 +79,10 @@ export class ImportExperimentDialog implements OnInit {
       .subscribe(experimentUpload => {
         if (experimentUpload.importId) {
           // TODO: check if successful
-          const importId: number = experimentUpload.importId;
           // File upload complete. Poll for result. 
-          // TODO: show sth in UI
+          const importId: number = experimentUpload.importId;
+          this.polling = "PENDING";
+          this.uploading = false;
           interval(1000)
             .pipe(
               startWith(0),
@@ -92,19 +92,39 @@ export class ImportExperimentDialog implements OnInit {
             )
             .subscribe(resp => {
               console.log(resp)
-              if (resp.status == "DONE") {
-                // close dialog
-                // TODO: update UI, include experiment in experiments!
-                this.dialogRef.close({ experimentId: resp.experimentId });
-              } else if (resp.status == "FAILURE") {
-                console.error("Something went wrong. Check errors at backend.")
-                this.error = "Something went wrong. Check errors at backend.";
-                this.uploading = false;
+              if (resp.status == "SUCCESS") {
+                // close dialog after wait
+                this.polling = "DONE"
+                this.pollingResult = "Import successful. Forwarding to experiment...";
+                this.waiting = true;
+                setTimeout(() => this.dialogRef.close({ experimentId: resp.experimentId }), 2000);
+              } else {
+                if (resp.status == "FAILURE") {
+                  console.error("Something went wrong. Check errors at backend.")
+                } else {
+                  console.error("Something went wrong. Backend returned wrong import status. Please check errors at backend.");
+                }
+                this.polling = "DONE";
+                this.error = "Something went wrong.";
+                this.reset();
               }
             })
         } else {
-          console.error("Something went wrong.")
+          console.error("Something went wrong. Could not retrieve importId. Please check errors at backend.");
+          this.error = "Something went wrong.";
+          this.reset();
         }
       })
+  }
+
+  reset() {
+    this.waiting = true;
+    setTimeout(() => {
+      this.waiting = false;
+      this.error = undefined;
+      this.progress = 0;
+      this.uploadStatus = "NOT_STARTED";
+      this.polling = "NOT_STARTED";
+    }, 3000);
   }
 }

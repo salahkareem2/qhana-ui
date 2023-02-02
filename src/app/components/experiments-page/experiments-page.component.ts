@@ -99,7 +99,7 @@ export class ExperimentsPageComponent implements OnInit {
             }
 
             if (result.experimentId == undefined) {
-                console.error("Incorrect experiment data!", result);
+                console.error("Incorrect experiment data! Cannot find experiment.", result);
                 return;
             }
 

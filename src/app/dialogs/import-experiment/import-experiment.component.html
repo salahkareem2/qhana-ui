@@ -4,19 +4,32 @@
 
     <!-- This is the content of the dialog, containing a list of the files to upload -->
     <mat-dialog-content fxFlex>
-        <mat-list-item *ngIf="addedFile != undefined">
-            <h4 mat-line>{{addedFile.name}}</h4>
-            <mat-progress-bar *ngIf="uploadStatus == 'PENDING'"
-                [mode]="uploadStatus == 'PENDING' ? 'buffer' : 'determinate'" [value]="progress"></mat-progress-bar>
-        </mat-list-item>
-        <div>
-            <button [disabled]="uploading" mat-raised-button color="primary" class="add-files-btn" (click)="addFile()">
-                Upload File
-            </button>
+        <button [disabled]="uploading || polling != 'NOT_STARTED' " mat-raised-button color="primary"
+            class="add-files-btn" (click)="addFile()">Choose File
+        </button>
+        <span mat-line class="file" *ngIf="addedFile != undefined">{{addedFile.name}}</span>
+        <div *ngIf="addedFile != undefined">
+            <mat-progress-bar class="progress-bar" *ngIf="addedFile != undefined"
+                [mode]="uploadStatus == 'PENDING' ? 'indeterminate' : 'determinate'"
+                [value]="uploadStatus == 'NOT_STARTED' ? 0 : 100"></mat-progress-bar>
+        </div>
+        <div *ngIf="polling != 'NOT_STARTED'">
+            <p mat-line>Upload complete. Waiting for result...</p>
+            <mat-progress-bar class="progress-bar" *ngIf="addedFile != undefined"
+                [mode]="polling == 'PENDING' ? 'indeterminate' : 'determinate'" [value]="100"></mat-progress-bar>
+        </div>
+        <div *ngIf="polling == 'DONE' && !error">
+            <p mat-line>{{pollingResult}}</p>
+        </div>
+        <div *ngIf="error">
+            <p class="error">{{error}}</p>
+        </div>
+        <div *ngIf="waiting">
+            <mat-progress-bar class="progress-bar" [mode]="'indeterminate'"></mat-progress-bar>
         </div>
     </mat-dialog-content>
     <div class="dialog-actions" mat-dialog-actions>
         <button mat-button (click)="onCancel()">Cancel</button>
-        <button mat-button (click)="import()" [disabled]="!addedFile">Import Experiment</button>
+        <button mat-button (click)="import()" [disabled]="!addedFile || uploading">Import Experiment</button>
     </div>
 </div>
