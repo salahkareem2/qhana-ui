@@ -1,10 +1,24 @@
 <div class="big-content">
     <div class="flex-header">
-        <h1 class="t-page-headline">Experiment Data</h1>
+        <h1 class="t-page-headline">Experiment Data
+            <mat-icon class="arrow" (click)="onSort()">
+                {{sort>=0?"arrow_upward":"arrow_downward"}}
+            </mat-icon>
+        </h1>
 
-        <mat-paginator class="paginator" (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="10"
-            [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
+        <mat-paginator #paginatorTop class="paginator"
+            (page)="paginatorBottom.pageSize = $event.pageSize; paginatorBottom.pageIndex = $event.pageIndex; onPageChange($event)"
+            [length]="collectionSize" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
         </mat-paginator>
+    </div>
+    <div class="filter">
+        <mat-form-field [style.width.%]="75">
+            <mat-label>Search data</mat-label>
+            <input [(ngModel)]="searchValue" matInput (keydown.enter)="updatePageContent()">
+            <button mat-button matSuffix class="search-button" (click)="updatePageContent()">Ok</button>
+        </mat-form-field>
+        <mat-checkbox class="checkbox" color="primary" labelPosition="before" checked="true" (change)="onCheck()">All
+            versions</mat-checkbox>
     </div>
 
     <div class="page-item-list">
@@ -37,8 +51,9 @@
         </mat-card>
     </div>
 
-    <mat-paginator class="paginator" (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="10"
-        [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
+    <mat-paginator #paginatorBottom class="paginator"
+        (page)="paginatorTop.pageSize = $event.pageSize; ; paginatorTop.pageIndex = $event.pageIndex; onPageChange($event)"
+        [length]="collectionSize" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
     </mat-paginator>
     <div class="scroll-spacer"></div>
 </div>

@@ -297,9 +297,9 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
     }
 
     private loadImplementations(): void {
-        
+
         const firstPage = this.loadImplementationsFromPage(0);
-        
+
         firstPage?.pipe(
             map(firstPage => {
                 let pages: Observable<ApiObjectList<ExperimentDataApiObject>>[] = [of(firstPage)]
@@ -312,7 +312,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
                 return pages;
             }),
             mergeAll(),
-            map(wholePage => 
+            map(wholePage =>
                 wholePage.pipe(
                     map(apiObjectList => apiObjectList.items.filter(experimentData => allowedImplementationContentTypes.has(experimentData.contentType))),
                     map(dataItems => dataItems.map(item => this.experimentId ? this.backend.getExperimentData(this.experimentId, item.name, item.version) : undefined)),
@@ -352,7 +352,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         if (this.experimentId == null) {
             return null;
         }
-        return this.backend.getExperimentDataPage(this.experimentId, num, this.itemsPerPage);
+        return this.backend.getExperimentDataPage(this.experimentId, true, undefined, num, this.itemsPerPage); // TODO: add allVersions, searchValue (not undefined)?
     }
 
     private handleMicroFrontendEvent(event: MessageEvent) {

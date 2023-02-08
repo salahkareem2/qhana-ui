@@ -46,7 +46,7 @@ export class ChooseDataComponent implements OnInit {
             return;
         }
         this.currentPageSubscription?.unsubscribe(); // cancel ongoing request
-        this.currentPageSubscription = this.backend.getExperimentDataPage(this.experimentId, this.currentPage, this.pageSize).subscribe((dataPage) => {
+        this.currentPageSubscription = this.backend.getExperimentDataPage(this.experimentId, true, undefined, this.currentPage, this.pageSize).subscribe((dataPage) => { // TODO:  add allVersions, searchValue (not undefined)?
             this.prepareDataPage(dataPage);
         });
     }

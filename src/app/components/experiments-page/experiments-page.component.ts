@@ -47,11 +47,7 @@ export class ExperimentsPageComponent implements OnInit {
         this.error = null;
         const currentRequest = { page: page, itemCount: itemCount };
         this.currentPage = currentRequest;
-        var search: string | undefined = undefined;
-        if (this.searchValue) {
-            search = this.searchValue;
-        }
-        this.experiments = this.backend.getExperimentsPage(page, itemCount, search, sort).pipe(
+        this.experiments = this.backend.getExperimentsPage(page, itemCount, this.searchValue, sort).pipe(
             map(value => {
                 if (this.currentPage !== currentRequest) {
                     throw Error("Cancelled by other request.");

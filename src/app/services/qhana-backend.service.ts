@@ -267,8 +267,13 @@ export class QhanaBackendService {
         return this.http.post<ExperimentApiObject>(`${this.rootUrl}/experiments/${experimentId}/clone`, undefined, { responseType: "json" });
     }
 
-    public getExperimentDataPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentDataApiObject>> {
-        return this.http.get<ApiObjectList<ExperimentDataApiObject>>(`${this.rootUrl}/experiments/${experimentId}/data?page=${page}&item-count=${itemCount}`);
+    public getExperimentDataPage(experimentId: number | string, allVersions: boolean = true, search: string | undefined = undefined, page: number = 0, itemCount: number = 10, sort: number = 1): Observable<ApiObjectList<ExperimentDataApiObject>> {
+        let queryParams = new HttpParams().append("all-versions", allVersions);
+        if (search) {
+            queryParams = queryParams.append("search", search);
+        }
+        queryParams = queryParams.append("page", page).append("item-count", itemCount).append("sort", sort);
+        return this.http.get<ApiObjectList<ExperimentDataApiObject>>(`${this.rootUrl}/experiments/${experimentId}/data`, { params: queryParams });
     }
 
     public getExperimentData(experimentId: number | string, dataName: string, version: string = "latest"): Observable<ExperimentDataApiObject> {

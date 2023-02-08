@@ -22,11 +22,14 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     collectionSize: number = 0;
 
     loading: boolean = true;
-    currentPage: { page: number, itemCount: number } | null = null;
+    currentPage: { page: number, itemCount: number } = { page: 0, itemCount: 10 };
 
     error: string | null = null;
 
     experimentData: Observable<ExperimentDataApiObject[]> | null = null;
+    sort: number = 1;
+    searchValue: string | undefined;
+    allVersions: boolean = true;
 
     constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService) {
         this.backendUrl = backend.backendRootUrl;
@@ -52,10 +55,21 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
     onPageChange(pageEvent: PageEvent) {
         console.log(pageEvent.pageIndex, pageEvent.pageSize);
-        this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize); // TODO test
+        // todo. 
+        this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize, this.sort); // TODO test
     }
 
-    updatePageContent(page: number = 0, itemCount: number = 10) {
+    onSort() {
+        this.sort *= -1;
+        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount, this.sort);
+    }
+
+    onCheck() {
+        this.allVersions = !this.allVersions;
+        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount, this.sort);
+    }
+
+    updatePageContent(page: number = 0, itemCount: number = 10, sort: number = 1) {
         if (this.experimentId == null) {
             return;
         }
@@ -63,7 +77,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         this.error = null;
         const currentRequest = { page: page, itemCount: itemCount };
         this.currentPage = currentRequest;
-        this.experimentData = this.backend.getExperimentDataPage(this.experimentId, page, itemCount).pipe(
+        this.experimentData = this.backend.getExperimentDataPage(this.experimentId, this.allVersions, this.searchValue, page, itemCount, sort).pipe(
             map(value => {
                 if (this.currentPage !== currentRequest) {
                     throw Error("Cancelled by other request.");
