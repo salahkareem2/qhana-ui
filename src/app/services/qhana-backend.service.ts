@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -242,8 +242,13 @@ export class QhanaBackendService {
         return this.http.delete(`${this.rootUrl}/plugin-endpoints/${endpoint.endpointId}`).pipe(map(() => { return; }));
     }
 
-    public getExperimentsPage(page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentApiObject>> {
-        return this.http.get<ApiObjectList<ExperimentApiObject>>(`${this.rootUrl}/experiments`);
+    public getExperimentsPage(page: number = 0, itemCount: number = 10, search: string | undefined = undefined, sort: number = 1): Observable<ApiObjectList<ExperimentApiObject>> {
+        let queryParams = new HttpParams();
+        if (search) {
+            queryParams = queryParams.append("search", search);
+        }
+        queryParams = queryParams.append("page", page).append("item-count", itemCount).append("sort", sort);
+        return this.http.get<ApiObjectList<ExperimentApiObject>>(`${this.rootUrl}/experiments`, { params: queryParams });
     }
 
     public createExperiment(name: string, description: string): Observable<ExperimentApiObject> {

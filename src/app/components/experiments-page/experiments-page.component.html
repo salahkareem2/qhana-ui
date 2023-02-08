@@ -1,10 +1,24 @@
 <div class="big-content">
 
     <div class="title">
-        <h1 class="t-page-headline">Experiments</h1>
+        <h1 class="t-page-headline">Experiments
+            <mat-icon style="display: inline-block; font-size:15pt;color:dimgray;font-weight: 1000" (click)="onSort()">
+                {{sort>=0?"arrow_upward":"arrow_downward"}}
+            </mat-icon>
+        </h1>
+
+
         <button mat-raised-button color="primary" (click)="showCreateExperimentDialog()">New Experiment</button>
     </div>
 
+    <div class="filter">
+        <mat-form-field [style.width.%]="100">
+            <mat-label>Search experiments</mat-label>
+            <input [(ngModel)]="searchValue" matInput (keydown.enter)="updatePageContent()">
+            <button mat-button matSuffix style="position: relative; top: -0.5em;"
+                (click)="updatePageContent()">Ok</button>
+        </mat-form-field>
+    </div>
     <div class="page-item-list">
         <mat-card class="page-item card" *ngFor="let experiment of experiments | async">
             <mat-card-title>
