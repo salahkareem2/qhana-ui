@@ -17,8 +17,8 @@
 import { EventListenerFocusTrapInertStrategy } from '@angular/cdk/a11y';
 import { HttpClient, HttpEventType, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { interval, Observable } from 'rxjs';
+import { filter, map, startWith, switchMap, take } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 export interface ApiObject {
@@ -286,10 +286,34 @@ export class QhanaBackendService {
         return this.http.post<ExperimentApiObject>(`${this.rootUrl}/experiments/${experimentId}/clone`, undefined, { responseType: "json" });
     }
 
-    public exportExperiment(experimentId: number | string, test: string): Observable<ExperimentExportApiObject> {
-        return this.http.post<ExperimentExportApiObject>(`${this.rootUrl}/experiments/${experimentId}/export`, { test });
+    /**
+     * Export experiment and poll for result (download link)
+     *
+     * @param experimentId
+     * @param test export config parameter // TODO: replace once backend supports export config
+     * @returns experiment export poll object with result file link if successful
+     */
+    public exportExperiment(experimentId: number | string, test: string): Observable<ExperimentExportPollObject> {
+        return this.http.post<ExperimentExportApiObject>(`${this.rootUrl}/experiments/${experimentId}/export`, { test }).pipe(
+            switchMap(exportResource => {
+                // poll until SUCCESS or FAILURE
+                return interval(1000).pipe(
+                    startWith(0),
+                    switchMap(() => this.exportExperimentPoll(experimentId, exportResource.exportId)),
+                    filter(resp => resp.status != "PENDING"),
+                    take(1)
+                )
+            })
+        );
     }
 
+    /**
+     * Poll for result of experiment export
+     *
+     * @param experimentId experiment id
+     * @param exportId id of export resource returned by backend in export step
+     * @returns experiment export poll object with result file link if successful
+     */
     public exportExperimentPoll(experimentId: number | string, exportId: number | string): Observable<ExperimentExportPollObject> {
         return this.http.get(`${this.rootUrl}/experiments/${experimentId}/export/${exportId}`, { observe: 'response', responseType: 'arraybuffer' }).pipe(map(resp => {
             if (resp.headers.get("Content-Type") == "application/json") {

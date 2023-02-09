@@ -73,7 +73,6 @@ export class ExperimentsPageComponent implements OnInit {
     }
 
     showCreateExperimentDialog() {
-        console.log("DIALOG")
         const dialogRef = this.dialog.open(CreateExperimentDialog, { minWidth: "20rem", maxWidth: "40rem", width: "60%" });
         dialogRef.afterClosed().subscribe(result => {
             if (result == null) {
@@ -91,7 +90,6 @@ export class ExperimentsPageComponent implements OnInit {
     }
 
     showImportExperimentDialog() {
-        console.log("DIALOG")
         const dialogRef = this.dialog.open(ImportExperimentDialog, { minWidth: "20rem", maxWidth: "40rem", width: "60%" });
         dialogRef.afterClosed().subscribe(result => {
             if (result == null) {

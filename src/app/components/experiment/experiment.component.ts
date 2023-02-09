@@ -5,7 +5,7 @@ import { BehaviorSubject, interval, Subscription } from 'rxjs';
 import { debounceTime, filter, first, map, startWith, switchMap, take, takeWhile } from 'rxjs/operators';
 import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export-experiment.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
-import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { ExperimentApiObject, ExperimentExportPollObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 @Component({
     selector: 'qhana-experiment',
@@ -147,46 +147,33 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     }
 
     showExportExperimentDialog(error?: string) {
-        console.log("DIALOG")
         const dialogRef = this.dialog.open(ExportExperimentDialog, { minWidth: "20rem", maxWidth: "40rem", width: "60%", data: { error: error } });
         dialogRef.afterClosed().subscribe(result => {
             if (result == null) {
                 return; // dialog was cancelled
             }
 
-            // check input data
-            if (result.test == null || result.test === "") {
-                // TODO
-                console.error("Incorrect export config!", result);
-            }
+            // check input data // TODO: add once config vars in backend are added
+            // if (result.test == null || result.test === "") {
+            //     // TODO
+            //     console.error("Incorrect export config!", result);
+            // }
             const experimentId = this.experimentId;
             if (experimentId == null) {
                 return; // should never happen outside of race conditions
             }
-            this.backend.exportExperiment(experimentId, result.test).subscribe(exportResource => {
-                // poll until success
-                interval(1000)
-                    .pipe(
-                        startWith(0),
-                        switchMap(() => this.backend.exportExperimentPoll(experimentId, exportResource.exportId)),
-                        filter(resp => resp.status != "PENDING"),
-                        take(1)
-                    )
-                    .subscribe(resp => {
-                        if (resp.status == "SUCCESS") {
-                            console.log("success")
-                            if (resp.fileLink != undefined) {
-                                console.log("create download link")
-                                window.open(resp.fileLink, "_blank");
-                            } else {
-                                // should not happen
-                                console.log("Error in export experiment poll result handling.")
-                            }
-                        } else if (resp.status == "FAILURE") {
-                            console.log("Something went wrong in polling the result for experiment export.");
-                            this.showExportExperimentDialog("Something went wrong. Please try again later or look at the logs.");
-                        }
-                    })
+            this.backend.exportExperiment(experimentId, result.test).subscribe(resp => {
+                if (resp.status == "SUCCESS") {
+                    if (resp.fileLink != undefined) {
+                        window.open(resp.fileLink, "_blank");
+                    } else {
+                        // should not happen
+                        console.log("Error in export experiment poll result handling.")
+                    }
+                } else if (resp.status == "FAILURE") {
+                    console.log("Something went wrong in polling the result for experiment export.");
+                    this.showExportExperimentDialog("Something went wrong. Please try again later or look at the logs.");
+                }
             });
         });
     }

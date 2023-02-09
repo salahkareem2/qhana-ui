@@ -5,126 +5,115 @@ import { filter, startWith, switchMap, take } from 'rxjs/operators';
 import { ExperimentImportApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 @Component({
-  selector: 'qhana-import-experiment',
-  templateUrl: './import-experiment.component.html',
-  styleUrls: ['./import-experiment.component.sass']
+    selector: 'qhana-import-experiment',
+    templateUrl: './import-experiment.component.html',
+    styleUrls: ['./import-experiment.component.sass']
 })
 export class ImportExperimentDialog implements OnInit {
 
-  // TODO: add real config vars once backend includes functionality
-  @ViewChild('file') file: any;
-  addedFile: File | undefined;
-  progress: number = 0;
-  uploadStatus: "PENDING" | "DONE" | "FAILURE" | "OTHER" | "NOT_STARTED" = "NOT_STARTED";
-  polling: "NOT_STARTED" | "PENDING" | "DONE" = "NOT_STARTED";
-  pollingResult: string = "";
-  uploading: boolean = false;
-  error: string | undefined;
-  waiting: boolean = false;
+    // TODO: add real config vars once backend includes functionality
+    @ViewChild('file') file: any;
+    addedFile: File | undefined;
+    progress: number = 0;
+    uploadStatus: "PENDING" | "DONE" | "FAILURE" | "OTHER" | "NOT_STARTED" = "NOT_STARTED";
+    polling: "NOT_STARTED" | "PENDING" | "DONE" = "NOT_STARTED";
+    pollingResult: string = "";
+    uploading: boolean = false;
+    error: string | undefined;
+    waiting: boolean = false;
 
-  constructor(public dialogRef: MatDialogRef<ImportExperimentDialog>, private backend: QhanaBackendService, @Inject(MAT_DIALOG_DATA) public data: any) { }
+    constructor(public dialogRef: MatDialogRef<ImportExperimentDialog>, private backend: QhanaBackendService, @Inject(MAT_DIALOG_DATA) public data: any) { }
 
-  ngOnInit(): void {
-  }
-
-  onCancel(): void {
-    this.dialogRef.close();
-  }
-
-  onOk(): void {
-    this.dialogRef.close();
-  }
-
-  addFile() {
-    this.file.nativeElement.click();
-  }
-
-  onFileAdded() {
-    const files: { [key: string]: File } = this.file.nativeElement.files;
-    for (let key in files) {
-      if (!isNaN(parseInt(key))) {
-        this.addedFile = files[key];
-      }
-    }
-  }
-
-  import() {
-    if (!this.addedFile) {
-      console.error("No file specified!");
-      return;
+    ngOnInit(): void {
     }
 
-    this.uploading = true;
-    // start experiment import
-    this.backend.importExperiment(this.addedFile)
-      .pipe(
-        filter(resp => {
-          if (resp.uploadStatus == "PENDING" || resp.uploadStatus == "DONE") {
-            return true;
-          } else {
-            return false;
-          }
-        }),
-      )
-      .pipe(
-        filter(resp => {
-          if (resp.uploadStatus == "PENDING" || resp.uploadStatus == "DONE") {
-            this.progress = resp.progress;
-            this.uploadStatus = resp.uploadStatus;
-          }
-          return resp.uploadStatus == "DONE";
-        }),
-        take(1)
-      )
-      .subscribe(experimentUpload => {
-        if (experimentUpload.importId) {
-          // TODO: check if successful
-          // File upload complete. Poll for result. 
-          const importId: number = experimentUpload.importId;
-          this.polling = "PENDING";
-          this.uploading = false;
-          interval(1000)
-            .pipe(
-              startWith(0),
-              switchMap(() => this.backend.importExperimentPoll(importId)),
-              filter(resp => resp.status != "PENDING"),
-              take(1)
-            )
-            .subscribe(resp => {
-              console.log(resp)
-              if (resp.status == "SUCCESS") {
-                // close dialog after wait
-                this.polling = "DONE"
-                this.pollingResult = "Import successful. Forwarding to experiment...";
-                this.waiting = true;
-                setTimeout(() => this.dialogRef.close({ experimentId: resp.experimentId }), 2000);
-              } else {
-                if (resp.status == "FAILURE") {
-                  console.error("Something went wrong. Check errors at backend.")
-                } else {
-                  console.error("Something went wrong. Backend returned wrong import status. Please check errors at backend.");
-                }
-                this.polling = "DONE";
-                this.error = "Something went wrong.";
-                this.reset();
-              }
-            })
-        } else {
-          console.error("Something went wrong. Could not retrieve importId. Please check errors at backend.");
-          this.error = "Something went wrong.";
-          this.reset();
+    onCancel(): void {
+        this.dialogRef.close();
+    }
+
+    onOk(): void {
+        this.dialogRef.close();
+    }
+
+    addFile() {
+        this.file.nativeElement.click();
+    }
+
+    onFileAdded() {
+        const files: [File] = this.file.nativeElement.files;
+        for (let file of files) {
+            this.addedFile = file;
         }
-      })
-  }
+    }
 
-  reset() {
-    this.waiting = true;
-    setTimeout(() => {
-      this.waiting = false;
-      this.error = undefined;
-      this.progress = 0;
-      this.uploadStatus = "NOT_STARTED";
-      this.polling = "NOT_STARTED";
-    }, 3000);
-  }
+    import() {
+        if (!this.addedFile) {
+            console.error("No file specified!");
+            return;
+        }
+
+        this.uploading = true;
+        // start experiment import
+        this.backend.importExperiment(this.addedFile)
+            .pipe(
+                filter(resp => {
+                    if (resp.uploadStatus == "PENDING" || resp.uploadStatus == "DONE") {
+                        this.progress = resp.progress;
+                        this.uploadStatus = resp.uploadStatus;
+                        return resp.uploadStatus == "DONE";
+                    } else {
+                        return false;
+                    }
+                }),
+                take(1)
+            )
+            .subscribe(experimentUpload => {
+                if (experimentUpload.importId) {
+                    // File upload complete. Poll for result.
+                    const importId: number = experimentUpload.importId;
+                    this.polling = "PENDING";
+                    this.uploading = false;
+                    interval(1000)
+                        .pipe(
+                            startWith(0),
+                            switchMap(() => this.backend.importExperimentPoll(importId)),
+                            filter(resp => resp.status != "PENDING"),
+                            take(1)
+                        )
+                        .subscribe(resp => {
+                            if (resp.status == "SUCCESS") {
+                                // close dialog after wait
+                                this.polling = "DONE"
+                                this.pollingResult = "Import successful. Forwarding to experiment...";
+                                this.waiting = true;
+                                setTimeout(() => this.dialogRef.close({ experimentId: resp.experimentId }), 2000);
+                            } else {
+                                if (resp.status == "FAILURE") {
+                                    console.error("Something went wrong. Check errors at backend.")
+                                } else {
+                                    console.error("Something went wrong. Backend returned wrong import status. Please check errors at backend.");
+                                }
+                                this.polling = "DONE";
+                                this.error = "Something went wrong.";
+                                this.reset();
+                            }
+                        })
+                } else {
+                    console.error("Something went wrong. Could not retrieve importId. Please check errors at backend.");
+                    this.error = "Something went wrong.";
+                    this.reset();
+                }
+            })
+    }
+
+    reset() {
+        this.waiting = true;
+        setTimeout(() => {
+            this.waiting = false;
+            this.error = undefined;
+            this.progress = 0;
+            this.uploadStatus = "NOT_STARTED";
+            this.polling = "NOT_STARTED";
+        }, 4000);
+    }
 }
