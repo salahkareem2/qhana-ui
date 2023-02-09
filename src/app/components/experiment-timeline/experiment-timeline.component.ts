@@ -27,6 +27,11 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
     error: string | null = null;
 
     timelineSteps: Observable<TimelineStepApiObject[]> | null = null;
+    sort: number = 1;
+    pluginName: string | undefined;
+    version: string | undefined;
+    stepStatus: "SUCCESS" | "PENDING" | "NONE" | undefined;
+    unclearedSubstep: number | undefined;
 
     constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService) {
         this.backendUrl = this.backend.backendRootUrl;
@@ -50,6 +55,11 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
         this.routeSubscription?.unsubscribe();
     }
 
+    onSort() {
+        this.sort *= -1;
+        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
+    }
+
     onPageChange(pageEvent: PageEvent) {
         console.log(pageEvent.pageIndex, pageEvent.pageSize);
         this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize); // TODO test
@@ -63,7 +73,7 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
         this.error = null;
         const currentRequest = { page: page, itemCount: itemCount };
         this.currentPage = currentRequest;
-        this.timelineSteps = this.backend.getTimelineStepsPage(this.experimentId, page, itemCount).pipe(
+        this.timelineSteps = this.backend.getTimelineStepsPage(this.experimentId, page, itemCount, this.sort, this.pluginName, this.version, this.stepStatus, this.unclearedSubstep).pipe(
             map(value => {
                 if (this.currentPage !== currentRequest) {
                     throw Error("Cancelled by other request.");

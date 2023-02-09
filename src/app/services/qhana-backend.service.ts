@@ -301,8 +301,22 @@ export class QhanaBackendService {
         return this.http.get(downloadLink, { responseType: "blob" })
     }
 
-    public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<TimelineStepApiObject>> {
-        return this.http.get<ApiObjectList<TimelineStepApiObject>>(`${this.rootUrl}/experiments/${experimentId}/timeline?page=${page}&item-count=${itemCount}`);
+    public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10, sort: number = 1, pluginName: string | undefined, version: string | undefined, stepStatus: "SUCCESS" | "PENDING" | "NONE" | undefined, unclearedSubstep: number | undefined): Observable<ApiObjectList<TimelineStepApiObject>> {
+        let queryParams = new HttpParams();
+        if (pluginName) {
+            queryParams = queryParams.append("plugin-name", pluginName);
+        }
+        if (version) {
+            queryParams = queryParams.append("version", version);
+        }
+        if (stepStatus && stepStatus != "NONE") {
+            queryParams = queryParams.append("status", stepStatus);
+        }
+        if (unclearedSubstep !== undefined) {
+            queryParams = queryParams.append("uncleared-substep", unclearedSubstep);
+        }
+        queryParams = queryParams.append("page", page).append("item-count", itemCount).append("sort", sort);
+        return this.http.get<ApiObjectList<TimelineStepApiObject>>(`${this.rootUrl}/experiments/${experimentId}/timeline`, { params: queryParams });
     }
 
     public createTimelineStep(experimentId: number | string, stepData: TimelineStepPostData): Observable<TimelineStepApiObject> {

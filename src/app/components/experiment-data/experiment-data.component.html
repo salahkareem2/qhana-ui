@@ -52,7 +52,7 @@
     </div>
 
     <mat-paginator #paginatorBottom class="paginator"
-        (page)="paginatorTop.pageSize = $event.pageSize; ; paginatorTop.pageIndex = $event.pageIndex; onPageChange($event)"
+        (page)="paginatorTop.pageSize = $event.pageSize; paginatorTop.pageIndex = $event.pageIndex; onPageChange($event)"
         [length]="collectionSize" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
     </mat-paginator>
     <div class="scroll-spacer"></div>

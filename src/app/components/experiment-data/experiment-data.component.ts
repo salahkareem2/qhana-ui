@@ -22,7 +22,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     collectionSize: number = 0;
 
     loading: boolean = true;
-    currentPage: { page: number, itemCount: number } = { page: 0, itemCount: 10 };
+    currentPage: { page: number, itemCount: number } | null = null;
 
     error: string | null = null;
 
@@ -56,20 +56,20 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     onPageChange(pageEvent: PageEvent) {
         console.log(pageEvent.pageIndex, pageEvent.pageSize);
         // todo. 
-        this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize, this.sort); // TODO test
+        this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize); // TODO test
     }
 
     onSort() {
         this.sort *= -1;
-        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount, this.sort);
+        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
     }
 
     onCheck() {
         this.allVersions = !this.allVersions;
-        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount, this.sort);
+        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
     }
 
-    updatePageContent(page: number = 0, itemCount: number = 10, sort: number = 1) {
+    updatePageContent(page: number = 0, itemCount: number = 10) {
         if (this.experimentId == null) {
             return;
         }
@@ -77,7 +77,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         this.error = null;
         const currentRequest = { page: page, itemCount: itemCount };
         this.currentPage = currentRequest;
-        this.experimentData = this.backend.getExperimentDataPage(this.experimentId, this.allVersions, this.searchValue, page, itemCount, sort).pipe(
+        this.experimentData = this.backend.getExperimentDataPage(this.experimentId, this.allVersions, this.searchValue, page, itemCount, this.sort).pipe(
             map(value => {
                 if (this.currentPage !== currentRequest) {
                     throw Error("Cancelled by other request.");
