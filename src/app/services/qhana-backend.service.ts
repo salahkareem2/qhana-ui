@@ -325,7 +325,6 @@ export class QhanaBackendService {
                     status: 'SUCCESS',
                     fileLink: `${this.rootUrl}/experiments/${experimentId}/export/${exportId}`
                 };
-                console.log("success received" + result.status)
                 return result;
             } else {
                 throw new Error("Experiment poll returned wrong file format: " + resp.headers.get("Content-Type"));
