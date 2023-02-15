@@ -15,6 +15,7 @@
  */
 
 import { Injectable } from '@angular/core';
+import { DefaultTitleStrategy } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ApiLink, ApiObject, PageApiObject } from './api-data-types';
 import { CurrentExperimentService } from './current-experiment.service';
