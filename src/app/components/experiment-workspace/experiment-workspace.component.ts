@@ -8,7 +8,6 @@ import { PluginApiObject } from 'src/app/services/qhana-api-data-types';
 import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { FormSubmitData } from '../plugin-uiframe/plugin-uiframe.component';
-import TimeAgo from 'javascript-time-ago';
 
 @Component({
     selector: 'qhana-experiment-workspace',
