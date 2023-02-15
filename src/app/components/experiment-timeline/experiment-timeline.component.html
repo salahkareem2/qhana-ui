@@ -12,14 +12,48 @@
         </mat-paginator>
     </div>
 
-    <div class="filter">
-        <mat-form-field [style.width.%]="100">
-            <mat-label>Search plugin name</mat-label>
-            <input [(ngModel)]="pluginName" matInput (keydown.enter)="updatePageContent()">
-            <button mat-button matSuffix class="search-button" (click)="updatePageContent()">Ok</button>
-        </mat-form-field>
 
+    <div class="filter">
+        <mat-expansion-panel [style.width.%]="100">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    Filter Timeline Steps
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-form-field [style.width.%]="100">
+                <mat-label>Search plugin name</mat-label>
+                <input [(ngModel)]="pluginName" matInput (keydown.enter)="updatePageContent()">
+                <button mat-button matSuffix class="search-button" (click)="updatePageContent()">Ok</button>
+            </mat-form-field>
+
+            <mat-form-field [style.width.%]="100">
+                <mat-label>Search version</mat-label>
+                <input [(ngModel)]="version" matInput (keydown.enter)="updatePageContent()">
+                <button mat-button matSuffix class="search-button" (click)="updatePageContent()">Ok</button>
+            </mat-form-field>
+
+            <mat-form-field [style.width.%]="100">
+                <mat-label>Status</mat-label>
+                <mat-select [(ngModel)]="stepStatus" name="status" (selectionChange)="updatePageContent()">
+                    <mat-option *ngFor="let status of statusValues" [value]="status">
+                        {{status}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field [style.width.%]="100">
+                <mat-label>Cleared/uncleared substeps</mat-label>
+                <mat-select [(ngModel)]="unclearedSubstep" name="unclearedSubstep"
+                    (selectionChange)="updatePageContent()">
+                    <mat-option *ngFor="let unclearedSubstepValue of unclearedSubstepValues"
+                        [value]="unclearedSubstepValue.value">
+                        {{unclearedSubstepValue.viewValue}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </mat-expansion-panel>
     </div>
+    <br>
 
     <div class="page-item-list">
         <mat-card class="page-item card" *ngFor="let step of timelineSteps | async">

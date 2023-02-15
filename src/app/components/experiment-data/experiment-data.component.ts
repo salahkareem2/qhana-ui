@@ -54,9 +54,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     }
 
     onPageChange(pageEvent: PageEvent) {
-        console.log(pageEvent.pageIndex, pageEvent.pageSize);
-        // todo. 
-        this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize); // TODO test
+        this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize);
     }
 
     onSort() {

@@ -301,21 +301,15 @@ export class QhanaBackendService {
         return this.http.get(downloadLink, { responseType: "blob" })
     }
 
-    public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10, sort: number = 1, pluginName: string | undefined, version: string | undefined, stepStatus: "SUCCESS" | "PENDING" | "NONE" | undefined, unclearedSubstep: number | undefined): Observable<ApiObjectList<TimelineStepApiObject>> {
-        let queryParams = new HttpParams();
-        if (pluginName) {
-            queryParams = queryParams.append("plugin-name", pluginName);
-        }
-        if (version) {
-            queryParams = queryParams.append("version", version);
-        }
-        if (stepStatus && stepStatus != "NONE") {
-            queryParams = queryParams.append("status", stepStatus);
-        }
-        if (unclearedSubstep !== undefined) {
-            queryParams = queryParams.append("uncleared-substep", unclearedSubstep);
-        }
-        queryParams = queryParams.append("page", page).append("item-count", itemCount).append("sort", sort);
+    public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10, sort: number = 1, pluginName: string = "", version: string = "", stepStatus: "SUCCESS" | "PENDING" | "ERROR" | "" = "", unclearedSubstep: number = 0): Observable<ApiObjectList<TimelineStepApiObject>> {
+        let queryParams = new HttpParams()
+            .append("plugin-name", pluginName)
+            .append("version", version)
+            .append("status", stepStatus)
+            .append("uncleared-substep", unclearedSubstep)
+            .append("page", page)
+            .append("item-count", itemCount)
+            .append("sort", sort);
         return this.http.get<ApiObjectList<TimelineStepApiObject>>(`${this.rootUrl}/experiments/${experimentId}/timeline`, { params: queryParams });
     }
 

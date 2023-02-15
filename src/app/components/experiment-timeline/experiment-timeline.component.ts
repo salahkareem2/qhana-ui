@@ -6,6 +6,11 @@ import { catchError, map } from 'rxjs/operators';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
 
+interface UnclearedSubstepValue {
+    value: number;
+    viewValue: string;
+}
+
 @Component({
     selector: 'qhana-experiment-timeline',
     templateUrl: './experiment-timeline.component.html',
@@ -30,8 +35,14 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
     sort: number = 1;
     pluginName: string | undefined;
     version: string | undefined;
-    stepStatus: "SUCCESS" | "PENDING" | "NONE" | undefined;
+    stepStatus: "SUCCESS" | "PENDING" | "ERROR" | "" = "";
+    statusValues: string[] = ["", "SUCCESS", "PENDING", "ERROR"];
     unclearedSubstep: number | undefined;
+    unclearedSubstepValues: UnclearedSubstepValue[] = [
+        { value: 0, viewValue: "Any" },
+        { value: 1, viewValue: "Only steps with uncleared substeps" },
+        { value: -1, viewValue: "Only steps with cleared substeps" }
+    ];
 
     constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService) {
         this.backendUrl = this.backend.backendRootUrl;
