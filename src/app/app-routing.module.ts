@@ -22,6 +22,7 @@ import { ExperimentTimelineComponent } from './components/experiment-timeline/ex
 import { ExperimentWorkspaceComponent } from './components/experiment-workspace/experiment-workspace.component';
 import { ExperimentComponent } from './components/experiment/experiment.component';
 import { ExperimentsPageComponent } from './components/experiments-page/experiments-page.component';
+import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component';
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
 
@@ -38,6 +39,8 @@ const routes: Routes = [
     { path: 'experiments/:experimentId/timeline', component: ExperimentTimelineComponent },
     { path: 'experiments/:experimentId/timeline/:step', component: TimelineStepComponent },
     { path: 'experiments/:experimentId/timeline/:step/:stepTabId', component: TimelineStepComponent },
+    { path: 'experiments/:experimentId/extra/:templateTabId', component: PluginTabComponent },
+    { path: 'experiments/:experimentId/extra/:templateTabId/plugin/:pluginId', component: PluginTabComponent },
 ];
 
 @NgModule({

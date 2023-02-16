@@ -29,7 +29,7 @@
                 <div>
                     <dt>Status</dt>
                     <dd>
-                        <qhana-step-status [step]="timelineStep"></qhana-step-status>
+                        <qhana-step-status [step]="timelineStep" [spinner]="16"></qhana-step-status>
                     </dd>
                 </div>
                 <div *ngIf="stepProgress != null">
@@ -102,7 +102,7 @@
             <mat-icon aria-hidden="true">checkmark</mat-icon>
         </div>
     </div>
-    <mat-card class="card" *ngIf="stepTabId === 'overview' && timelineStep.status !== 'PENDING'">
+    <mat-card class="notes-card card" *ngIf="stepTabId === 'overview' && timelineStep.status !== 'PENDING'">
         <mat-card-content>
             <qhana-markdown [markdown]="stepNotes" (markdownChanges)="triggerNoteAutosave($event)" [editable]="true"
                 [hidden]="timelineStep == null || timelineStep.status === 'PENDING'" *ngIf="stepNotes != null">
@@ -110,6 +110,14 @@
             <mat-spinner class="notes-content-spinner" mode="indeterminate" strokeWidth="5" color="primary"
                 *ngIf="stepNotes == null">
             </mat-spinner>
+        </mat-card-content>
+    </mat-card>
+    <mat-card class="recommendation-card card" *ngIf="stepTabId === 'overview' && timelineStep.status !== 'PENDING' && pluginRecommendations.length != 0">
+        <mat-card-title class="t-headline">Plugin Recommendations</mat-card-title>
+        <mat-card-content>
+            <a *ngFor="let plugin of pluginRecommendations" [routerLink]="['/experiments', experimentId, 'workspace']" [queryParams]="{'plugin': plugin.resourceKey?.pluginId}">
+                <qhana-plugin-list-item [link]="plugin"></qhana-plugin-list-item>
+            </a>
         </mat-card-content>
     </mat-card>
     <ng-container

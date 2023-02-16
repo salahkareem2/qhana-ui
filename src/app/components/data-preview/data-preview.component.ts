@@ -1,17 +1,25 @@
 import { Component, Input, OnChanges } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { Subscription } from 'rxjs';
-import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
+import { ApiLink, CollectionApiObject } from 'src/app/services/api-data-types';
+import { EnvService } from 'src/app/services/env.service';
 import { ExperimentDataApiObject, QhanaBackendService, TimelineStepApiObject, TimelineSubStepApiObject } from 'src/app/services/qhana-backend.service';
-import { TimelineSubstepsComponent } from '../timeline-substeps/timeline-substeps.component';
+import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 
-const SPECIAL_MIMETYPES = new Set(["text/html", "text/markdown", "application/x-www-form-urlencoded"]);
-const NO_INTERNAL_PREVIEW = new Set(["text/csv"]);
 
 interface PreviewOption {
-    type: "internal" | "plugin",
-    name: string,
-    plugin?: QhanaPlugin,
+    type: "internal" | "plugin";
+    name: string;
+}
+
+interface InternalPreviewOption extends PreviewOption {
+    type: "internal";
+    previewType: string;
+    specificity: number;
+    isAvailableFor: (dataType: string | null, contentType: string | null) => boolean;
+}
+
+interface PluginPreviewOption extends PreviewOption {
+    type: "plugin";
+    plugin: ApiLink;
 }
 
 function isDataApiObject(input: ExperimentDataApiObject | TimelineStepApiObject | TimelineSubStepApiObject): input is ExperimentDataApiObject {
@@ -34,6 +42,97 @@ interface PreviewData {
     dataType: string;
 }
 
+const INTERNAL_PREVIEWS: InternalPreviewOption[] = [
+    {
+        type: 'internal',
+        name: "Text Preview",
+        previewType: "text-iframe",
+        specificity: 0,
+        isAvailableFor(dataType: string | null, contentType: string | null): boolean {
+            if (contentType == null) {
+                return false;
+            }
+            if (contentType.startsWith("text/html") || contentType.startsWith("text/csv")) {
+                return false;
+            }
+            if (contentType.startsWith("text/") || contentType == "text") {
+                return true;
+            }
+            return false;
+        },
+    },
+    {
+        type: 'internal',
+        name: "Text Preview",
+        previewType: "raw-text",
+        specificity: 0,
+        isAvailableFor(dataType: string | null, contentType: string | null): boolean {
+            if (contentType == null) {
+                return false;
+            }
+            if (contentType.startsWith("text/html")) {
+                return true;
+            }
+            if (contentType.startsWith("text/csv")) {
+                return true;
+            }
+            if (contentType.startsWith("application/x-www-form-urlencoded")) {
+                return true;
+            }
+            if (contentType.startsWith("application/json")) {
+                return true;
+            }
+            if (contentType.startsWith("application/X-lines+json")) {
+                return true;
+            }
+            // TODO expand
+            return false;
+        },
+    },
+    {
+        type: 'internal',
+        name: "Markdown Preview",
+        previewType: "markdown",
+        specificity: 100,
+        isAvailableFor(dataType: string | null, contentType: string | null): boolean {
+            return contentType?.startsWith("text/markdown") ?? false;
+        },
+    },
+    {
+        type: 'internal',
+        name: "HTML Preview",
+        previewType: "html-iframe",
+        specificity: 10,
+        isAvailableFor(dataType: string | null, contentType: string | null): boolean {
+            return contentType?.startsWith("text/html") ?? false;
+        },
+    },
+    {
+        type: 'internal',
+        name: "Parameter Preview",
+        previewType: "query-params",
+        specificity: 100,
+        isAvailableFor(dataType: string | null, contentType: string | null): boolean {
+            return contentType?.startsWith("application/x-www-form-urlencoded") ?? false;
+        },
+    },
+    {
+        type: 'internal',
+        name: "Image Preview",
+        previewType: "image",
+        specificity: 0,
+        isAvailableFor(dataType: string | null, contentType: string | null): boolean {
+            if (contentType == null) {
+                return false;
+            }
+            if (contentType.startsWith("image/") || contentType == "image") {
+                return true;
+            }
+            return false;
+        },
+    },
+]
+
 @Component({
     selector: 'qhana-data-preview',
     templateUrl: './data-preview.component.html',
@@ -45,13 +144,12 @@ export class DataPreviewComponent implements OnChanges {
 
     previewData: PreviewData | null = null;
 
-    previewOptions: PreviewOption[] = [];
-    chosenPreview: PreviewOption | null = null;
-    dataUrl: SafeResourceUrl | null = null;
-    effectiveMimetype: string | null = null;
-    content: string = "";
+    builtinPreviewOptions: InternalPreviewOption[] = [];
+    pluginPreviewOptions: PluginPreviewOption[] = [];
+    chosenPreview: PluginPreviewOption | InternalPreviewOption | null = null;
+    downloadUrl: string | null = null;
 
-    constructor(private backend: QhanaBackendService, private sanitizer: DomSanitizer, private plugins: PluginsService) { }
+    constructor(private backend: QhanaBackendService, private env: EnvService, private registry: PluginRegistryBaseService) { }
 
     ngOnChanges(): void {
         let previewData: PreviewData | null = null;
@@ -87,148 +185,68 @@ export class DataPreviewComponent implements OnChanges {
     }
 
     async updateData() {
-        let contentType = this.previewData?.contentType ?? null;
-        let mimetype = contentType;
-        const previewOptions: PreviewOption[] = [];
-        if (mimetype) {
-            if (!SPECIAL_MIMETYPES.has(mimetype)) {
-                if (mimetype.startsWith("text/")) {
-                    if (!NO_INTERNAL_PREVIEW.has(mimetype)) {
-                        previewOptions.push({ type: "internal", name: "Text-File Preview" });
-                    }
-                    mimetype = "text/*";
-                }
-                if (mimetype.startsWith("image/")) {
-                    if (!NO_INTERNAL_PREVIEW.has(mimetype)) {
-                        previewOptions.push({ type: "internal", name: "Image Preview" });
-                    }
-                    mimetype = "image/*";
-                }
-            } else {
-                if (mimetype === "text/markdown") {
-                    previewOptions.push({ type: "internal", name: "Markdown Preview" });
-                }
-                if (mimetype === "text/html") {
-                    previewOptions.push({ type: "internal", name: "HTML Preview" });
-                }
-                if (mimetype === "application/x-www-form-urlencoded") {
-                    previewOptions.push({ type: "internal", name: "Request Parameters Preview" });
-                }
+        const contentType = this.previewData?.contentType ?? null;
+        const dataType: string | null = this.previewData?.dataType ?? null;
+
+        if (contentType == null) {
+            this.builtinPreviewOptions = [];
+            this.pluginPreviewOptions = [];
+            this.chosenPreview = null;
+            return;
+        }
+
+        const builtinPreviewOptions: InternalPreviewOption[] = INTERNAL_PREVIEWS.filter((p) => p.isAvailableFor(dataType, contentType));
+
+        let bestBuiltinPreview: InternalPreviewOption | null = null;
+        builtinPreviewOptions.forEach((option) => {
+            if (option.specificity > (bestBuiltinPreview?.specificity ?? -1)) {
+                bestBuiltinPreview = option;
             }
-        }
-        if (contentType != null) {
-            const availablePlugins = await this.getVisualizationPlugins(this.previewData);
-            availablePlugins.forEach(plugin => {
-                previewOptions.push({ type: "plugin", name: plugin.metadata.title ?? plugin.pluginDescription.name, plugin });
-            });
-        }
+        });
+
+
         const downloadUrl = this.previewData?.url;
         if (downloadUrl) {
-            this.previewOptions = previewOptions;
-            this.chosenPreview = previewOptions[0] ?? null;
-            this.effectiveMimetype = mimetype;
-            this.dataUrl = this.sanitizer.bypassSecurityTrustResourceUrl(downloadUrl);
-            if (mimetype === "text/markdown") {
-                this.backend.getExperimentDataContent(downloadUrl).subscribe((blob) => {
-                    if (blob.type === mimetype && blob.size < 1048576) {
-                        // preview must be markdown and not too large!
-                        blob.text().then((text) => this.content = text);
-                    } else {
-                        this.content = ":warning: The data content is not of type markdown or too large to preview.";
-                    }
-                })
+            this.builtinPreviewOptions = builtinPreviewOptions;
+            this.pluginPreviewOptions = [];
+            this.chosenPreview = bestBuiltinPreview ?? null;
+            const mappedUrl = this.env.mapUrl(downloadUrl);
+            this.downloadUrl = mappedUrl;
+
+            const query = new URLSearchParams();
+            query.set("type", "visualization");
+            if (dataType != null) {
+                query.set("input-data-type", dataType);
             }
-            if (mimetype === "application/x-www-form-urlencoded") {
-                this.backend.getExperimentDataContent(downloadUrl).subscribe((blob) => {
-                    if (blob.type === mimetype && blob.size < 1048576) {
-                        // preview must be of the correct mimetype and not too large!
-                        blob.text().then((text) => {
-                            const params = new URLSearchParams(text);
-                            let mdString = "| **Parameter** | **Value** |\n|:---|:----|\n";
-                            let lastParam: string = "";
-                            params.forEach((value, key) => {
-                                if (key === lastParam) {
-                                    mdString += `|   | ${value.replace("|", "\\|")} |\n`;
-                                    return;
-                                }
-                                lastParam = key;
-                                mdString += `| ${key} | ${value.replace("|", "\\|")} |\n`;
-                            });
-                            this.content = mdString;
-                        });
-                    } else {
-                        this.content = ":warning: The data content is not of type markdown or too large to preview.";
-                    }
-                })
+            if (contentType != null) {
+                query.set("input-content-type", contentType);
             }
+
+            this.registry.getByRel<CollectionApiObject>(["plugin", "collection"], query)
+                .then((response) => this.updatePluginPreviewOptions(response?.data?.items ?? []));
         } else {
-            this.previewOptions = [];
+            this.builtinPreviewOptions = [];
+            this.pluginPreviewOptions = [];
             this.chosenPreview = null;
-            this.effectiveMimetype = null;
-            this.dataUrl = null;
+            this.downloadUrl = null;
         }
     }
 
-    getVisualizationPlugins(previewData: PreviewData | null): Promise<Array<QhanaPlugin>> {
-        let requestedLoadPlugins = false;
-        let subscription: Subscription | null = null;
-        return new Promise((resolve, reject) => {
-            if (previewData == null) {
-                resolve([]);
-                return;
-            }
-            subscription = this.plugins.plugins.subscribe((plugins) => {
-                if (plugins.length === 0 && !requestedLoadPlugins) {
-                    requestedLoadPlugins = true;
-                    this.plugins.loadPlugins();
-                    return;
-                }
-                subscription?.unsubscribe();
-                const filteredPlugins = plugins.filter(plugin => {
-                    const inputData = plugin.metadata?.entryPoint?.dataInput ?? [];
-                    if (plugin.metadata?.type === "visualization") {
-                        return inputData.every((input: any) => {
-                            if (!input.required) {
-                                return true;
-                            }
-                            if (!input.contentType.some((requiredType: string) => requiredType === previewData.contentType)) {
-                                return false; // no content type matches
-                            }
-                            return true; // FIXME use better content type checks (see data chooser dialog)
-                        });
-                    }
-                    return false;
-                });
-                resolve(filteredPlugins);
-            }, reject);
-        });
-    }
+    private updatePluginPreviewOptions(pluginLinks: ApiLink[]) {
 
-    getPreviewUrl(chosenPreview: PreviewOption): string | null {
-        const data = this.previewData;
-        const plugin = chosenPreview.plugin;
-        let frontendUrl: string | null = plugin?.metadata?.entryPoint?.uiHref;
-        if (frontendUrl != null) {
-            const base = new URL(plugin?.url ?? "");
-            // const pluginOrigin = base.origin;
-            if (frontendUrl.startsWith("/")) {
-                frontendUrl = base.origin + frontendUrl;
-            }
-            if (frontendUrl.startsWith("./")) {
-                frontendUrl = base.href + frontendUrl;
-            }
-        }
-        if (frontendUrl == null) {
-            return null;
-        }
-        const url = new URL(frontendUrl);
-        const dataInput: any[] = plugin?.metadata?.entryPoint?.dataInput ?? [];
-        dataInput.forEach(input => {
-            if (input.required && input.contentType.some((requiredType: string) => requiredType === data?.contentType)) {
-                url.searchParams.set(input.parameter, data?.url ?? "");
+        const pluginPreviewOptions: PluginPreviewOption[] = pluginLinks.map(pluginLink => {
+            return {
+                type: 'plugin',
+                name: pluginLink.name ?? "Unknonw",
+                plugin: pluginLink
             }
         });
-        return url.toString();
+
+        this.pluginPreviewOptions = pluginPreviewOptions;
+
+        if (this.chosenPreview == null || (this.chosenPreview.type == 'internal' && this.chosenPreview.specificity === 0)) {
+            this.chosenPreview = pluginPreviewOptions[0] ?? this.chosenPreview;
+        }
     }
 
 }

@@ -1,7 +1,8 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { take } from 'rxjs/operators';
-import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
+import { ApiLink } from 'src/app/services/api-data-types';
+import { PluginApiObject } from 'src/app/services/qhana-api-data-types';
+import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 
 interface PluginRestrictions {
     pluginTags: string[];
@@ -14,46 +15,45 @@ interface PluginRestrictions {
     templateUrl: './choose-plugin.component.html',
     styleUrls: ['./choose-plugin.component.sass']
 })
-export class ChoosePluginComponent implements OnInit {
+export class ChoosePluginComponent {
 
-    unfilteredPlugins: QhanaPlugin[] = [];
-    pluginList: QhanaPlugin[] = [];
+    highlightedPluginSet: Set<string> = new Set();
+    selectedPlugin: PluginApiObject | null = null;
 
-    constructor(public dialogRef: MatDialogRef<ChoosePluginComponent>, @Inject(MAT_DIALOG_DATA) public data: PluginRestrictions, private pluginsService: PluginsService) { }
+    queryParams: URLSearchParams | null = null;
 
-    ngOnInit(): void {
-        this.pluginsService.plugins.pipe(take(1)).subscribe((pluginList => {
-            this.unfilteredPlugins = pluginList
-            this.filterPluginList();
-        }));
+    constructor(public dialogRef: MatDialogRef<ChoosePluginComponent>, @Inject(MAT_DIALOG_DATA) public data: PluginRestrictions, private registry: PluginRegistryBaseService) {
+        const query = new URLSearchParams();
+        if (data.pluginTags) {
+            const tag_list = data.pluginTags.join(",");
+            console.log(tag_list, data.pluginTags)
+            query.set("tags", tag_list);
+        }
+        if (data.pluginName) {
+            query.set("name", data.pluginName);
+        }
+        if (data.pluginVersion) {
+            query.set("version", data.pluginVersion)
+        }
+        this.queryParams = query;
+        console.log(query.toString())
     }
 
-    filterPluginList() {
-        const requiredTags = this.data.pluginTags.filter((tag) => !tag.startsWith("!"));
-        const forbiddenTags = new Set(this.data.pluginTags.filter((tag) => tag.startsWith("!")));
-        const pluginName = this.data.pluginName;
-        const versionMatcher = this.getVersionMatcher(this.data.pluginVersion);
-
-        this.pluginList = this.unfilteredPlugins.filter(p => {
-            if (!requiredTags.every(tag => p.metadata.tags.some((t: string) => t === tag))) {
-                return false; // a required tag was not present
-            }
-            if (p.metadata.tags.some((t: string) => forbiddenTags.has(t))) {
-                return false; // a forbidden tag was present
-            }
-            if (pluginName && p.pluginDescription.name !== pluginName) {
-                return false; // the plugin name does not match
-            }
-            if (!versionMatcher(p.pluginDescription.version)) {
-                return false; // the plugin version does not match
-            }
-            return true;
-        });
-    }
-
-    // FIXME actually implement version matching logic!
-    private getVersionMatcher(version?: string): (version: string) => boolean {
-        return (version) => true;
+    async selectPlugin(pluginLink: ApiLink) {
+        let pluginId = pluginLink.resourceKey?.pluginId ?? null;
+        if (pluginId == null) {
+            return;
+        }
+        if (this.highlightedPluginSet.has(pluginId)) {
+            // double click deselects plugin
+            this.highlightedPluginSet.clear();
+            this.selectedPlugin = null;
+            return;
+        }
+        this.highlightedPluginSet.clear();
+        const plugin = await this.registry.getByApiLink<PluginApiObject>(pluginLink, null, false);
+        this.highlightedPluginSet = new Set([pluginId]);
+        this.selectedPlugin = plugin?.data ?? null;
     }
 
     onCancel(): void {
@@ -61,7 +61,7 @@ export class ChoosePluginComponent implements OnInit {
     }
 
     onOk(): void {
-        this.dialogRef.close();
+        this.dialogRef.close(this.selectPlugin);
     }
 
 }

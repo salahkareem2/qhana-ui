@@ -14,25 +14,61 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
+import { ApiLink, CollectionApiObject } from 'src/app/services/api-data-types';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
+import { PluginRegistryBaseService } from 'src/app/services/registry.service';
+import { TemplateApiObject, TemplatesService } from 'src/app/services/templates.service';
 
 @Component({
     selector: 'qhana-navbar',
     templateUrl: './navbar.component.html',
     styleUrls: ['./navbar.component.sass']
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit, OnDestroy {
 
     @Input() title: string = "";
 
     currentExperiment: Observable<string | null>;
     experimentId: Observable<string | null>;
 
-    constructor(private experiment: CurrentExperimentService) {
+    extraTabs: ApiLink[] = [];
+
+    private defaultTemplateSubscription: Subscription | null = null;
+
+    constructor(private experiment: CurrentExperimentService, private templates: TemplatesService, private registry: PluginRegistryBaseService) {
         this.currentExperiment = this.experiment.experimentName;
         this.experimentId = this.experiment.experimentId;
+    }
+
+
+    ngOnInit(): void {
+        this.defaultTemplateSubscription = this.templates.defaultTemplate.subscribe(template => {
+            this.onTemplateChanges(template);
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.defaultTemplateSubscription?.unsubscribe();
+    }
+
+    private async onTemplateChanges(template: TemplateApiObject | null) {
+        if (template == null) {
+            this.extraTabs = [];
+            return;
+        }
+
+        const extraTabs: ApiLink[] = [];
+        this.extraTabs = extraTabs;
+
+        const navGroup = template.groups.find(group => group.resourceKey?.["?group"] === "experiment-navigation");
+        if (navGroup == null) {
+            return;
+        }
+        const groupResponse = await this.registry.getByApiLink<CollectionApiObject>(navGroup);
+
+        groupResponse?.data?.items?.forEach(tab => extraTabs.push(tab));
     }
 
 }
