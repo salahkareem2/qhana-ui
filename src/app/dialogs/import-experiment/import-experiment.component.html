@@ -4,7 +4,7 @@
 
     <!-- This is the content of the dialog, containing a list of the files to upload -->
     <mat-dialog-content fxFlex>
-        <button [disabled]="uploading || polling != 'NOT_STARTED' " mat-raised-button color="primary"
+        <button [disabled]="(uploading || polling != 'NOT_STARTED') && !error " mat-raised-button color="primary"
             class="add-files-btn" (click)="addFile()">Choose File
         </button>
         <span mat-line class="file" *ngIf="addedFile != undefined">{{addedFile.name}}</span>

@@ -40,7 +40,8 @@ export class ImportExperimentDialog implements OnInit {
     }
 
     onFileAdded() {
-        const files: [File] = this.file.nativeElement.files;
+        this.reset();
+        const files: File[] = this.file.nativeElement.files;
         for (let file of files) {
             this.addedFile = file;
         }
@@ -68,52 +69,51 @@ export class ImportExperimentDialog implements OnInit {
                 take(1)
             )
             .subscribe(experimentUpload => {
-                if (experimentUpload.importId) {
-                    // File upload complete. Poll for result.
-                    const importId: number = experimentUpload.importId;
-                    this.polling = "PENDING";
-                    this.uploading = false;
-                    interval(1000)
-                        .pipe(
-                            startWith(0),
-                            switchMap(() => this.backend.importExperimentPoll(importId)),
-                            filter(resp => resp.status != "PENDING"),
-                            take(1)
-                        )
-                        .subscribe(resp => {
-                            if (resp.status == "SUCCESS") {
-                                // close dialog after wait
-                                this.polling = "DONE"
-                                this.pollingResult = "Import successful. Forwarding to experiment...";
-                                this.waiting = true;
-                                setTimeout(() => this.dialogRef.close({ experimentId: resp.experimentId }), 2000);
-                            } else {
-                                if (resp.status == "FAILURE") {
-                                    console.error("Something went wrong. Check errors at backend.")
-                                } else {
-                                    console.error("Something went wrong. Backend returned wrong import status. Please check errors at backend.");
-                                }
-                                this.polling = "DONE";
-                                this.error = "Something went wrong.";
-                                this.reset();
-                            }
-                        })
-                } else {
-                    console.error("Something went wrong. Could not retrieve importId. Please check errors at backend.");
-                    this.error = "Something went wrong.";
-                    this.reset();
-                }
+                this.pollForImportResult(experimentUpload.importId)
             })
     }
 
+    pollForImportResult(importId: number | undefined) {
+        if (importId) {
+            // File upload complete. Poll for result.
+            const importIdNr: number = importId;
+            this.polling = "PENDING";
+            this.uploading = false;
+            interval(1000)
+                .pipe(
+                    startWith(0),
+                    switchMap(() => this.backend.importExperimentPoll(importIdNr)),
+                    filter(resp => resp.status != "PENDING"),
+                    take(1)
+                )
+                .subscribe(resp => {
+                    if (resp.status == "SUCCESS") {
+                        // close dialog after wait
+                        this.polling = "DONE"
+                        this.pollingResult = "Import successful. Forwarding to experiment...";
+                        this.waiting = true;
+                        setTimeout(() => this.dialogRef.close({ experimentId: resp.experimentId }), 2000);
+                    } else {
+                        if (resp.status == "FAILURE") {
+                            console.error("Something went wrong. Check errors at backend.")
+                        } else {
+                            console.error("Something went wrong. Backend returned wrong import status. Please check errors at backend.");
+                        }
+                        this.polling = "DONE";
+                        this.error = "Something went wrong.";
+                    }
+                })
+        } else {
+            console.error("Something went wrong. Could not retrieve importId. Please check errors at backend.");
+            this.error = "Something went wrong.";
+        }
+    }
+
     reset() {
-        this.waiting = true;
-        setTimeout(() => {
-            this.waiting = false;
-            this.error = undefined;
-            this.progress = 0;
-            this.uploadStatus = "NOT_STARTED";
-            this.polling = "NOT_STARTED";
-        }, 4000);
+        this.waiting = false;
+        this.error = undefined;
+        this.progress = 0;
+        this.uploadStatus = "NOT_STARTED";
+        this.polling = "NOT_STARTED";
     }
 }
