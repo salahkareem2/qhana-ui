@@ -74,39 +74,39 @@ export class ImportExperimentDialog implements OnInit {
     }
 
     pollForImportResult(importId: number | undefined) {
-        if (importId) {
-            // File upload complete. Poll for result.
-            const importIdNr: number = importId;
-            this.polling = "PENDING";
-            this.uploading = false;
-            interval(1000)
-                .pipe(
-                    startWith(0),
-                    switchMap(() => this.backend.importExperimentPoll(importIdNr)),
-                    filter(resp => resp.status != "PENDING"),
-                    take(1)
-                )
-                .subscribe(resp => {
-                    if (resp.status == "SUCCESS") {
-                        // close dialog after wait
-                        this.polling = "DONE"
-                        this.pollingResult = "Import successful. Forwarding to experiment...";
-                        this.waiting = true;
-                        setTimeout(() => this.dialogRef.close({ experimentId: resp.experimentId }), 2000);
-                    } else {
-                        if (resp.status == "FAILURE") {
-                            console.error("Something went wrong. Check errors at backend.")
-                        } else {
-                            console.error("Something went wrong. Backend returned wrong import status. Please check errors at backend.");
-                        }
-                        this.polling = "DONE";
-                        this.error = "Something went wrong.";
-                    }
-                })
-        } else {
+        if (importId == null) {
             console.error("Something went wrong. Could not retrieve importId. Please check errors at backend.");
             this.error = "Something went wrong.";
+            return;
         }
+        // File upload complete. Poll for result.
+        const importIdNr: number = importId;
+        this.polling = "PENDING";
+        this.uploading = false;
+        interval(1000)
+            .pipe(
+                startWith(0),
+                switchMap(() => this.backend.importExperimentPoll(importIdNr)),
+                filter(resp => resp.status != "PENDING"),
+                take(1)
+            )
+            .subscribe(resp => {
+                if (resp.status == "SUCCESS") {
+                    // close dialog after wait
+                    this.polling = "DONE"
+                    this.pollingResult = "Import successful. Forwarding to experiment...";
+                    this.waiting = true;
+                    setTimeout(() => this.dialogRef.close({ experimentId: resp.experimentId }), 2000);
+                } else {
+                    if (resp.status == "FAILURE") {
+                        console.error("Something went wrong. Check errors at backend.")
+                    } else {
+                        console.error("Something went wrong. Backend returned wrong import status. Please check errors at backend.");
+                    }
+                    this.polling = "DONE";
+                    this.error = "Something went wrong.";
+                }
+            })
     }
 
     reset() {
