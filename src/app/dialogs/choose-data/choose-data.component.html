@@ -1,7 +1,8 @@
 <h1 mat-dialog-title>Choose data
-    <mat-icon class="arrow" (click)="onSort()">
-        {{sort>=0?"arrow_upward":"arrow_downward"}}
-    </mat-icon>
+    <button mat-icon-button class="arrow-button" (click)="onSort()"
+        aria-label="sort>=0?'arrow_upward':'arrow_downward'">
+        <mat-icon class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
+    </button>
 </h1>
 <div mat-dialog-content>
     <div>

@@ -2,9 +2,10 @@
 
     <div class="title">
         <h1 class="t-page-headline">Experiments
-            <mat-icon class="arrow" (click)="onSort()">
-                {{sort>=0?"arrow_upward":"arrow_downward"}}
-            </mat-icon>
+            <button mat-icon-button class="arrow-button" (click)="onSort()"
+                aria-label="sort>=0?'arrow_upward':'arrow_downward'">
+                <mat-icon class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
+            </button>
         </h1>
         <button mat-raised-button color="primary" (click)="showCreateExperimentDialog()">New Experiment</button>
     </div>
