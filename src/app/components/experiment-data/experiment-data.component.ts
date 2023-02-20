@@ -12,7 +12,6 @@ import { ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/q
     styleUrls: ['./experiment-data.component.sass']
 })
 export class ExperimentDataComponent implements OnInit, OnDestroy {
-
     private routeSubscription: Subscription | null = null;
 
     backendUrl: string;
@@ -65,6 +64,13 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     onCheck() {
         this.allVersions = !this.allVersions;
         this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
+    }
+
+    reloadAllDataVersions(dataName: string) {
+        this.searchValue = dataName;
+        this.allVersions = true;
+        console.log("Test")
+        this.updatePageContent();
     }
 
     updatePageContent(page: number = 0, itemCount: number = 10) {

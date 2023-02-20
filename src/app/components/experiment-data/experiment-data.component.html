@@ -46,6 +46,10 @@
                         <dd><a class="download-button" href="{{data.download}}" target="_blank"
                                 rel="noopener noreferrer" mat-flat-button>Dowload as File</a></dd>
                     </div>
+                    <div>
+                        <dt>All versions for this file</dt>
+                        <dd><button mat-flat-button (click)="reloadAllDataVersions(data.name)">Here</button></dd>
+                    </div>
                 </dl>
             </mat-card-content>
         </mat-card>
