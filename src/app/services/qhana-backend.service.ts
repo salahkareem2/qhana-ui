@@ -267,7 +267,7 @@ export class QhanaBackendService {
         return this.http.post<ExperimentApiObject>(`${this.rootUrl}/experiments/${experimentId}/clone`, undefined, { responseType: "json" });
     }
 
-    public getExperimentDataPage(experimentId: number | string, allVersions: boolean = true, search: string | undefined = undefined, page: number = 0, itemCount: number = 10, sort: number = 1): Observable<ApiObjectList<ExperimentDataApiObject>> {
+    public getExperimentDataPage(experimentId: number | string, allVersions: boolean = true, search: string | null = null, page: number = 0, itemCount: number = 10, sort: number = 1): Observable<ApiObjectList<ExperimentDataApiObject>> {
         let queryParams = new HttpParams().append("all-versions", allVersions);
         if (search) {
             queryParams = queryParams.append("search", search);
@@ -302,7 +302,7 @@ export class QhanaBackendService {
     }
 
     public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10, sort: number = 1, pluginName: string = "", version: string = "", stepStatus: "SUCCESS" | "PENDING" | "ERROR" | "" = "", unclearedSubstep: number = 0): Observable<ApiObjectList<TimelineStepApiObject>> {
-        let queryParams = new HttpParams()
+        const queryParams = new HttpParams()
             .append("plugin-name", pluginName)
             .append("version", version)
             .append("status", stepStatus)

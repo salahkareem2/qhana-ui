@@ -18,7 +18,8 @@
             <input [(ngModel)]="searchValue" matInput (keydown.enter)="updatePageContent()">
             <button mat-button matSuffix class="search-button" (click)="updatePageContent()">Ok</button>
         </mat-form-field>
-        <mat-checkbox class="checkbox" color="primary" labelPosition="before" checked="true" (change)="onCheck()">All
+        <mat-checkbox class="checkbox" color="primary" labelPosition="before" checked="true"
+            (change)="onCheckAllVersions()">All
             versions</mat-checkbox>
     </div>
 

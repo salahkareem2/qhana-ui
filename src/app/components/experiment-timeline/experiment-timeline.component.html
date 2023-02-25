@@ -18,7 +18,7 @@
         <mat-expansion-panel [style.width.%]="100">
             <mat-expansion-panel-header>
                 <mat-panel-title>
-                    Filter Timeline Steps
+                    Filter timeline steps
                 </mat-panel-title>
             </mat-expansion-panel-header>
             <mat-form-field [style.width.%]="100">
@@ -33,17 +33,25 @@
                 <button mat-button matSuffix class="search-button" (click)="updatePageContent()">Ok</button>
             </mat-form-field>
 
-            <mat-form-field [style.width.%]="100">
-                <mat-label>Status</mat-label>
-                <mat-select [(ngModel)]="stepStatus" name="status" (selectionChange)="updatePageContent()">
-                    <mat-option *ngFor="let status of statusValues" [value]="status">
-                        {{status}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+            <div class="radio-label">
+                <mat-label>Status</mat-label><br>
+            </div>
+            <mat-radio-group [(ngModel)]="stepStatus" name="status" (ngModelChange)="updatePageContent()">
+                <mat-radio-button *ngFor="let status of statusValues" [value]="status.value">{{status.viewValue}}
+                </mat-radio-button>
+            </mat-radio-group><br>
 
-            <mat-form-field [style.width.%]="100">
-                <mat-label>Cleared/uncleared substeps</mat-label>
+            <div class="radio-label">
+                <mat-label>Cleared/uncleared substeps</mat-label><br>
+            </div>
+            <mat-radio-group [(ngModel)]="unclearedSubstep" (ngModelChange)="updatePageContent()">
+                <mat-radio-button *ngFor="let unclearedSubstepValue of unclearedSubstepValues"
+                    [value]="unclearedSubstepValue.value">{{unclearedSubstepValue.viewValue}}
+                </mat-radio-button>
+            </mat-radio-group>
+
+            <!-- <mat-form-field [style.width.%]="100">
+
                 <mat-select [(ngModel)]="unclearedSubstep" name="unclearedSubstep"
                     (selectionChange)="updatePageContent()">
                     <mat-option *ngFor="let unclearedSubstepValue of unclearedSubstepValues"
@@ -51,7 +59,7 @@
                         {{unclearedSubstepValue.viewValue}}
                     </mat-option>
                 </mat-select>
-            </mat-form-field>
+            </mat-form-field> -->
         </mat-expansion-panel>
     </div>
     <br>

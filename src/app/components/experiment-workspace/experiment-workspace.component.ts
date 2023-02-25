@@ -104,7 +104,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
         }
         const time = new Date();
 
-        const timelinePage = this.backend.getTimelineStepsPage(this.experimentId, num, this.stepsPerPage, undefined, undefined, undefined, undefined, undefined); // TODO: add other values?        
+        const timelinePage = this.backend.getTimelineStepsPage(this.experimentId, num, this.stepsPerPage);
         timelinePage.pipe(
             map(value => value.items)
         ).subscribe(

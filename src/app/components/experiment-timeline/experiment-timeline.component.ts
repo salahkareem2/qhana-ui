@@ -6,8 +6,8 @@ import { catchError, map } from 'rxjs/operators';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
 
-interface UnclearedSubstepValue {
-    value: number;
+interface SelectValue {
+    value: number | string;
     viewValue: string;
 }
 
@@ -36,10 +36,15 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
     pluginName: string | undefined;
     version: string | undefined;
     stepStatus: "SUCCESS" | "PENDING" | "ERROR" | "" = "";
-    statusValues: string[] = ["", "SUCCESS", "PENDING", "ERROR"];
-    unclearedSubstep: number | undefined;
-    unclearedSubstepValues: UnclearedSubstepValue[] = [
-        { value: 0, viewValue: "Any" },
+    statusValues: SelectValue[] = [
+        { value: "", viewValue: "Not selected" },
+        { value: "SUCCESS", viewValue: "Success" },
+        { value: "PENDING", viewValue: "Pending" },
+        { value: "ERROR", viewValue: "Error" }
+    ];
+    unclearedSubstep: number = 0;
+    unclearedSubstepValues: SelectValue[] = [
+        { value: 0, viewValue: "Not selected" },
         { value: 1, viewValue: "Only steps with uncleared substeps" },
         { value: -1, viewValue: "Only steps with cleared substeps" }
     ];

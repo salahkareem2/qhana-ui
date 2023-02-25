@@ -27,7 +27,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
 
     experimentData: Observable<ExperimentDataApiObject[]> | null = null;
     sort: number = 1;
-    searchValue: string | undefined;
+    searchValue: string | null = null;
     allVersions: boolean = true;
 
     constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService) {
@@ -61,7 +61,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
     }
 
-    onCheck() {
+    onCheckAllVersions() {
         this.allVersions = !this.allVersions;
         this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
     }

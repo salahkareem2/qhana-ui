@@ -78,7 +78,7 @@ export class ChooseDataComponent implements OnInit {
         this.loadData();
     }
 
-    onCheck() {
+    onCheckAllVersions() {
         this.allVersions = !this.allVersions;
         this.loadData();
     }
