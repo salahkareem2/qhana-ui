@@ -7,7 +7,7 @@
             <input matInput [(ngModel)]="configTest" required minlength="1">
         </mat-form-field> -->
     </div>
-    <mat-progress-bar [mode]="downloading ? 'indeterminate' : 'determinate'" [value]="0">
+    <mat-progress-bar [mode]="downloading ? 'indeterminate' : 'determinate'" [value]="downloadLink ? 100 : 0">
     </mat-progress-bar>
     <div>
         <mat-error>
