@@ -22,6 +22,10 @@ export class ChooseDataComponent implements OnInit {
     pageSize: number = 10;
     currentPage: number = 0;
 
+    sort: number = 1;
+    searchValue: string | undefined;
+    allVersions: boolean = true;
+
     currentPageSubscription: Subscription | null = null;
 
     collectionSize = 0;
@@ -46,8 +50,8 @@ export class ChooseDataComponent implements OnInit {
             return;
         }
         this.currentPageSubscription?.unsubscribe(); // cancel ongoing request
-        this.currentPageSubscription = this.backend.getExperimentDataPage(this.experimentId, this.currentPage, this.pageSize).subscribe((dataPage) => {
-            this.prepareDataPage(dataPage);
+        this.currentPageSubscription = this.backend.getExperimentDataPage(this.experimentId, this.allVersions, this.searchValue, this.currentPage, this.pageSize, this.sort).subscribe((dataPage) => {
+            this.prepareDataPage(dataPage)
         });
     }
 
@@ -67,6 +71,16 @@ export class ChooseDataComponent implements OnInit {
         this.dataList = items;
         this.matching = matching;
         this.selected = null;
+    }
+
+    onSort() {
+        this.sort *= -1;
+        this.loadData();
+    }
+
+    onCheckAllVersions() {
+        this.allVersions = !this.allVersions;
+        this.loadData();
     }
 
     onPageChange(event: any) {

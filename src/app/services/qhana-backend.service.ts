@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { EventListenerFocusTrapInertStrategy } from '@angular/cdk/a11y';
-import { HttpClient, HttpEventType, HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpEventType, HttpRequest, HttpResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { interval, Observable } from 'rxjs';
 import { filter, map, startWith, switchMap, take } from 'rxjs/operators';
@@ -266,8 +266,13 @@ export class QhanaBackendService {
         return this.http.delete(`${this.rootUrl}/plugin-endpoints/${endpoint.endpointId}`).pipe(map(() => { return; }));
     }
 
-    public getExperimentsPage(page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentApiObject>> {
-        return this.http.get<ApiObjectList<ExperimentApiObject>>(`${this.rootUrl}/experiments`);
+    public getExperimentsPage(page: number = 0, itemCount: number = 10, search: string | undefined = undefined, sort: number = 1): Observable<ApiObjectList<ExperimentApiObject>> {
+        let queryParams = new HttpParams();
+        if (search) {
+            queryParams = queryParams.append("search", search);
+        }
+        queryParams = queryParams.append("page", page).append("item-count", itemCount).append("sort", sort);
+        return this.http.get<ApiObjectList<ExperimentApiObject>>(`${this.rootUrl}/experiments`, { params: queryParams });
     }
 
     public createExperiment(name: string, description: string): Observable<ExperimentApiObject> {
@@ -369,8 +374,13 @@ export class QhanaBackendService {
         return this.http.get<ExperimentImportPollObject>(`${this.rootUrl}/experiments/import/${importId}`, { responseType: "json" });
     }
 
-    public getExperimentDataPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentDataApiObject>> {
-        return this.http.get<ApiObjectList<ExperimentDataApiObject>>(`${this.rootUrl}/experiments/${experimentId}/data?page=${page}&item-count=${itemCount}`);
+    public getExperimentDataPage(experimentId: number | string, allVersions: boolean = true, search: string | null = null, page: number = 0, itemCount: number = 10, sort: number = 1): Observable<ApiObjectList<ExperimentDataApiObject>> {
+        let queryParams = new HttpParams().append("all-versions", allVersions);
+        if (search) {
+            queryParams = queryParams.append("search", search);
+        }
+        queryParams = queryParams.append("page", page).append("item-count", itemCount).append("sort", sort);
+        return this.http.get<ApiObjectList<ExperimentDataApiObject>>(`${this.rootUrl}/experiments/${experimentId}/data`, { params: queryParams });
     }
 
     public getExperimentData(experimentId: number | string, dataName: string, version: string = "latest"): Observable<ExperimentDataApiObject> {
@@ -398,8 +408,16 @@ export class QhanaBackendService {
         return this.http.get(downloadLink, { responseType: "blob" })
     }
 
-    public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<TimelineStepApiObject>> {
-        return this.http.get<ApiObjectList<TimelineStepApiObject>>(`${this.rootUrl}/experiments/${experimentId}/timeline?page=${page}&item-count=${itemCount}`);
+    public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10, sort: number = 1, pluginName: string = "", version: string = "", stepStatus: "SUCCESS" | "PENDING" | "ERROR" | "" = "", unclearedSubstep: number = 0): Observable<ApiObjectList<TimelineStepApiObject>> {
+        const queryParams = new HttpParams()
+            .append("plugin-name", pluginName)
+            .append("version", version)
+            .append("status", stepStatus)
+            .append("uncleared-substep", unclearedSubstep)
+            .append("page", page)
+            .append("item-count", itemCount)
+            .append("sort", sort);
+        return this.http.get<ApiObjectList<TimelineStepApiObject>>(`${this.rootUrl}/experiments/${experimentId}/timeline`, { params: queryParams });
     }
 
     public createTimelineStep(experimentId: number | string, stepData: TimelineStepPostData): Observable<TimelineStepApiObject> {

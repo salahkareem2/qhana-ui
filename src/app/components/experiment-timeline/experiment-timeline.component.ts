@@ -6,6 +6,11 @@ import { catchError, map } from 'rxjs/operators';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
 
+interface SelectValue {
+    value: number | string;
+    viewValue: string;
+}
+
 @Component({
     selector: 'qhana-experiment-timeline',
     templateUrl: './experiment-timeline.component.html',
@@ -27,6 +32,22 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
     error: string | null = null;
 
     timelineSteps: Observable<TimelineStepApiObject[]> | null = null;
+    sort: number = 1;
+    pluginName: string | undefined;
+    version: string | undefined;
+    stepStatus: "SUCCESS" | "PENDING" | "ERROR" | "" = "";
+    statusValues: SelectValue[] = [
+        { value: "", viewValue: "Not selected" },
+        { value: "SUCCESS", viewValue: "Success" },
+        { value: "PENDING", viewValue: "Pending" },
+        { value: "ERROR", viewValue: "Error" }
+    ];
+    unclearedSubstep: number = 0;
+    unclearedSubstepValues: SelectValue[] = [
+        { value: 0, viewValue: "Not selected" },
+        { value: 1, viewValue: "Only steps with uncleared substeps" },
+        { value: -1, viewValue: "Only steps with cleared substeps" }
+    ];
 
     constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService) {
         this.backendUrl = this.backend.backendRootUrl;
@@ -50,6 +71,11 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
         this.routeSubscription?.unsubscribe();
     }
 
+    onSort() {
+        this.sort *= -1;
+        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
+    }
+
     onPageChange(pageEvent: PageEvent) {
         console.log(pageEvent.pageIndex, pageEvent.pageSize);
         this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize); // TODO test
@@ -63,7 +89,7 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
         this.error = null;
         const currentRequest = { page: page, itemCount: itemCount };
         this.currentPage = currentRequest;
-        this.timelineSteps = this.backend.getTimelineStepsPage(this.experimentId, page, itemCount).pipe(
+        this.timelineSteps = this.backend.getTimelineStepsPage(this.experimentId, page, itemCount, this.sort, this.pluginName, this.version, this.stepStatus, this.unclearedSubstep).pipe(
             map(value => {
                 if (this.currentPage !== currentRequest) {
                     throw Error("Cancelled by other request.");

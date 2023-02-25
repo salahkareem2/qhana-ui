@@ -1,4 +1,9 @@
-<h1 mat-dialog-title>Choose data</h1>
+<h1 mat-dialog-title>Choose data
+    <button mat-icon-button class="arrow-button" (click)="onSort()"
+        aria-label="sort>=0?'arrow_upward':'arrow_downward'">
+        <mat-icon class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
+    </button>
+</h1>
 <div mat-dialog-content>
     <div>
         <p>Accepts: {{data.acceptedDataType}} –
@@ -9,6 +14,16 @@
         <mat-paginator (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="pageSize"
             [pageIndex]="currentPage" [pageSizeOptions]="[10, 5, 25, 100]" aria-label="Select page">
         </mat-paginator>
+        <div class="filter">
+            <mat-form-field [style.width.%]="70">
+                <mat-label>Search data</mat-label>
+                <input [(ngModel)]="searchValue" matInput (keydown.enter)="loadData()">
+                <button mat-button matSuffix class="search-button" (click)="loadData()">Ok</button>
+            </mat-form-field>
+            <mat-checkbox class="checkbox" color="primary" labelPosition="before" checked="true"
+                (change)="onCheckAllVersions()">All
+                versions</mat-checkbox>
+        </div>
         <mat-selection-list [multiple]="false" color="primary" #selection>
             <mat-list-option *ngFor="let data of dataList" [disabled]="!matching.has(data['@self'])" [value]="data">
                 <p>

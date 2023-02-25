@@ -24,6 +24,8 @@ export class ExperimentsPageComponent implements OnInit {
     error: string | null = null;
 
     experiments: Observable<ExperimentApiObject[]> | null = null;
+    searchValue: string = "";
+    sort: number = 1;
 
     constructor(private router: Router, private backend: QhanaBackendService, private experimentService: CurrentExperimentService, public dialog: MatDialog) { }
 
@@ -33,16 +35,20 @@ export class ExperimentsPageComponent implements OnInit {
     }
 
     onPageChange(pageEvent: PageEvent) {
-        console.log(pageEvent.pageIndex, pageEvent.pageSize);
-
+        this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize, this.sort);
     }
 
-    updatePageContent(page: number = 1, itemCount: number = 10) {
+    onSort(): void {
+        this.sort *= -1;
+        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount, this.sort)
+    }
+
+    updatePageContent(page: number = 0, itemCount: number = 10, sort: number = 1) {
         this.loading = true;
         this.error = null;
         const currentRequest = { page: page, itemCount: itemCount };
         this.currentPage = currentRequest;
-        this.experiments = this.backend.getExperimentsPage(page, itemCount).pipe(
+        this.experiments = this.backend.getExperimentsPage(page, itemCount, this.searchValue, sort).pipe(
             map(value => {
                 if (this.currentPage !== currentRequest) {
                     throw Error("Cancelled by other request.");

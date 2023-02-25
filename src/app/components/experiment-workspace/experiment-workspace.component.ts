@@ -63,7 +63,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
                 this.templates.getTemplate(templateId).subscribe(
                     template => {
                         this.changeActiveTemplate(template);
-                        
+
                         if (this.activeTemplate != null) {
                             if (params.categoryId == null) {
                                 this.activeCategory = this.activeTemplate?.categories[0] ?? null;
@@ -90,7 +90,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
         const firstPage = this.loadStatusFromPage(0);
 
         firstPage?.subscribe(
-            value => { 
+            value => {
                 for (let i = 1; i < value.itemCount / this.stepsPerPage; i++) {
                     this.loadStatusFromPage(i);
                 }
@@ -103,8 +103,8 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
             return null;
         }
         const time = new Date();
-        
-        const timelinePage = this.backend.getTimelineStepsPage(this.experimentId, num, this.stepsPerPage)        
+
+        const timelinePage = this.backend.getTimelineStepsPage(this.experimentId, num, this.stepsPerPage);
         timelinePage.pipe(
             map(value => value.items)
         ).subscribe(
@@ -118,10 +118,10 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
                 )
             )
         );
-        
+
         return timelinePage;
     }
-    
+
     updatePluginStatus(plugin: QhanaPlugin, step: TimelineStepApiObject, time: Date): void {
         if (plugin.metadata?.name == step.processorName) {
             if (isInstanceOfPluginStatus(step.status)) {

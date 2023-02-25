@@ -1,11 +1,68 @@
 <div class="big-content">
     <div class="flex-header">
-        <h1 class="t-page-headline">Experiment Timeline</h1>
+        <h1 class="t-page-headline">Experiment Timeline
+            <button mat-icon-button class="arrow-button" (click)="onSort()"
+                aria-label="sort>=0?'arrow_upward':'arrow_downward'">
+                <mat-icon class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
+            </button>
+        </h1>
 
-        <mat-paginator class="paginator" (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="10"
-            [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
+        <mat-paginator #paginatorTop class="paginator"
+            (page)="paginatorBottom.pageSize = $event.pageSize; paginatorBottom.pageIndex = $event.pageIndex; onPageChange($event)"
+            [length]="collectionSize" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
         </mat-paginator>
     </div>
+
+
+    <div class="filter">
+        <mat-expansion-panel [style.width.%]="100">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    Filter timeline steps
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-form-field [style.width.%]="100">
+                <mat-label>Search plugin name</mat-label>
+                <input [(ngModel)]="pluginName" matInput (keydown.enter)="updatePageContent()">
+                <button mat-button matSuffix class="search-button" (click)="updatePageContent()">Ok</button>
+            </mat-form-field>
+
+            <mat-form-field [style.width.%]="100">
+                <mat-label>Search version</mat-label>
+                <input [(ngModel)]="version" matInput (keydown.enter)="updatePageContent()">
+                <button mat-button matSuffix class="search-button" (click)="updatePageContent()">Ok</button>
+            </mat-form-field>
+
+            <div class="radio-label">
+                <mat-label>Status</mat-label><br>
+            </div>
+            <mat-radio-group [(ngModel)]="stepStatus" name="status" (ngModelChange)="updatePageContent()">
+                <mat-radio-button *ngFor="let status of statusValues" [value]="status.value">{{status.viewValue}}
+                </mat-radio-button>
+            </mat-radio-group><br>
+
+            <div class="radio-label">
+                <mat-label>Cleared/uncleared substeps</mat-label><br>
+            </div>
+            <mat-radio-group [(ngModel)]="unclearedSubstep" (ngModelChange)="updatePageContent()">
+                <mat-radio-button *ngFor="let unclearedSubstepValue of unclearedSubstepValues"
+                    [value]="unclearedSubstepValue.value">{{unclearedSubstepValue.viewValue}}
+                </mat-radio-button>
+            </mat-radio-group>
+
+            <!-- <mat-form-field [style.width.%]="100">
+
+                <mat-select [(ngModel)]="unclearedSubstep" name="unclearedSubstep"
+                    (selectionChange)="updatePageContent()">
+                    <mat-option *ngFor="let unclearedSubstepValue of unclearedSubstepValues"
+                        [value]="unclearedSubstepValue.value">
+                        {{unclearedSubstepValue.viewValue}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field> -->
+        </mat-expansion-panel>
+    </div>
+    <br>
 
     <div class="page-item-list">
         <mat-card class="page-item card" *ngFor="let step of timelineSteps | async">
@@ -50,8 +107,9 @@
         </mat-card>
     </div>
 
-    <mat-paginator class="paginator" (page)="onPageChange($event)" [length]="collectionSize" [pageSize]="10"
-        [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
+    <mat-paginator #paginatorBottom class="paginator"
+        (page)="paginatorTop.pageSize = $event.pageSize; paginatorTop.pageIndex = $event.pageIndex; onPageChange($event)"
+        [length]="collectionSize" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
     </mat-paginator>
     <div class="scroll-spacer"></div>
 </div>
