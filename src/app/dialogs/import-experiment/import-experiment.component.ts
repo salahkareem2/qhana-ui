@@ -96,7 +96,7 @@ export class ImportExperimentDialog implements OnInit {
                     this.polling = "DONE"
                     this.pollingResult = "Import successful. Forwarding to experiment...";
                     this.waiting = true;
-                    setTimeout(() => this.dialogRef.close({ experimentId: resp.experimentId }), 4000);
+                    setTimeout(() => this.dialogRef.close({ experimentId: resp.experimentId }), 2000);
                 } else {
                     if (resp.status == "FAILURE") {
                         console.error("Something went wrong. Check errors at backend.")
