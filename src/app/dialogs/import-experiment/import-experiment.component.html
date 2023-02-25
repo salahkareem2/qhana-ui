@@ -7,15 +7,15 @@
         <button [disabled]="(uploading || polling != 'NOT_STARTED') && !error " mat-raised-button color="primary"
             class="add-files-btn" (click)="addFile()">Choose File
         </button>
-        <span mat-line class="file" *ngIf="addedFile != undefined">{{addedFile.name}}</span>
-        <div *ngIf="addedFile != undefined">
-            <mat-progress-bar class="progress-bar" *ngIf="addedFile != undefined"
+        <span mat-line class="file" *ngIf="addedFile">{{addedFile.name}}</span>
+        <div *ngIf="addedFile">
+            <mat-progress-bar class="progress-bar" *ngIf="addedFile"
                 [mode]="uploadStatus == 'PENDING' ? 'indeterminate' : 'determinate'"
                 [value]="uploadStatus == 'NOT_STARTED' ? 0 : 100"></mat-progress-bar>
         </div>
         <div *ngIf="polling != 'NOT_STARTED'">
             <p mat-line>Upload complete. Waiting for result...</p>
-            <mat-progress-bar class="progress-bar" *ngIf="addedFile != undefined"
+            <mat-progress-bar class="progress-bar" *ngIf="addedFile"
                 [mode]="polling == 'PENDING' ? 'indeterminate' : 'determinate'" [value]="100"></mat-progress-bar>
         </div>
         <div *ngIf="polling == 'DONE' && !error">
@@ -30,6 +30,7 @@
     </mat-dialog-content>
     <div class="dialog-actions" mat-dialog-actions>
         <button mat-button (click)="onCancel()">Cancel</button>
-        <button mat-button (click)="import()" [disabled]="!addedFile || uploading">Import Experiment</button>
+        <button mat-button (click)="import()" [disabled]="!addedFile || polling!= 'NOT_STARTED'">Import
+            Experiment</button>
     </div>
 </div>

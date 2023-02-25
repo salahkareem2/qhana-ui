@@ -2,6 +2,11 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
+interface SelectValue {
+    value: string | number;
+    viewValue: string;
+}
+
 @Component({
     selector: 'qhana-export-experiment',
     templateUrl: './export-experiment.component.html',
@@ -16,6 +21,22 @@ export class ExportExperimentDialog implements OnInit {
     downloading: boolean = false;
     error: string | null = null;
     downloadLink: string | undefined;
+
+    configRestriction: "ALL" | "LOGS" | "DATA" | "STEPS" = "ALL";
+    restrictionValues: SelectValue[] = [
+        { value: "ALL", viewValue: "Complete experiment" },
+        { value: "LOGS", viewValue: "Only timeline steps/substeps (no data files)" },
+        { value: "DATA", viewValue: "Only data files" },
+        { value: "STEPS", viewValue: "List of steps" }
+    ];
+
+    allDataVersions: number = 1;
+    allDataVersionsValues: SelectValue[] = [
+        { value: 1, viewValue: "All data versions" },
+        { value: -1, viewValue: "Only newest data version" }
+    ];
+
+    stepList: number[] = [];
 
     constructor(public dialogRef: MatDialogRef<ExportExperimentDialog>, @Inject(MAT_DIALOG_DATA) public data: any) { }
 
@@ -37,7 +58,7 @@ export class ExportExperimentDialog implements OnInit {
             this.error = "Something went wrong. Please try again later or look at the logs.";
             return
         }
-        this.backend.exportExperiment(this.experimentId, this.configTest).subscribe(resp => {
+        this.backend.exportExperiment(this.experimentId, this.configRestriction, this.allDataVersions, this.stepList).subscribe(resp => {
             this.downloading = false;
             if (resp.status == "SUCCESS") {
                 if (resp.fileLink != undefined) {

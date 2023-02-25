@@ -298,8 +298,8 @@ export class QhanaBackendService {
      * @param test export config parameter // TODO: replace once backend supports export config
      * @returns experiment export poll object with result file link if successful
      */
-    public exportExperiment(experimentId: number | string, test: string): Observable<ExperimentExportPollObject> {
-        return this.http.post<ExperimentExportApiObject>(`${this.rootUrl}/experiments/${experimentId}/export`, { test }).pipe(
+    public exportExperiment(experimentId: number | string, restriction: "ALL" | "LOGS" | "DATA" | "STEPS" = "ALL", allDataVersions: number = 1, stepList: number[] = []): Observable<ExperimentExportPollObject> {
+        return this.http.post<ExperimentExportApiObject>(`${this.rootUrl}/experiments/${experimentId}/export`, { restriction, allDataVersions, stepList }).pipe(
             switchMap(exportResource => {
                 // poll until SUCCESS or FAILURE
                 return interval(1000).pipe(

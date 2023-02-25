@@ -2,22 +2,22 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ExportExperimentDialog } from './export-experiment.component';
 
-describe('ExportExperimentComponent', () => {
-  let component: ExportExperimentDialog;
-  let fixture: ComponentFixture<ExportExperimentDialog>;
+describe('ExportExperimentDialog', () => {
+    let component: ExportExperimentDialog;
+    let fixture: ComponentFixture<ExportExperimentDialog>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ExportExperimentDialog]
-    })
-      .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            declarations: [ExportExperimentDialog]
+        })
+            .compileComponents();
 
-    fixture = TestBed.createComponent(ExportExperimentDialog);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(ExportExperimentDialog);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
