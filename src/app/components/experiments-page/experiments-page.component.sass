@@ -9,17 +9,28 @@
     flex-direction: column
     gap: 1rem
 
-.new-button
+.buttons
+    display: flex
+    flex-direction: row-reverse
+
+.dialog-button
     padding-block: 0.3em
     height: auto
+    margin-left: 1rem
+
+@mixin arrow-icon-size($scale: 1.25)
+    transform: scale($scale)
 
 .arrow-button
     position: relative
     top: -0.7em
+    @include arrow-icon-size()
 
 .arrow
     display: inline-block
-    font-size: 15pt
+    align-items: center
+    justify-content: center
+    @include arrow-icon-size()
     color: dimgray
     font-weight: 1000
     cursor: pointer

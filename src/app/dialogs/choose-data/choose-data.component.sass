@@ -1,10 +1,16 @@
+@mixin arrow-icon-size($scale: 1.025)
+    transform: scale($scale)
+
 .arrow-button
     position: relative
     top: -0.3em
+    @include arrow-icon-size()
 
 .arrow
     display: inline-block
-    font-size: 15pt
+    align-items: center
+    justify-content: center
+    @include arrow-icon-size()
     color: dimgray
     font-weight: 1000
     cursor: pointer

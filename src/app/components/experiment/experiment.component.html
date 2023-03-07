@@ -1,15 +1,16 @@
 <div class="big-content" *ngIf="experiment != null">
     <div class="title">
         <h1 class="t-page-headline">Experiment</h1>
-        <button class="export-button" mat-raised-button color="primary" (click)="showExportExperimentDialog()">
-            Export Experiment
-            <mat-icon aria-hidden="true">import_export</mat-icon>
-        </button>
-        <button class="clone-button" mat-raised-button color="primary" (click)="cloneExperiment()">
-            Clone Experiment
-            <mat-icon aria-hidden="true">content_copy</mat-icon>
-        </button>
-
+        <div class="buttons">
+            <button class="dialog-button" mat-raised-button color="primary" (click)="showExportExperimentDialog()">
+                Export
+                <mat-icon aria-hidden="true">save_alt</mat-icon>
+            </button>
+            <button class="dialog-button" mat-raised-button color="primary" (click)="cloneExperiment()">
+                Clone
+                <mat-icon aria-hidden="true">content_copy</mat-icon>
+            </button>
+        </div>
     </div>
     <mat-card class="experiment-card card">
         <mat-card-title class="t-headline experiment-title">
