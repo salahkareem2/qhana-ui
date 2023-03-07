@@ -17,6 +17,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
+import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 @Component({
     selector: 'qhana-navbar',
@@ -29,10 +30,14 @@ export class NavbarComponent {
 
     currentExperiment: Observable<string | null>;
     experimentId: Observable<string | null>;
+    badgeCounter: number = 0;
 
-    constructor(private experiment: CurrentExperimentService) {
+    constructor(private experiment: CurrentExperimentService, private backend: QhanaBackendService) {
         this.currentExperiment = this.experiment.experimentName;
         this.experimentId = this.experiment.experimentId;
     }
+
+    // TODO: this.backend.getExportList() to fetch list of exports and fill dropdown
+
 
 }

@@ -61,6 +61,17 @@ export interface ExperimentExportApiObject extends ApiObject {
     exportId: number;
 }
 
+export interface ExportStatus {
+    exportId: number;
+    experimentId: number;
+    status: "SUCCESS" | "FAILURE" | "PENDING";
+    name: string;
+}
+
+export interface ExperimentExportApiObject extends ApiObject {
+    exportId: number;
+}
+
 export interface ExperimentExportPollObject extends ExperimentExportApiObject {
     status: string;
     fileLink?: string;
@@ -294,8 +305,10 @@ export class QhanaBackendService {
     /**
      * Export experiment and poll for result (download link)
      *
-     * @param experimentId
-     * @param test export config parameter // TODO: replace once backend supports export config
+     * @param experimentId experiment id
+     * @param restriction "ALL" for complete experiment, "LOGS" for only steps/substeps, "DATA" for only data files, or "STEPS" for a specified list of steps
+     * @param allDataVersions if >= 0 all versions, else only newest
+     * @param stepList specified list of steps
      * @returns experiment export poll object with result file link if successful
      */
     public exportExperiment(experimentId: number | string, restriction: "ALL" | "LOGS" | "DATA" | "STEPS" = "ALL", allDataVersions: number = 1, stepList: number[] = []): Observable<ExperimentExportPollObject> {
@@ -335,6 +348,11 @@ export class QhanaBackendService {
                 throw new Error("Experiment poll returned wrong file format: " + resp.headers.get("Content-Type"));
             }
         }));
+    }
+
+    public getExportList(itemCount: number = 10): Observable<ApiObjectList<ExportStatus>> {
+        let queryParams = new HttpParams().append("item-count", itemCount);
+        return this.http.get<ApiObjectList<ExportStatus>>(`${this.rootUrl}/experiments/export-list`, { params: queryParams });
     }
 
     public importExperiment(experimentZip: File): Observable<ExperimentImportApiObject> {

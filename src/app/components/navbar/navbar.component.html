@@ -24,6 +24,7 @@
     </ng-container>
 
     <div class="toolbar-spacer"></div>
+
     <div [hidden]="(currentExperiment|async) == null">
         <span>{{currentExperiment|async}}</span>
         <a class="navigation-link" mat-icon-button [hidden]="(currentExperiment|async) == null" [routerLink]="['/']"
@@ -31,6 +32,13 @@
             <mat-icon>swap_horiz</mat-icon>
         </a>
     </div>
+    <button mat-button [matMenuTriggerFor]="downloadList">
+        <mat-icon [matBadge]="badgeCounter" [matBadgeHidden]="badgeCounter<1" matBadgeColor="warn"
+            matBadgeSize="small">download</mat-icon>
+    </button>
+    <mat-menu #downloadList="matMenu" yPosition="below" xPosition="before">
+        <p>Test</p>
+    </mat-menu>
     <a class="settings-link" [routerLink]="['/settings']">
         <mat-icon aria-hidden="false" aria-label="Settings">settings</mat-icon>
     </a>

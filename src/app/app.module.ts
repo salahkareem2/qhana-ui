@@ -63,6 +63,9 @@ import { CreateExperimentDialog } from './dialogs/create-experiment/create-exper
 import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
 import { ExportExperimentDialog } from './dialogs/export-experiment/export-experiment.component';
 import { ImportExperimentDialog } from './dialogs/import-experiment/import-experiment.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatBadgeModule } from '@angular/material/badge';
+
 
 @NgModule({
     declarations: [
@@ -116,6 +119,8 @@ import { ImportExperimentDialog } from './dialogs/import-experiment/import-exper
         MatTooltipModule,
         MatCheckboxModule,
         MatRadioModule,
+        MatMenuModule,
+        MatBadgeModule,
     ],
     providers: [
         { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: "outline" } }
