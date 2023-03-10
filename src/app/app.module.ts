@@ -65,6 +65,7 @@ import { ExportExperimentDialog } from './dialogs/export-experiment/export-exper
 import { ImportExperimentDialog } from './dialogs/import-experiment/import-experiment.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
+import { DownloadsDialog } from './dialogs/downloads/downloads.component';
 
 
 @NgModule({
@@ -93,6 +94,7 @@ import { MatBadgeModule } from '@angular/material/badge';
         MarkdownHelpDialog,
         ExportExperimentDialog,
         ImportExperimentDialog,
+        DownloadsDialog,
     ],
     imports: [
         BrowserModule,

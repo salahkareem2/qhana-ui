@@ -1,17 +1,5 @@
-<h1 mat-dialog-title>Export Experiment</h1>
+<h1 mat-dialog-title>Export Config</h1>
 <div mat-dialog-content>
-    <div>
-        <!-- Test config variable, placeholder for later config variables
-        <mat-form-field class="form-field">
-            <mat-label>Test </mat-label>
-            <input matInput [(ngModel)]="configTest" required minlength="1">
-        </mat-form-field> -->
-
-    </div>
-
-    <div class="radio-label">
-        <mat-label>Config</mat-label><br>
-    </div>
     <mat-radio-group [(ngModel)]="configRestriction" name="restriction">
         <mat-radio-button *ngFor="let restriction of restrictionValues"
             [value]="restriction.value">{{restriction.viewValue}}
@@ -31,18 +19,8 @@
         <mat-label>Step selection</mat-label><br>
         <!-- TODO -->
     </div>
-
-    <mat-progress-bar [mode]="downloading ? 'indeterminate' : 'determinate'" [value]="downloadLink ? 100 : 0">
-    </mat-progress-bar>
-    <div>
-        <mat-error>
-            {{data.error}}
-        </mat-error>
-    </div>
 </div>
 <div class="dialog-actions" mat-dialog-actions>
     <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-button [disabled]="downloading || this.downloadLink" (click)="onExport()">Export Experiment</button>
-    <a role="button" mat-button [disabled]="!this.downloadLink" href="{{this.downloadLink}}"
-        (click)="onOk()">Download</a>
+    <button mat-button [disabled]="downloading || this.downloadLink" (click)="onExport()">Export</button>
 </div>

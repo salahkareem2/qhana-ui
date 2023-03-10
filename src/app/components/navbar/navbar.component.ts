@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, Input, TrackByFunction } from '@angular/core';
+import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
-import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { DownloadsService } from 'src/app/services/downloads.service';
+import { ExportResult, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 @Component({
     selector: 'qhana-navbar',
@@ -30,14 +31,24 @@ export class NavbarComponent {
 
     currentExperiment: Observable<string | null>;
     experimentId: Observable<string | null>;
-    badgeCounter: number = 0;
+    downloadBadgeCounter: BehaviorSubject<number> | null = null;
 
-    constructor(private experiment: CurrentExperimentService, private backend: QhanaBackendService) {
+    exportList: BehaviorSubject<ExportResult[] | null> | null = null;
+    error: string | null = null;
+
+    constructor(private experiment: CurrentExperimentService, private backend: QhanaBackendService, private downloadService: DownloadsService) {
         this.currentExperiment = this.experiment.experimentName;
         this.experimentId = this.experiment.experimentId;
     }
 
-    // TODO: this.backend.getExportList() to fetch list of exports and fill dropdown
+    ngOnInit(): void {
+        this.downloadBadgeCounter = this.downloadService.getDownloadsCounter();
+        this.exportList = this.downloadService.getExportList();
+    }
 
+    resetBadge() {
+        this.downloadBadgeCounter?.next(0);
+    }
 
+    trackExport: TrackByFunction<ExportResult> = (index, item) => item.exportId.toString() + item.status;
 }

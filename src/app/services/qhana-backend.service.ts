@@ -68,6 +68,10 @@ export interface ExportStatus {
     name: string;
 }
 
+export interface ExportResult extends ExportStatus {
+    fileLink: string | null;
+}
+
 export interface ExperimentExportApiObject extends ApiObject {
     exportId: number;
 }
@@ -350,9 +354,27 @@ export class QhanaBackendService {
         }));
     }
 
-    public getExportList(itemCount: number = 10): Observable<ApiObjectList<ExportStatus>> {
+    public getExportList(itemCount: number = 10): Observable<ExportResult[]> {
         let queryParams = new HttpParams().append("item-count", itemCount);
-        return this.http.get<ApiObjectList<ExportStatus>>(`${this.rootUrl}/experiments/export-list`, { params: queryParams });
+        return this.http.get<ApiObjectList<ExportStatus>>(`${this.rootUrl}/experiments/export-list`, { params: queryParams }).pipe(map(resp => {
+            const exportResultList: ExportResult[] = [];
+            resp.items.forEach(exportStatus => {
+                var fileLink: string | null;
+                if (exportStatus.status == "SUCCESS") {
+                    fileLink = `${this.rootUrl}/experiments/${exportStatus.experimentId}/export/${exportStatus.exportId}`
+                } else {
+                    fileLink = null;
+                }
+                exportResultList.push({
+                    exportId: exportStatus.exportId,
+                    experimentId: exportStatus.experimentId,
+                    status: exportStatus.status,
+                    name: exportStatus.name,
+                    fileLink: fileLink
+                })
+            });
+            return exportResultList;
+        }));;
     }
 
     public importExperiment(experimentZip: File): Observable<ExperimentImportApiObject> {

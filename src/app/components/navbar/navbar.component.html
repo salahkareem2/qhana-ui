@@ -32,12 +32,23 @@
             <mat-icon>swap_horiz</mat-icon>
         </a>
     </div>
-    <button mat-button [matMenuTriggerFor]="downloadList">
-        <mat-icon [matBadge]="badgeCounter" [matBadgeHidden]="badgeCounter<1" matBadgeColor="warn"
-            matBadgeSize="small">download</mat-icon>
+    <button class="downloads-button" mat-button [matMenuTriggerFor]="downloadList">
+        <mat-icon [matBadge]="downloadBadgeCounter | async" [matBadgeHidden]="!(downloadBadgeCounter | async)"
+            matBadgeColor="warn" matBadgeSize="small" (click)="resetBadge()">download</mat-icon>
     </button>
-    <mat-menu #downloadList="matMenu" yPosition="below" xPosition="before">
-        <p>Test</p>
+    <mat-menu class="download" #downloadList="matMenu" yPosition="below" xPosition="before">
+        <mat-card class="card download-card" *ngFor="let export of exportList | async; trackBy:trackExport">
+            <mat-card-content>
+                <ng-container class="container-download">
+                    <span>{{export.name}}</span>
+                    <a class="download-button" role="button" mat-raised-button color="primary"
+                        [disabled]="export.status != 'SUCCESS'" href="{{export.fileLink}}">Download</a>
+                </ng-container>
+                <mat-progress-bar [mode]="export.status == 'PENDING' ? 'indeterminate' : 'determinate'" [value]="100"
+                    [color]="export.status == 'FAILURE' ? 'warn' : 'primary'">
+                </mat-progress-bar>
+            </mat-card-content>
+        </mat-card>
     </mat-menu>
     <a class="settings-link" [routerLink]="['/settings']">
         <mat-icon aria-hidden="false" aria-label="Settings">settings</mat-icon>

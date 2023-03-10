@@ -47,39 +47,26 @@ export class ExportExperimentDialog implements OnInit {
 
     onExport() {
         this.downloading = true;
-        // check input data // TODO: add once config vars in backend are added
-        // if (this.configTest == null || this.configTest === "") {
-        //     // TODO
-        //     console.error("Incorrect export config!", this.configTest);
-        // }
         if (this.experimentId == null || this.backend == null) {
             // should never happen
             console.log("Experiment id or backend not set correctly.");
-            this.error = "Something went wrong. Please try again later or look at the logs.";
-            return
+            return;
         }
         this.backend.exportExperiment(this.experimentId, this.configRestriction, this.allDataVersions, this.stepList).subscribe(resp => {
             this.downloading = false;
             if (resp.status == "SUCCESS") {
-                if (resp.fileLink != undefined) {
-                    this.downloadLink = resp.fileLink;
-                } else {
+                if (resp.fileLink == undefined) {
                     // should not happen
                     console.log("Error in export experiment poll result handling.");
-                    this.error = "Something went wrong. Please try again later or look at the logs.";
                 }
             } else if (resp.status == "FAILURE") {
                 console.log("Something went wrong in polling the result for experiment export.");
-                this.error = "Something went wrong in the backend. Please try again later or look at the logs.";
             }
         });
-    }
-
-    onCancel(): void {
         this.dialogRef.close();
     }
 
-    onOk(): void {
+    onCancel(): void {
         this.dialogRef.close();
     }
 }
