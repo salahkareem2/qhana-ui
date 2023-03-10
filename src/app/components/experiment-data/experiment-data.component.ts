@@ -69,7 +69,6 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     reloadAllDataVersions(dataName: string) {
         this.searchValue = dataName;
         this.allVersions = true;
-        console.log("Test")
         this.updatePageContent();
     }
 

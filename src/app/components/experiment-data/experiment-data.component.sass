@@ -40,9 +40,12 @@
 @mixin arrow-icon-size($scale: 1.25)
     transform: scale($scale)
 
+.align-arrow
+    display: flex
+    align-items: center
+
 .arrow-button
-    position: relative
-    top: -0.7em
+    margin-left: 1em
     @include arrow-icon-size()
 
 .arrow

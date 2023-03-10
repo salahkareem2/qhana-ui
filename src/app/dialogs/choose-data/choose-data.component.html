@@ -1,9 +1,11 @@
-<h1 mat-dialog-title>Choose data
-    <button mat-icon-button class="arrow-button" (click)="onSort()"
-        aria-label="sort>=0?'arrow_upward':'arrow_downward'">
-        <mat-icon class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
-    </button>
-</h1>
+<div class="flex-header">
+    <h1 mat-dialog-title align-arrow>Choose data
+        <button mat-icon-button class="arrow-button" (click)="onSort()"
+            aria-label="sort>=0?'arrow_upward':'arrow_downward'">
+            <mat-icon class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
+        </button>
+    </h1>
+</div>
 <div mat-dialog-content>
     <div>
         <p>Accepts: {{data.acceptedDataType}} –

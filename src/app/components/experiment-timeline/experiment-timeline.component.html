@@ -1,6 +1,6 @@
 <div class="big-content">
     <div class="flex-header">
-        <h1 class="t-page-headline">Experiment Timeline
+        <h1 class="t-page-headline align-arrow">Experiment Timeline
             <button mat-icon-button class="arrow-button" (click)="onSort()"
                 aria-label="sort>=0?'arrow_upward':'arrow_downward'">
                 <mat-icon class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
@@ -49,17 +49,6 @@
                     [value]="unclearedSubstepValue.value">{{unclearedSubstepValue.viewValue}}
                 </mat-radio-button>
             </mat-radio-group>
-
-            <!-- <mat-form-field [style.width.%]="100">
-
-                <mat-select [(ngModel)]="unclearedSubstep" name="unclearedSubstep"
-                    (selectionChange)="updatePageContent()">
-                    <mat-option *ngFor="let unclearedSubstepValue of unclearedSubstepValues"
-                        [value]="unclearedSubstepValue.value">
-                        {{unclearedSubstepValue.viewValue}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field> -->
         </mat-expansion-panel>
     </div>
     <br>

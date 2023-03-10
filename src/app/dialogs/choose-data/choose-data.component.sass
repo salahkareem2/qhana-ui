@@ -1,15 +1,19 @@
+.flex-header
+    display: flex
+    align-items: center
+    justify-content: space-between
+
 @mixin arrow-icon-size($scale: 1.025)
     transform: scale($scale)
 
+.align-arrow
+    display: flex
+    align-items: center
+
 .arrow-button
-    position: relative
-    top: -0.3em
     @include arrow-icon-size()
 
 .arrow
-    display: inline-block
-    align-items: center
-    justify-content: center
     @include arrow-icon-size()
     color: dimgray
     font-weight: 1000
