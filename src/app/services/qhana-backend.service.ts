@@ -326,6 +326,12 @@ export class QhanaBackendService {
             }));;
     }
 
+    deleteExport(experimentId: number, exportId: number) {
+        return this.callWithRootUrl<void>(
+            rootUrl => this.http.delete(`${rootUrl}/experiments/${experimentId}/export/${exportId}/delete`).pipe(map(() => { return; }))
+        );
+    }
+
     public importExperiment(experimentZip: File): Observable<ExperimentImportApiObject> {
         const formData: FormData = new FormData();
         formData.append("file", experimentZip, experimentZip.name);

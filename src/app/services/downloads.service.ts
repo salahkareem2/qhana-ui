@@ -30,9 +30,14 @@ export class DownloadsService {
         })
     }
 
+    exportListIsEmpty(): boolean {
+        return this.exportsCache == null || this.exportsCache.length == 0;
+    }
+
     getExportList(): BehaviorSubject<ExportResult[] | null> {
         return this.exportList;
     }
+
 
     getDownloadsCounter(): BehaviorSubject<number> {
         return this.downloadsCounter;
@@ -42,19 +47,37 @@ export class DownloadsService {
         let tmpExportsCache: ExportCache[] = [];
         let changeCounter: number = 0;
         let index: number = 0;
+        let newCheck: boolean = true;
         // check number of changes between (new) exports and (old) exportsCache
         // exports and exportsCache are ordered desc by exportId
+        let tmpIndex: number = 0;
         exports.forEach(exp => {
             tmpExportsCache.push({ exportId: exp.exportId, status: exp.status });
+
             if (this.exportsCache != null) {
-                if (this.exportsCache.length > index
-                    && exp.exportId == this.exportsCache[index].exportId) {
-                    if (exp.status != this.exportsCache[index].status) {
+                if (index < this.exportsCache.length) {
+                    // check if incoming export is new
+                    if (newCheck && exp.exportId > this.exportsCache[0].exportId) {
                         changeCounter++;
+                    } else {
+                        newCheck = false;
+                        // check if status changes in old exports
+                        if (exp.exportId == this.exportsCache[index].exportId) {
+                            if (exp.status != this.exportsCache[index].status) {
+                                changeCounter++;
+                            }
+                            index++;
+                        } else {
+                            // old export(s) deleted => find matching index
+                            tmpIndex = index + 1
+                            while (tmpIndex < this.exportsCache.length && exp.exportId != this.exportsCache[tmpIndex].exportId) {
+                                tmpIndex++;
+                            }
+                            index = tmpIndex;
+                        }
                     }
-                    index++;
                 } else {
-                    changeCounter++;
+                    // nothing to do (older exports than cached ones are loaded)
                 }
             }
         })

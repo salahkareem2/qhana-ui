@@ -48,10 +48,24 @@
                     <span>{{export.name}}</span>
                     <a class="download-button" role="button" mat-raised-button color="primary"
                         [disabled]="export.status != 'SUCCESS'" href="{{export.fileLink}}">Download</a>
+                    <button class="delete-button" mat-icon-button aria-label="Delete"
+                        (click)="deleteExport(export.experimentId, export.exportId); $event.stopPropagation()">
+                        <mat-icon>delete</mat-icon>
+                    </button>
                 </ng-container>
-                <mat-progress-bar [mode]="export.status == 'PENDING' ? 'indeterminate' : 'determinate'" [value]="100"
+                <br>
+                <mat-progress-bar class="download-progress"
+                    [mode]="export.status == 'PENDING' ? 'indeterminate' : 'determinate'" [value]="100"
                     [color]="export.status == 'FAILURE' ? 'warn' : 'primary'">
                 </mat-progress-bar>
+            </mat-card-content>
+        </mat-card>
+        <mat-card class="card download-card" *ngIf="exportListIsEmpty(); trackBy:trackExport">
+            <mat-card-content>
+                <ng-container class="container-download"></ng-container>
+                <br>
+                <mat-progress-bar class="download-progress" [mode]="'determinate'" [value]="100"
+                    [color]="'primary'"></mat-progress-bar>
             </mat-card-content>
         </mat-card>
     </mat-menu>

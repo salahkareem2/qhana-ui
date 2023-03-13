@@ -61,6 +61,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     trackExport: TrackByFunction<ExportResult> = (index, item) => item.exportId.toString() + item.status;
 
+    deleteExport(experimentId: number, exportId: number) {
+        this.backend.deleteExport(experimentId, exportId).subscribe(() => console.log());
+    }
+
+    exportListIsEmpty() {
+        return this.downloadService.exportListIsEmpty();
+    }
+
     ngOnDestroy(): void {
         this.defaultTemplateSubscription?.unsubscribe();
     }
