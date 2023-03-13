@@ -1,46 +1,25 @@
 .workspace-content
-    display: flex
-    flex-direction: row
-    gap: 1rem
+    display: grid
+    grid-template-areas: "sidebar main spacer"
+    grid-template-columns: minmax(min-content, calc( (100vw - 60rem)/2 )) minmax(20rem, 1fr) minmax(0.5rem, calc( (100vw - 60rem)/2 ))
+
+.sidebar
+    grid-area: sidebar
+    margin-inline-end: 0.5rem
+
+.content-container
+    grid-area: main
+
+.content-container .main-content
+    position: sticky
+    top: 0px
+    max-width: 60rem
+    margin-inline: auto
 
 .title
     display: flex
     justify-content: space-between
     align-items: center
-
-.sidebar-container
-    position: sticky
-    top: 0px
-    padding: 0.6rem
-    flex-basis: 30%
-    min-width: 16.2rem
-    max-width: 35rem
-    max-height: 80vh
-
-.sidebar
-    position: relative
-    min-width: 15rem
-    width: max-content
-    max-height: 100%
-    overflow-y: auto
-
-.sidebar .sidebar-content-header
-    position: sticky
-    top: -16px
-    background-color: var(--background)
-    z-index: 1
-    margin-top: -16px
-    margin-inline: -16px
-    padding-top: 16px
-    padding-inline: 16px
-
-.content-container
-    flex-basis: 70%
-
-.content-container .main-content
-    max-width: 60rem
-    // auto center content
-    margin-inline-end: auto
 
 .card-list
     margin-inline: -16px
@@ -62,6 +41,9 @@
     cursor: pointer
     margin-block-start: 0px
     margin-block-end: 1rem
+
+.plugin-status
+    font-size: 18px
 
 .plugin-description-container
     display: flex
@@ -106,7 +88,7 @@
     min-width: 2.5rem
 
 .time-ago
-    font-size:10px
+    font-size: 10px
     margin-right: auto
     color: rgba(0, 0, 0, 0.54)
 

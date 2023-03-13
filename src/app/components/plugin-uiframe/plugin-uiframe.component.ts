@@ -3,11 +3,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { concatAll, filter, map, mergeAll, take, toArray } from 'rxjs/operators';
+import { concatAll, filter, map, mergeAll, toArray } from 'rxjs/operators';
 import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
 import { ChoosePluginComponent } from 'src/app/dialogs/choose-plugin/choose-plugin.component';
-import { PluginsService, QhanaPlugin } from 'src/app/services/plugins.service';
-import { ApiObjectList, ExperimentDataApiObject, TimelineStepApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { CollectionApiObject } from 'src/app/services/api-data-types';
+import { PluginApiObject } from 'src/app/services/qhana-api-data-types';
+import { ApiObjectList, ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 
 export interface FormSubmitData {
     type: "form-submit";
@@ -176,7 +178,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
 
     listenerFunction = (event: MessageEvent) => this.handleMicroFrontendEvent(event);
 
-    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService, private pluginService: PluginsService, private route: ActivatedRoute) {
+    constructor(private sanitizer: DomSanitizer, private dialog: MatDialog, private backend: QhanaBackendService, private registry: PluginRegistryBaseService, private route: ActivatedRoute) {
         this.blank = this.sanitizer.bypassSecurityTrustResourceUrl("about://blank");
         this.frontendUrl = this.blank;
         window.addEventListener(
@@ -213,18 +215,17 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         }
         this.dialogActive = true;
         const dialogRef = this.dialog.open(ChoosePluginComponent, { data: request });
-        dialogRef.afterClosed().subscribe((result: QhanaPlugin) => {
+        dialogRef.afterClosed().subscribe((result: PluginApiObject | null) => {
             this.dialogActive = false;
             if (result == null) {
                 return; // nothing was selected
             }
-            let url = result.url;
             this.sendMessage({
                 type: "plugin-url-response",
                 inputKey: request.inputKey,
-                pluginUrl: url,
-                pluginName: result.metadata.title ?? result.pluginDescription.name,
-                pluginVersion: result.pluginDescription.version,
+                pluginUrl: result.href,
+                pluginName: result.title ?? result.identifier,
+                pluginVersion: result.version,
             });
         });
     }
@@ -256,21 +257,28 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         });
     }
 
-    private handlePluginInfoRequest(request: PluginUrlInfoRequest) {
-        this.pluginService.plugins.pipe(take(1)).subscribe((pluginList => {
-            const plugin = pluginList.find(plugin => plugin.url === request.pluginUrl);
-            this.sendMessage({
-                type: "plugin-url-response",
-                inputKey: request.inputKey,
-                pluginDescription: plugin?.pluginDescription,
-                metadata: plugin?.metadata,
-            })
-        }));
+    private async handlePluginInfoRequest(request: PluginUrlInfoRequest) {
+        const query = new URLSearchParams();
+        query.set("url", request.pluginUrl);
+        const plugins = await this.registry.getByRel<CollectionApiObject>(["plugin", "collection"], query, false);
+        if (plugins?.data.items.length == 1) {
+            const plugin = await this.registry.getByApiLink<PluginApiObject>(plugins?.data.items[0], null, false);
+            if (plugin != null) {
+                this.sendMessage({
+                    type: "plugin-url-response",
+                    inputKey: request.inputKey,
+                    pluginUrl: request.pluginUrl,
+                    pluginName: plugin.data.title ?? plugin.data.identifier,
+                    pluginVersion: plugin.data.version,
+                });
+            }
+        }
     }
 
     private handleInputDataInfoRequest(request: DataUrlInfoRequest) {
         // http://localhost:9090/experiments/1/data/out.txt/download?version=2
-        if (!request.dataUrl.startsWith(this.backend.backendRootUrl)) {
+        const backendUrl = this.backend.backendRootUrl
+        if (backendUrl != null && !request.dataUrl.startsWith(backendUrl)) {
             return; // unknown data source
         }
         const dataUrl = new URL(request.dataUrl);

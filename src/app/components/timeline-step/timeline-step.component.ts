@@ -2,8 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, from, Observable, of, Subject, Subscription, timer } from 'rxjs';
 import { catchError, concatMap, debounceTime, filter, mergeAll, mergeMap, take, throttleTime } from 'rxjs/operators';
+import { ApiLink, CollectionApiObject } from 'src/app/services/api-data-types';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { QhanaBackendService, TimelineStepApiObject, TimelineSubStepApiObject } from 'src/app/services/qhana-backend.service';
+import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TabDefinition } from '../timeline-step-nav/timeline-step-nav.component';
 
 interface Progress {
@@ -31,7 +33,7 @@ export class TimelineStepComponent implements OnInit, OnDestroy {
 
     watching: "watching" | "paused" | "error" | null = null;
 
-    backendUrl: string;
+    backendUrl: string | null;
 
     experimentId: string = "";
     stepId: string | null = null;
@@ -51,8 +53,10 @@ export class TimelineStepComponent implements OnInit, OnDestroy {
 
     notesStatus: "original" | "changed" | "saved" = "original";
 
+    pluginRecommendations: ApiLink[] = [];
 
-    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService) {
+
+    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService, private registry: PluginRegistryBaseService) {
         this.backendUrl = backend.backendRootUrl;
     }
 
@@ -166,6 +170,7 @@ export class TimelineStepComponent implements OnInit, OnDestroy {
             this.substeps = stepApiObject.substeps ?? null;
             if (stepApiObject.end != null) {
                 this.loadNotes(experimentId, step);
+                this.loadRecommendations(experimentId, step);
                 // step is fully realized, no need to watch
                 stepSubscription?.unsubscribe();
                 this.watching = null;
@@ -197,6 +202,14 @@ export class TimelineStepComponent implements OnInit, OnDestroy {
                 this.stepNotes = notes.notes;
                 this.lastSavedNotes = notes.notes;
             });
+    }
+
+    async loadRecommendations(experimentId: number | string, step: string) {
+        const params = new URLSearchParams();
+        params.set("experiment", experimentId.toString());
+        params.set("step", step);
+        const result = await this.registry.getByRel<CollectionApiObject>("plugin-recommendation", params);
+        this.pluginRecommendations = result?.data?.items ?? [];
     }
 
     triggerNoteAutosave(text: string) {

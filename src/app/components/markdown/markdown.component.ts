@@ -106,6 +106,7 @@ export class MarkdownComponent implements OnChanges {
                     ctx.set(rootCtx, nativeElement);
                     ctx.set(editorViewOptionsCtx, { editable: () => (this.editable ?? false) && !this.showAsPreview });
                     ctx.set(defaultValueCtx, this.markdown);
+                    this.markdownChanges.emit(this.markdown);
                     ctx.get(listenerCtx).markdownUpdated((ctx, markdown) => {
                         if (this.editable) {
                             this.markdownChanges.emit(markdown)

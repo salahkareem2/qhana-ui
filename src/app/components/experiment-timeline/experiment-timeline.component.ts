@@ -5,6 +5,7 @@ import { Observable, of, Subscription } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
+import { ServiceRegistryService } from 'src/app/services/service-registry.service';
 
 interface SelectValue {
     value: number | string;
@@ -19,8 +20,9 @@ interface SelectValue {
 export class ExperimentTimelineComponent implements OnInit, OnDestroy {
 
     private routeSubscription: Subscription | null = null;
+    private backendUrlSubscription: Subscription | null = null;
 
-    backendUrl: string;
+    backendUrl: string | null = null;
 
     experimentId: string | null = null;
 
@@ -49,11 +51,10 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
         { value: -1, viewValue: "Only steps with cleared substeps" }
     ];
 
-    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService) {
-        this.backendUrl = this.backend.backendRootUrl;
-    }
+    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService, private serviceRegistry: ServiceRegistryService) { }
 
     ngOnInit(): void {
+        this.backendUrlSubscription = this.serviceRegistry.backendRootUrl.subscribe(url => this.backendUrl = url);
         this.routeSubscription = this.route.params
             .pipe(
                 map(params => params.experimentId),
@@ -68,6 +69,7 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        this.backendUrlSubscription?.unsubscribe();
         this.routeSubscription?.unsubscribe();
     }
 

@@ -50,11 +50,12 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
     // line is for milkdown
     --line: 150,150,150
 
-.mat-card
+.mat-card, .color-scheme-card
     --background: #{mat.get-color-from-palette(mat.$light-theme-background-palette, 'card')}
     --background-card: #bbb
+    --border-color: #ddd
 
-.mat-dialog
+.mat-dialog, .color-scheme-dialog
     --background: #{mat.get-color-from-palette(mat.$light-theme-background-palette, 'dialog')}
 
 @media (prefers-color-scheme: dark)
@@ -92,7 +93,7 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
         // line is for milkdown
         --line: 170,170,170
 
-    .mat-card
+    .mat-card, .color-scheme-card
         --background: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'card')}
         --background-card: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'background')}
         --border-color: #888
@@ -102,7 +103,7 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
         --text-accent: #{mat.get-color-from-palette($my-accent, 'card-contrast')}
         --text-warn: #{mat.get-color-from-palette($my-warn, 'card-contrast')}
 
-    .mat-dialog
+    .mat-dialog, .color-scheme-dialog
         --background: #{mat.get-color-from-palette(mat.$dark-theme-background-palette, 'dialog')}
         --text-primary: #{mat.get-color-from-palette($my-primary, 'dialog-contrast')}
         --text-primary-lighter: var(--text-inv, black)
@@ -113,6 +114,57 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
     .card.mat-card
         box-shadow: none
         border: 2px solid var(--border-color)
+
+    :root // color contrast fixes:
+
+        .mat-form-field.mat-primary
+            .mat-input-element
+                caret-color: var(--primary-text)
+
+        .mat-form-field.mat-primary.mat-focused
+            .mat-form-field-label
+                color: var(--primary-text)
+
+            .mat-select-arrow
+                color: var(--primary-text)
+
+            .mat-form-field-ripple
+                background-color: var(--primary-text)
+
+        .mat-form-field.mat-form-field-appearance-outline.mat-primary.mat-focused
+            .mat-form-field-outline
+                color: var(--primary-text)
+
+        .mat-tab-nav-bar.mat-primary
+            .mat-ink-bar // tab highlights
+                background-color: var(--primary-text)
+
+        .mat-icon.mat-primary
+            color: var(--primary-text)
+
+        .mat-progress-spinner.mat-primary circle, .mat-spinner.mat-primary circle
+            stroke: var(--primary-text)
+
+        .mat-progress-bar.mat-primary
+            .mat-progress-bar-buffer
+                background-color: #{mat.get-color-from-palette($my-primary, 600)}
+            .mat-progress-bar-fill::after
+                background-color: var(--primary-text)
+
+        .mat-primary
+
+            // select options
+            .mat-option
+                color: var(--primary-text)
+
+            .mat-option.mat-active
+                color: var(--primary-text)
+
+            .mat-option.mat-option-disabled
+                color: var(--text-disabled)
+
+            .mat-option.mat-selected:not(.mat-option-disabled)
+                color: var(--primary-text)
 
 $my-typography: mat.define-typography-config()
 
@@ -154,8 +206,14 @@ body
     background-color: var(--background, white)
     color: var(--text, black)
 
+a
+    color: var(--primary-text)
+
 ::any-link
     color: var(--primary-text)
+
+a:hover, a:visited
+    color: var(--primary-text-visited)
 
 ::any-link:hover, ::any-link:visited
     color: var(--primary-text-visited)
@@ -217,6 +275,16 @@ body
 .card.mat-card
     color: var(--text)
     background-color: var(--background)
+
+.card.no-padding
+    padding: 0px
+
+// extra helpers
+.strip-button-hover:hover .mat-button-focus-overlay
+    background: transparent
+
+summary.no-decoration::marker
+    content: none
 
 // Milkdown markdown content
 
