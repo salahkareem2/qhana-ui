@@ -33,7 +33,7 @@ export class ExportExperimentDialog implements OnInit {
     allDataVersions: number = 1;
     allDataVersionsValues: SelectValue[] = [
         { value: 1, viewValue: "All data versions" },
-        { value: -1, viewValue: "Only newest data version" }
+        { value: 0, viewValue: "Only newest data version" }
     ];
 
     stepList: number[] = [];
