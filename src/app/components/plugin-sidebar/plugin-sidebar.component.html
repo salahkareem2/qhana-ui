@@ -15,6 +15,9 @@
             (click)="switchActiveArea('plugins', group)" *ngFor="let group of pluginGroups">
             <mat-icon>extension</mat-icon>
         </button>
+        <button mat-ripple class="sidebar-button" (click)="isEditModeActive = !isEditModeActive">
+            <mat-icon>edit</mat-icon>
+        </button>
     </div>
     <div class="sidebar-expander color-scheme-card" [attr.data-open]="sidebarOpen ? 'yes' : 'no'">
         <div class="expander-head">
@@ -31,8 +34,12 @@
                 <mat-divider></mat-divider>
                 <!-- TODO add interaction/selection once templates are fully supported in the registry -->
                 <qhana-growing-list [rels]="['ui-template', 'collection']" [newItemRels]="['ui-template']"
-                    [highlighted]="highlightedTemplates" [highlightByKey]="'templateId'" (clickItem)="selectTemplate($event)"></qhana-growing-list>
+                    [highlighted]="highlightedTemplates" [highlightByKey]="'templateId'" (clickItem)="selectTemplate($event)" 
+                    [editButton]="isEditModeActive" [deleteButton]="isEditModeActive" (editItem)="createOrUpdateTemplate($event)"></qhana-growing-list>
                 <mat-divider></mat-divider>
+                <div *ngIf="isEditModeActive">
+                    <button mat-ripple class="sidebar-button" (click)="createOrUpdateTemplate(null)"><mat-icon>add</mat-icon></button>
+                </div>
             </details>
             <mat-form-field class="full-width" color="primary">
                 <mat-label>Search plugins</mat-label>

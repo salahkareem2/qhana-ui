@@ -1,5 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/change-ui-template.component';
 import { Subscription } from 'rxjs';
 import { ApiLink, ApiResponse, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
@@ -21,10 +23,11 @@ export interface PluginGroup {
     styleUrls: ['./plugin-sidebar.component.sass']
 })
 export class PluginSidebarComponent implements OnInit, OnDestroy {
-
     sidebarOpen: boolean = false;
 
     activeArea: 'search' | 'templates' | 'plugins' = 'search';
+
+    isEditModeActive: boolean = false;
 
     activeGroup: PluginGroup | null = null;
 
@@ -49,7 +52,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     @ViewChild('searchInput', { static: true }) searchInput: ElementRef<HTMLInputElement> | null = null;
 
-    constructor(private route: ActivatedRoute, private router: Router, private templates: TemplatesService, private registry: PluginRegistryBaseService) { }
+    constructor(private route: ActivatedRoute, private router: Router, private templates: TemplatesService, private registry: PluginRegistryBaseService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.route.queryParamMap.subscribe(params => {
@@ -242,4 +245,24 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         this.sidebarOpen = pluginId == null; // always close sidebar after successfully selecting plugin
     }
 
+    async createOrUpdateTemplate(templateLink: ApiLink | null) {
+        let template: TemplateApiObject | undefined = undefined;
+        if (templateLink) {
+            let response = await this.registry.getByApiLink<TemplateApiObject>(templateLink);
+            template = response?.data
+        }
+
+        const dialogRef = this.dialog.open(ChangeUiTemplateComponent, { data: { template: template }, minWidth: "20rem", maxWidth: "40rem", width: "60%" });
+        const templateData: TemplateApiObject = await dialogRef.afterClosed().toPromise();
+
+        if (!templateData) {
+            return;
+        }
+
+        if (template && templateLink) {
+            this.templates.updateTemplate(templateLink, templateData);
+        } else {
+            this.templates.addTemplate(templateData);
+        }
+    }
 }

@@ -71,6 +71,7 @@ import { ImagePreviewComponent } from './components-small/image-preview/image-pr
 import { RawTextPreviewComponent } from './components-small/raw-text-preview/raw-text-preview.component';
 import { PluginPreviewComponent } from './components-small/plugin-preview/plugin-preview.component';
 import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component';
+import { ChangeUiTemplateComponent } from './dialogs/change-ui-template/change-ui-template.component';
 
 @NgModule({
     declarations: [
@@ -108,6 +109,7 @@ import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component
         RawTextPreviewComponent,
         PluginPreviewComponent,
         PluginTabComponent,
+        ChangeUiTemplateComponent,
     ],
     imports: [
         BrowserModule,

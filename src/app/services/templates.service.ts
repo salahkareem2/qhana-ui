@@ -84,4 +84,14 @@ export class TemplatesService {
         }
     }
 
+    async addTemplate(newTemplate: TemplateApiObject) {
+        const createLink = await this.registry.searchResolveRels(["create", "ui-template"]);
+        return this.registry.submitByApiLink<TemplateApiObject>(createLink, newTemplate);
+    }
+
+    async updateTemplate(templateLink: ApiLink, template: TemplateApiObject) {
+        console.log("updateTemplate", templateLink, template)
+        templateLink.rel = ["put"];
+        return this.registry.submitByApiLink<TemplateApiObject>(templateLink, template);
+    }
 }
