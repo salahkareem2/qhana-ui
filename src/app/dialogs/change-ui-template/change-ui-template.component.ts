@@ -32,10 +32,15 @@ export class ChangeUiTemplateComponent implements OnInit {
     }
 
     addTag() {
-        if (this.tagName.trim()) {
-            this.templateTags.push(this.tagName.trim());
-            this.tagName = '';
+        let trimmedTag = this.tagName.trim();
+        if (!trimmedTag) return;
+        
+        if (this.templateTags.includes(trimmedTag)) {
+            return;
         }
+
+        this.templateTags.push(this.tagName.trim());
+        this.tagName = '';
     }
 
     removeTag(tag: string) {

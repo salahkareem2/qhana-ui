@@ -136,10 +136,10 @@ function isPluginUrlInfoRequest(data: any): data is PluginUrlInfoRequest {
     return true;
 }
 
-const allowedImplementationContentTypes: Set<string> = new Set(["application/qasm", "application/qiskit"]);
+const allowedImplementationContentTypes: Set<string> = new Set(["text/x-qasm", "text/x-qiskit"]);
 const implementationsContentTypeMap: Map<string, string> = new Map([
-    ["application/qasm", "qasm"],
-    ["application/qiskit", "qiskit"]
+    ["text/x-qasm", "qasm"],
+    ["text/x-qiskit", "qiskit"]
 ])
 
 interface ImplementationInfo {

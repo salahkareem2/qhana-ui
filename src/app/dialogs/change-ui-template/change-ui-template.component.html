@@ -14,8 +14,12 @@
     </div>
     <div>
         <mat-form-field class="form-field">
-            <input matInput placeholder="Tag name" [(ngModel)]="tagName">
+            <input matInput placeholder="Tag name" [(ngModel)]="tagName" minlength="1">
         </mat-form-field>
+        
+        <mat-error *ngIf="templateTags.includes(tagName.trim())">
+            Tag already added.
+        </mat-error><br>
 
         <button mat-raised-button color="primary" (click)="addTag()">Add Tag</button>
 
