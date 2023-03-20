@@ -6,7 +6,6 @@ import { TemplateApiObject } from 'src/app/services/templates.service';
     selector: 'qhana-change-ui-template',
     templateUrl: './change-ui-template.component.html',
     styleUrls: ['./change-ui-template.component.sass'],
-    template: 'passed in templateLink: {{data.templateLink}}'
 })
 export class ChangeUiTemplateComponent implements OnInit {
 
