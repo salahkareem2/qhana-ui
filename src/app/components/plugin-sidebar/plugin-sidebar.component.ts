@@ -246,10 +246,12 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     }
 
     async createOrUpdateTemplate(templateLink: ApiLink | null) {
-        let template: TemplateApiObject | undefined = undefined;
+        let template: TemplateApiObject | null = null;
+        let updateLink: ApiLink | null = null;
         if (templateLink) {
             let response = await this.registry.getByApiLink<TemplateApiObject>(templateLink);
-            template = response?.data
+            template = response?.data ?? null;
+            updateLink = response?.links?.find(link => link.rel.some(rel => rel === "update") && link.resourceType == "ui-template") ?? null;
         }
 
         const dialogRef = this.dialog.open(ChangeUiTemplateComponent, { data: { template: template }, minWidth: "20rem", maxWidth: "40rem", width: "60%" });
@@ -259,8 +261,8 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             return;
         }
 
-        if (template && templateLink) {
-            this.templates.updateTemplate(templateLink, templateData);
+        if (template && updateLink) {
+            this.templates.updateTemplate(updateLink, templateData);
         } else {
             this.templates.addTemplate(templateData);
         }
