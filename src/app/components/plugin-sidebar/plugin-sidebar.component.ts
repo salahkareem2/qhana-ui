@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/change-ui-template.component';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/change-ui-template.component';
 import { ApiLink, ApiResponse, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TemplateApiObject, TemplatesService, TemplateTabApiObject } from 'src/app/services/templates.service';
@@ -25,7 +25,7 @@ export interface PluginGroup {
 export class PluginSidebarComponent implements OnInit, OnDestroy {
     sidebarOpen: boolean = false;
 
-    activeArea: 'search' | 'templates' | 'plugins' = 'search';
+    activeArea: 'search' | 'templates' | 'detail' | 'plugins' = 'search';
 
     isEditModeActive: boolean = false;
 
@@ -158,7 +158,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     }
 
-    switchActiveArea(newArea: 'search' | 'templates' | 'plugins', group?: PluginGroup) {
+    switchActiveArea(newArea: 'search' | 'detail' | 'templates' | 'plugins', group?: PluginGroup) {
         if (this.activeArea === newArea && this.sidebarOpen) {
             // potentially close sidebar
             if (this.activeArea !== 'plugins' || this.activeGroup === group) {
