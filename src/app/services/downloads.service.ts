@@ -17,7 +17,7 @@ export class DownloadsService {
     private downloadsCounter: BehaviorSubject<number> = new BehaviorSubject(0);
 
     constructor(private backend: QhanaBackendService) {
-        timer(0, 2000).subscribe(() => {
+        timer(0, 5000).subscribe(() => { // TODO: use backoff mechanism
             var resp = this.backend.getExportList().pipe(
                 map(resp => {
                     this.updateExports(resp);

@@ -59,7 +59,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.downloadBadgeCounter?.next(0);
     }
 
-    trackExport: TrackByFunction<ExportResult> = (index, item) => item.exportId.toString() + item.status;
+    trackExport: TrackByFunction<ExportResult> = (index, item) => item.exportId.toString();
 
     deleteExport(experimentId: number, exportId: number) {
         this.backend.deleteExport(experimentId, exportId).subscribe(() => console.log());

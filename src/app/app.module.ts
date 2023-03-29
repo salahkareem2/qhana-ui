@@ -72,7 +72,6 @@ import { ExportExperimentDialog } from './dialogs/export-experiment/export-exper
 import { ImportExperimentDialog } from './dialogs/import-experiment/import-experiment.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
-import { DownloadsDialog } from './dialogs/downloads/downloads.component';
 import { QueryParamPreviewComponent } from './components-small/query-param-preview/query-param-preview.component';
 import { ImagePreviewComponent } from './components-small/image-preview/image-preview.component';
 import { RawTextPreviewComponent } from './components-small/raw-text-preview/raw-text-preview.component';
@@ -105,7 +104,6 @@ import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component
         MarkdownHelpDialog,
         ExportExperimentDialog,
         ImportExperimentDialog,
-        DownloadsDialog,
         GrowingListComponent,
         DeleteDialog,
         PluginSidebarComponent,

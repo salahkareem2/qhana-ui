@@ -37,7 +37,7 @@
             <mat-icon>swap_horiz</mat-icon>
         </a>
     </div>
-    <button class="downloads-button" mat-button [matMenuTriggerFor]="downloadList">
+    <button class="downloads-button" mat-button [matMenuTriggerFor]="downloadList" *ngIf="!exportListIsEmpty()">
         <mat-icon [matBadge]="downloadBadgeCounter | async" [matBadgeHidden]="!(downloadBadgeCounter | async)"
             matBadgeColor="warn" matBadgeSize="small" (click)="resetBadge()">download</mat-icon>
     </button>
@@ -47,7 +47,7 @@
                 <span>{{export.name}}</span>
                 <div class="toolbar-spacer"></div>
                 <a class="download-button" role="button" mat-raised-button color="primary"
-                    [disabled]="export.status != 'SUCCESS'" href="{{export.fileLink}}">Download</a>
+                    [disabled]="export.status != 'SUCCESS'" href="{{export.fileLink}}" target="_blank">Download</a>
                 <button class="delete-button" mat-icon-button aria-label="Delete"
                     (click)="deleteExport(export.experimentId, export.exportId); $event.stopPropagation()">
                     <mat-icon>delete</mat-icon>
@@ -58,13 +58,6 @@
                     [mode]="export.status == 'PENDING' ? 'indeterminate' : 'determinate'" [value]="100"
                     [color]="export.status == 'FAILURE' ? 'warn' : 'primary'">
                 </mat-progress-bar>
-            </div>
-        </div>
-        <div class="download-item" *ngIf="exportListIsEmpty(); trackBy:trackExport">
-            <div class="download-container"></div>
-            <div class="download-container">
-                <mat-progress-bar class="download-progress" [mode]="'determinate'" [value]="100"
-                    [color]="'primary'"></mat-progress-bar>
             </div>
         </div>
     </mat-menu>
