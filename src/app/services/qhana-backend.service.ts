@@ -261,11 +261,11 @@ export class QhanaBackendService {
      *
      * @param experimentId experiment id
      * @param restriction "ALL" for complete experiment, "LOGS" for only steps/substeps, "DATA" for only data files, or "STEPS" for a specified list of steps
-     * @param allDataVersions if != 0 all versions, else only newest
+     * @param allDataVersions true if all versions, else only newest
      * @param stepList specified list of steps
      * @returns experiment export poll object with result file link if successful
      */
-    public exportExperiment(experimentId: number | string, restriction: "ALL" | "LOGS" | "DATA" | "STEPS" = "ALL", allDataVersions: number = 1, stepList: number[] = []): Observable<ExperimentExportPollObject> {
+    public exportExperiment(experimentId: number | string, restriction: "ALL" | "LOGS" | "DATA" | "STEPS" = "ALL", allDataVersions: boolean = true, stepList: number[] = []): Observable<ExperimentExportPollObject> {
         return this.callWithRootUrl<ExperimentExportApiObject>(
             rootUrl => this.http.post<ExperimentExportApiObject>(`${rootUrl}/experiments/${experimentId}/export`, { restriction, allDataVersions, stepList })).pipe(
                 switchMap(exportResource => {

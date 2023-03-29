@@ -3,7 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 interface SelectValue {
-    value: string | number;
+    value: string | boolean;
     viewValue: string;
 }
 
@@ -30,10 +30,10 @@ export class ExportExperimentDialog implements OnInit {
         { value: "STEPS", viewValue: "List of steps" }
     ];
 
-    allDataVersions: number = 1;
+    allDataVersions: boolean = true;
     allDataVersionsValues: SelectValue[] = [
-        { value: 1, viewValue: "All data versions" },
-        { value: 0, viewValue: "Only newest data version" }
+        { value: true, viewValue: "All data versions" },
+        { value: false, viewValue: "Only newest data version" }
     ];
 
     stepList: number[] = [];
