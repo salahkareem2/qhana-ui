@@ -288,6 +288,7 @@ export class QhanaBackendService {
      * @returns experiment export poll object with result file link if successful
      */
     public exportExperimentPoll(experimentId: number | string, exportId: number | string): Observable<ExperimentExportPollObject> {
+        // TODO: reformat, move pipeline into  callWithRootUrl
         return this.callWithRootUrl(
             rootUrl => this.http.get(`${rootUrl}/experiments/${experimentId}/export/${exportId}`, { observe: 'response', responseType: 'arraybuffer' })).pipe(map(resp => {
                 if (resp.headers.get("Content-Type") == "application/json") {
@@ -327,7 +328,7 @@ export class QhanaBackendService {
                     })
                 });
                 return exportResultList;
-            }));;
+            }));
     }
 
     deleteExport(experimentId: number, exportId: number) {

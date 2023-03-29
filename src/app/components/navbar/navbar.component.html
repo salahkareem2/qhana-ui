@@ -37,9 +37,9 @@
             <mat-icon>swap_horiz</mat-icon>
         </a>
     </div>
-    <button class="downloads-button" mat-button [matMenuTriggerFor]="downloadList" *ngIf="!exportListIsEmpty()">
-        <mat-icon [matBadge]="downloadBadgeCounter | async" [matBadgeHidden]="!(downloadBadgeCounter | async)"
-            matBadgeColor="warn" matBadgeSize="small" (click)="resetBadge()">download</mat-icon>
+    <button class="downloads-button" mat-button [matMenuTriggerFor]="downloadList" *ngIf="downloadBadgeCounter | async">
+        <mat-icon [matBadge]="downloadBadgeCounter | async" matBadgeColor="warn"
+            matBadgeSize="small">download</mat-icon>
     </button>
     <mat-menu class="download" #downloadList="matMenu" yPosition="below" xPosition="before">
         <div class="download-item" *ngFor="let export of exportList | async; trackBy:trackExport">

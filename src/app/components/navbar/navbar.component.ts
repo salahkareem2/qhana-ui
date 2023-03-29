@@ -33,9 +33,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     currentExperiment: Observable<string | null>;
     experimentId: Observable<string | null>;
-    downloadBadgeCounter: BehaviorSubject<number> | null = null;
+    downloadBadgeCounter: Observable<number> | null = null;
 
-    exportList: BehaviorSubject<ExportResult[] | null> | null = null;
+    exportList: Observable<ExportResult[] | null> | null = null;
     error: string | null = null;
 
     extraTabs: ApiLink[] = [];
@@ -55,10 +55,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.exportList = this.downloadService.getExportList();
     }
 
-    resetBadge() {
-        this.downloadBadgeCounter?.next(0);
-    }
-
     trackExport: TrackByFunction<ExportResult> = (index, item) => item.exportId.toString();
 
     deleteExport(experimentId: number, exportId: number) {
@@ -66,7 +62,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
 
     exportListIsEmpty() {
-        return this.downloadService.exportListIsEmpty();
+        return this.downloadBadgeCounter?.subscribe();
     }
 
     ngOnDestroy(): void {
