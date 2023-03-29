@@ -31,6 +31,10 @@ export interface ApiObjectList<T> extends ApiObject {
     items: T[];
 }
 
+export interface ApiObjectListWithoutCount<T> extends ApiObject {
+    items: T[];
+}
+
 export interface PluginEndpointApiObject extends ApiObject {
     endpointId: number;
     url: string;
@@ -304,8 +308,8 @@ export class QhanaBackendService {
 
     public getExportList(itemCount: number = 10): Observable<ExportResult[]> {
         let queryParams = new HttpParams().append("item-count", itemCount);
-        return this.callWithRootUrl<ApiObjectList<ExportStatus>>(
-            rootUrl => this.http.get<ApiObjectList<ExportStatus>>(`${rootUrl}/experiments/export-list`, { params: queryParams })).pipe(map(resp => {
+        return this.callWithRootUrl<ApiObjectListWithoutCount<ExportStatus>>(
+            rootUrl => this.http.get<ApiObjectListWithoutCount<ExportStatus>>(`${rootUrl}/experiments/export-list`, { params: queryParams })).pipe(map(resp => {
                 const exportResultList: ExportResult[] = [];
                 resp.items.forEach(exportStatus => {
                     var fileLink: string | null;
