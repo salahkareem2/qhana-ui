@@ -3,18 +3,14 @@
     align-items: center
     justify-content: space-between
 
-@mixin arrow-icon-size($scale: 1.025)
-    transform: scale($scale)
-
 .align-arrow
     display: flex
     align-items: center
 
 .arrow-button
-    @include arrow-icon-size()
+    font-size: 1.2em
 
 .arrow
-    @include arrow-icon-size()
     color: dimgray
     font-weight: 1000
     cursor: pointer

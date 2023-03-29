@@ -3,7 +3,7 @@
         <h1 class="t-page-headline align-arrow">Experiment Timeline
             <button mat-icon-button class="arrow-button" (click)="onSort()"
                 aria-label="sort>=0?'arrow_upward':'arrow_downward'">
-                <mat-icon class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
+                <mat-icon [inline]="true" class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
             </button>
         </h1>
 
