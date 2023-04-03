@@ -91,8 +91,6 @@ export class TemplatesService {
     }
 
     async updateTemplate(templateLink: ApiLink, template: TemplateApiObject) {
-        console.log("updateTemplate", templateLink, template)
-        templateLink.rel = ["put"];
         return this.registry.submitByApiLink<TemplateApiObject>(templateLink, template);
     }
 }

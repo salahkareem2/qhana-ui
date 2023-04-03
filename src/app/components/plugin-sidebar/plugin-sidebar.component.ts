@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/change-ui-template.component';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/change-ui-template.component';
 import { ApiLink, ApiResponse, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TemplateApiObject, TemplatesService, TemplateTabApiObject } from 'src/app/services/templates.service';
@@ -25,7 +25,7 @@ export interface PluginGroup {
 export class PluginSidebarComponent implements OnInit, OnDestroy {
     sidebarOpen: boolean = false;
 
-    activeArea: 'search' | 'templates' | 'plugins' = 'search';
+    activeArea: 'search' | 'templates' | 'detail' | 'plugins' = 'search';
 
     isEditModeActive: boolean = false;
 
@@ -158,7 +158,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     }
 
-    switchActiveArea(newArea: 'search' | 'templates' | 'plugins', group?: PluginGroup) {
+    switchActiveArea(newArea: 'search' | 'detail' | 'templates' | 'plugins', group?: PluginGroup) {
         if (this.activeArea === newArea && this.sidebarOpen) {
             // potentially close sidebar
             if (this.activeArea !== 'plugins' || this.activeGroup === group) {
@@ -246,10 +246,12 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     }
 
     async createOrUpdateTemplate(templateLink: ApiLink | null) {
-        let template: TemplateApiObject | undefined = undefined;
+        let template: TemplateApiObject | null = null;
+        let updateLink: ApiLink | null = null;
         if (templateLink) {
             let response = await this.registry.getByApiLink<TemplateApiObject>(templateLink);
-            template = response?.data
+            template = response?.data ?? null;
+            updateLink = response?.links?.find(link => link.rel.some(rel => rel === "update") && link.resourceType == "ui-template") ?? null;
         }
 
         const dialogRef = this.dialog.open(ChangeUiTemplateComponent, { data: { template: template }, minWidth: "20rem", maxWidth: "40rem", width: "60%" });
@@ -259,8 +261,8 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             return;
         }
 
-        if (template && templateLink) {
-            this.templates.updateTemplate(templateLink, templateData);
+        if (template && updateLink) {
+            this.templates.updateTemplate(updateLink, templateData);
         } else {
             this.templates.addTemplate(templateData);
         }
