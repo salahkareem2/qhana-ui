@@ -37,13 +37,9 @@
                 <!-- TODO add interaction/selection once templates are fully supported in the registry -->
                 <qhana-growing-list [rels]="['ui-template', 'collection']" [newItemRels]="['ui-template']"
                     [highlighted]="highlightedTemplates" [highlightByKey]="'templateId'"
-                    (clickItem)="selectTemplate($event)" [editButton]="isEditModeActive"
-                    [deleteButton]="isEditModeActive" (editItem)="createOrUpdateTemplate($event)"></qhana-growing-list>
+                    (clickItem)="selectTemplate($event)"></qhana-growing-list>
                 <mat-divider></mat-divider>
-                <div *ngIf="isEditModeActive">
-                    <button mat-ripple class="sidebar-button"
-                        (click)="createOrUpdateTemplate(null)"><mat-icon>add</mat-icon></button>
-                </div>
+                <button mat-ripple class="sidebar-button w-100" (click)="createTemplate()">Create Template</button>
             </details>
             <mat-form-field class="full-width" color="primary"
                 [hidden]="activeArea == 'detail' || activeArea == 'templates'">
@@ -53,9 +49,41 @@
             </mat-form-field>
         </div>
         <div [hidden]="activeArea != 'detail'">
-            Template Blah:
-
-            description...
+            <mat-divider></mat-divider>
+            <h3 class="sidebar-header">Template Details</h3>
+            <div class="form-field-container">
+                Name: {{selectedTemplateName}}
+            </div>
+            <div class="form-field-container">
+                Description: {{selectedTemplateObject?.description}}
+                <br>
+            </div>
+            <!-- <button mat-button (click)="updateTemplate()">Save</button> -->
+            <div class="form-field-container" *ngIf="this.selectedTemplate">
+                <button mat-raised-button color="primary" (click)="updateTemplate()">Edit</button>
+                <button mat-raised-button color="warn" (click)="deleteSelectedTemplate()">Delete</button>
+            </div>
+            <mat-divider></mat-divider>
+            <h3 class="sidebar-header">Template Tabs</h3>
+            <div *ngIf="selectedTemplateTabsLink">
+                <qhana-growing-list [apiLink]="selectedTemplateTabsLink" [deleteButton]="this.selectedTemplate ? true : false" 
+                    (clickItem)="selectTab($event)"></qhana-growing-list>
+            </div>
+            <div *ngIf="this.selectedTemplate">
+                <mat-divider></mat-divider>
+                <h3 class="sidebar-header">Create Template Tab</h3>
+                <form class="form-field-container" *ngIf="this.selectedTemplate" [formGroup]="createTabForm" (ngSubmit)="createTemplateTab()">
+                    <mat-form-field class="w-100" color="primary">
+                        <mat-label>Tab Name</mat-label>
+                        <input matInput placeholder="Tab Name" formControlName="tabName" autocomplete="off">
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" type="submit">
+                        Add Tab
+                        <mat-icon aria-label="Enter Key">keyboard_return</mat-icon>
+                    </button>
+                </form>
+            </div>
+            <!-- <button mat-ripple class="sidebar-button w-100" (click)="createTemplateTab()">Create Template Tab</button> -->
         </div>
         <details class="plugin-group" [open]="group.open" *ngFor="let group of pluginGroups"
             [hidden]="activeArea == 'detail' || activeArea == 'templates'">

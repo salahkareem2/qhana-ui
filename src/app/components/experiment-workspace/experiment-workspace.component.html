@@ -1,5 +1,5 @@
 <div class="workspace-content">
-    <qhana-plugin-sidebar class="sidebar"></qhana-plugin-sidebar>
+    <qhana-plugin-sidebar class="sidebar" (tabSelected)="editTemplateTab($event)"></qhana-plugin-sidebar>
     <div class="content-container">
         <div class="main-content">
             <div class="title">
@@ -9,41 +9,49 @@
                     <mat-icon>arrow_back</mat-icon>
                 </a -->
             </div>
-            <div *ngIf="activePlugin == null">
-                <p>Choose a plugin.</p>
+            <div *ngIf="!infoAreaActive">
+                <div *ngIf="activePlugin == null">
+                    <p>Choose a plugin.</p>
+                </div>
+                <div *ngIf="activePlugin != null">
+                    <mat-card class="plugin-details card">
+                        <mat-card-title>
+                            <h2 class="plugin-header" role="button" tabindex="0" aria-controls="plugin-description"
+                                aria-expanded="expandedPluginDescription" (keydown)="onKeyDown($event)"
+                                (click)="expandedPluginDescription = !expandedPluginDescription">
+                                <mat-icon aria-hidden="false" aria-label="expand description"
+                                    [hidden]="expandedPluginDescription">chevron_right</mat-icon>
+                                <mat-icon aria-hidden="false" aria-label="expand description"
+                                    [hidden]="!expandedPluginDescription">expand_more</mat-icon>
+                                <span class="t-title">{{activePlugin.title ?? activePlugin.identifier}}
+                                    (@{{activePlugin.version}})</span>
+                                <qhana-plugin-last-used class="plugin-status" [plugin]="activePlugin" [spinner]="20">
+                                </qhana-plugin-last-used>
+                            </h2>
+                        </mat-card-title>
+                        <mat-card-content id="plugin-description"
+                            class="plugin-description-container {{expandedPluginDescription ? 'open' : 'closed'}}">
+                            <div class="scroll-container">
+                                <mat-chip-list>
+                                    <mat-chip *ngFor="let tag of (activePlugin.tags ?? [])">{{tag}}</mat-chip>
+                                </mat-chip-list>
+                                <qhana-markdown class="plugin-description" [markdown]="activePlugin.description"
+                                    [editable]="false">
+                                </qhana-markdown>
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                    <mat-card class="card no-padding">
+                        <qhana-plugin-uiframe [url]="frontendUrl" (formDataSubmit)="onPluginUiFormSubmit($event)">
+                        </qhana-plugin-uiframe>
+                    </mat-card>
+                </div>
             </div>
-            <div *ngIf="activePlugin != null">
-                <mat-card class="plugin-details card">
-                    <mat-card-title>
-                        <h2 class="plugin-header" role="button" tabindex="0" aria-controls="plugin-description"
-                            aria-expanded="expandedPluginDescription" (keydown)="onKeyDown($event)"
-                            (click)="expandedPluginDescription = !expandedPluginDescription">
-                            <mat-icon aria-hidden="false" aria-label="expand description"
-                                [hidden]="expandedPluginDescription">chevron_right</mat-icon>
-                            <mat-icon aria-hidden="false" aria-label="expand description"
-                                [hidden]="!expandedPluginDescription">expand_more</mat-icon>
-                            <span class="t-title">{{activePlugin.title ?? activePlugin.identifier}}
-                                (@{{activePlugin.version}})</span>
-                            <qhana-plugin-last-used class="plugin-status" [plugin]="activePlugin" [spinner]="20">
-                            </qhana-plugin-last-used>
-                        </h2>
-                    </mat-card-title>
-                    <mat-card-content id="plugin-description"
-                        class="plugin-description-container {{expandedPluginDescription ? 'open' : 'closed'}}">
-                        <div class="scroll-container">
-                            <mat-chip-list>
-                                <mat-chip *ngFor="let tag of (activePlugin.tags ?? [])">{{tag}}</mat-chip>
-                            </mat-chip-list>
-                            <qhana-markdown class="plugin-description" [markdown]="activePlugin.description"
-                                [editable]="false">
-                            </qhana-markdown>
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-                <mat-card class="card no-padding">
-                    <qhana-plugin-uiframe [url]="frontendUrl" (formDataSubmit)="onPluginUiFormSubmit($event)">
-                    </qhana-plugin-uiframe>
-                </mat-card>
+            <div *ngIf="infoAreaActive">
+                <qhana-template-tab-form [formValues]="{ name: templateTab?.name ?? null, description: templateTab?.description ?? null, 
+                    sortKey: templateTab?.sortKey ?? null, filterString: templateTab?.filterString ?? null }"
+                    (formSubmit)="onTemplateTabSubmit($event)">
+                </qhana-template-tab-form>
             </div>
             <div class="scroll-spacer"></div>
         </div>

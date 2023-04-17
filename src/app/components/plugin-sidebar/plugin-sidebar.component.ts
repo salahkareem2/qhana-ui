@@ -1,8 +1,10 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/change-ui-template.component';
+import { DeleteDialog } from 'src/app/dialogs/delete-dialog/delete-dialog.dialog';
 import { ApiLink, ApiResponse, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TemplateApiObject, TemplatesService, TemplateTabApiObject } from 'src/app/services/templates.service';
@@ -27,12 +29,20 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     activeArea: 'search' | 'templates' | 'detail' | 'plugins' = 'search';
 
-    isEditModeActive: boolean = false;
-
     activeGroup: PluginGroup | null = null;
 
     selectedTemplate: ApiLink | null = null;
     selectedTemplateName: string | "All Plugins" = "All Plugins";
+    selectedTemplateObject: TemplateApiObject | null = null;
+    selectedTemplateTabsLink: ApiLink | null = null;
+    newTemplateName: string = "";
+    newTemplateDescription: string = "";
+    createTabForm = new FormGroup({
+        tabName: new FormControl('', [
+          Validators.required,
+          Validators.minLength(1),
+        ])
+      });
 
     highlightedTemplates: Set<string> = new Set();
 
@@ -43,6 +53,8 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     defaultTemplate: TemplateApiObject | null = null;
 
     pluginGroups: PluginGroup[] = this.defaultPluginGroups;
+
+    @Output() tabSelected = new EventEmitter<ApiLink | null>();
 
     // route params
     templateId: string | null = null;
@@ -88,7 +100,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             if (this.templateId == null) {
                 this.switchActiveTemplateLink(template?.self ?? null);
             }
-        })
+        });
     }
 
     ngOnDestroy(): void {
@@ -122,6 +134,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         if (activeTemplate == null) {
             this.selectedTemplate = null;
             this.selectedTemplateName = "All Plugins";
+            this.selectedTemplateObject = null;
             this.activeArea = "plugins";
             this.pluginGroups = this.defaultPluginGroups;
             return;
@@ -136,7 +149,9 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         const pluginGroups: PluginGroup[] = [];
         this.pluginGroups = pluginGroups;
         const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(activeTemplate);
+        this.selectedTemplateObject = templateResponse?.data ?? null;
         const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
+        this.selectedTemplateTabsLink = workspaceGroupLink ?? null;
         if (workspaceGroupLink == null) {
             return;
         }
@@ -155,7 +170,6 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 link: tab.data.plugins,
             });
         });
-
     }
 
     switchActiveArea(newArea: 'search' | 'detail' | 'templates' | 'plugins', group?: PluginGroup) {
@@ -166,6 +180,9 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 this.sidebarOpen = false;
                 return;
             }
+        }
+        if (this.activeArea === "detail" && newArea !== "detail") {
+            this.tabSelected.emit(null);
         }
         this.sidebarOpen = true;
         this.activeArea = newArea;
@@ -245,14 +262,43 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         this.sidebarOpen = pluginId == null; // always close sidebar after successfully selecting plugin
     }
 
-    async createOrUpdateTemplate(templateLink: ApiLink | null) {
+    selectTab(tab: ApiLink) {
+        this.tabSelected.emit(tab);
+    }
+
+    async createTemplate() {
+        const dialogRef = this.dialog.open(ChangeUiTemplateComponent, { data: { template: null }, minWidth: "20rem", maxWidth: "40rem", width: "60%" });
+        const templateData: TemplateApiObject = await dialogRef.afterClosed().toPromise();
+
+        if (!templateData) {
+            return;
+        }
+        this.templates.addTemplate(templateData);
+    }
+
+    createTemplateTab() {
+        if (!this.selectedTemplate || !this.createTabForm.valid) {
+            return;
+        }
+        this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate).then(response => {
+            let createLink = response?.links?.find(link => link.rel.some(rel => rel === "create") && link.resourceType == "ui-template-tab") ?? null;
+            if (createLink && this.createTabForm.value.tabName) {
+                this.templates.updateTab(createLink, this.createTabForm.value.tabName);
+            }
+        });
+    }
+
+    // TODO: separate function to update template
+    async updateTemplate() {
+        if (this.selectedTemplate == null) {
+            return;
+        }
+
         let template: TemplateApiObject | null = null;
         let updateLink: ApiLink | null = null;
-        if (templateLink) {
-            let response = await this.registry.getByApiLink<TemplateApiObject>(templateLink);
-            template = response?.data ?? null;
-            updateLink = response?.links?.find(link => link.rel.some(rel => rel === "update") && link.resourceType == "ui-template") ?? null;
-        }
+        let response = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate);
+        template = response?.data ?? null;
+        updateLink = response?.links?.find(link => link.rel.some(rel => rel === "update") && link.resourceType == "ui-template") ?? null;
 
         const dialogRef = this.dialog.open(ChangeUiTemplateComponent, { data: { template: template }, minWidth: "20rem", maxWidth: "40rem", width: "60%" });
         const templateData: TemplateApiObject = await dialogRef.afterClosed().toPromise();
@@ -261,10 +307,32 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             return;
         }
 
-        if (template && updateLink) {
+        if (updateLink) {
             this.templates.updateTemplate(updateLink, templateData);
-        } else {
-            this.templates.addTemplate(templateData);
+            // TODO: update template list
+        }
+    }
+
+    async deleteSelectedTemplate() {
+        // TODO: same as in growing-list.component.ts:onDeleteItem -> refactor
+        if (this.selectedTemplate == null) {
+            return;
+        }
+        const itemResponse = await this.registry.getByApiLink(this.selectedTemplate, null, false);
+        const deleteLink = itemResponse?.links?.find(link => link.rel.some(rel => rel === "delete")) ?? null;
+
+        if (deleteLink == null) {
+            console.info(`Cannot delete ApiObject ${this.selectedTemplate}. No delete link found!`);
+            return; // cannot delete!
+        }
+
+        const dialogRef = this.dialog.open(DeleteDialog, {
+            data: this.selectedTemplate,
+        });
+
+        const doDelete = await dialogRef.afterClosed().toPromise();
+        if (doDelete) {
+            this.registry.submitByApiLink(deleteLink);
         }
     }
 }

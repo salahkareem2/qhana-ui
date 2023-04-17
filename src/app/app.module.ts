@@ -72,6 +72,8 @@ import { RawTextPreviewComponent } from './components-small/raw-text-preview/raw
 import { PluginPreviewComponent } from './components-small/plugin-preview/plugin-preview.component';
 import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component';
 import { ChangeUiTemplateComponent } from './dialogs/change-ui-template/change-ui-template.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { TemplateTabFormComponent } from './components-small/template-tab-form/template-tab-form.component';
 
 @NgModule({
     declarations: [
@@ -110,6 +112,7 @@ import { ChangeUiTemplateComponent } from './dialogs/change-ui-template/change-u
         PluginPreviewComponent,
         PluginTabComponent,
         ChangeUiTemplateComponent,
+        TemplateTabFormComponent,
     ],
     imports: [
         BrowserModule,
@@ -135,6 +138,7 @@ import { ChangeUiTemplateComponent } from './dialogs/change-ui-template/change-u
         MatProgressBarModule,
         MatExpansionModule,
         MatTooltipModule,
+        ReactiveFormsModule,
     ],
     providers: [
         { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: "outline" } }
