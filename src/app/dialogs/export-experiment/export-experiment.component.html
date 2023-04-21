@@ -22,5 +22,5 @@
 </div>
 <div class="dialog-actions" mat-dialog-actions>
     <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-button [disabled]="downloading || this.downloadLink" (click)="onExport()">Export</button>
+    <button mat-button [disabled]="!canExport" (click)="onExport()">Export</button>
 </div>

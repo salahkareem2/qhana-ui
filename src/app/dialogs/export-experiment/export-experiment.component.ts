@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 interface SelectValue {
@@ -16,11 +16,9 @@ export class ExportExperimentDialog implements OnInit {
 
     private backend: QhanaBackendService | null = null;
     private experimentId: string | null = null;
+    canExport: boolean = true;
 
     configTest: string = "";
-    downloading: boolean = false;
-    error: string | null = null;
-    downloadLink: string | undefined;
 
     configRestriction: "ALL" | "LOGS" | "DATA" | "STEPS" = "ALL";
     restrictionValues: SelectValue[] = [
@@ -43,25 +41,23 @@ export class ExportExperimentDialog implements OnInit {
     ngOnInit(): void {
         this.backend = this.data.backend;
         this.experimentId = this.data.experimentId;
+        if (this.experimentId == null || this.backend == null) {
+            // should never happen
+            console.warn("Experiment id or backend not set correctly.");
+            this.canExport = false;
+        }
     }
 
     onExport() {
-        this.downloading = true;
-        if (this.experimentId == null || this.backend == null) {
+        const experimentId = this.experimentId;
+        const backend = this.backend;
+        if (experimentId == null || backend == null) {
             // should never happen
-            console.log("Experiment id or backend not set correctly.");
+            console.error("Cannot export experiment!");
             return;
         }
-        this.backend.exportExperiment(this.experimentId, this.configRestriction, this.allDataVersions, this.stepList).subscribe(resp => {
-            this.downloading = false;
-            if (resp.status == "SUCCESS") {
-                if (resp.fileLink == undefined) {
-                    // should not happen
-                    console.log("Error in export experiment poll result handling.");
-                }
-            } else if (resp.status == "FAILURE") {
-                console.log("Something went wrong in polling the result for experiment export.");
-            }
+        backend.exportExperiment(experimentId, this.configRestriction, this.allDataVersions, this.stepList).subscribe(resp => { }, (error) => {
+            console.error("Unhandled error during experiment export!", error);
         });
         this.dialogRef.close();
     }

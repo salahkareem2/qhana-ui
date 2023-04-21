@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import { HttpEventType, HttpRequest, HttpResponse, HttpParams } from '@angular/common/http';
-import { HttpClient, } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { interval, Observable } from 'rxjs';
-import { filter, map, startWith, switchMap, mergeMap, take } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { filter, map, mergeMap, take } from 'rxjs/operators';
 import { ServiceRegistryService } from './service-registry.service';
-import { environment } from 'src/environments/environment';
 
 export interface ApiObject {
     "@self": string;
@@ -192,12 +190,18 @@ export class QhanaBackendService {
 
     private latexUrl: string | null = null;
 
+    private exportUpdatesSubject: Subject<void> = new Subject();
+
     public get backendRootUrl() {
         return this.rootUrl;
     }
 
     public get latexRendererUrl() {
         return this.latexUrl;
+    }
+
+    public getExportUpdates() {
+        return this.exportUpdatesSubject.asObservable();
     }
 
     constructor(private http: HttpClient, private serviceRegistry: ServiceRegistryService) {
@@ -267,27 +271,21 @@ export class QhanaBackendService {
     }
 
     /**
-     * Export experiment and poll for result (download link)
+     * Export experiment
      *
      * @param experimentId experiment id
      * @param restriction "ALL" for complete experiment, "LOGS" for only steps/substeps, "DATA" for only data files, or "STEPS" for a specified list of steps
      * @param allDataVersions true if all versions, else only newest
      * @param stepList specified list of steps
-     * @returns experiment export poll object with result file link if successful
+     * @returns experiment export api object
      */
-    public exportExperiment(experimentId: number | string, restriction: "ALL" | "LOGS" | "DATA" | "STEPS" = "ALL", allDataVersions: boolean = true, stepList: number[] = []): Observable<ExperimentExportPollObject> {
+    public exportExperiment(experimentId: number | string, restriction: "ALL" | "LOGS" | "DATA" | "STEPS" = "ALL", allDataVersions: boolean = true, stepList: number[] = []): Observable<ExperimentExportApiObject> {
         return this.callWithRootUrl<ExperimentExportApiObject>(
-            rootUrl => this.http.post<ExperimentExportApiObject>(`${rootUrl}/experiments/${experimentId}/export`, { restriction, allDataVersions, stepList })).pipe(
-                switchMap(exportResource => {
-                    // poll until SUCCESS or FAILURE
-                    return interval(1000).pipe(
-                        startWith(0),
-                        switchMap(() => this.exportExperimentPoll(experimentId, exportResource.exportId)),
-                        filter(resp => resp.status != "PENDING"),
-                        take(1)
-                    )
-                })
-            );
+            rootUrl => this.http.post<ExperimentExportApiObject>(`${rootUrl}/experiments/${experimentId}/export`, { restriction, allDataVersions, stepList })
+        ).pipe(map((response) => {
+            this.exportUpdatesSubject.next(); // notify that there was an export
+            return response;
+        }));
     }
 
     /**
@@ -300,50 +298,58 @@ export class QhanaBackendService {
     public exportExperimentPoll(experimentId: number | string, exportId: number | string): Observable<ExperimentExportPollObject> {
         // TODO: reformat, move pipeline into  callWithRootUrl
         return this.callWithRootUrl(
-            rootUrl => this.http.get(`${rootUrl}/experiments/${experimentId}/export/${exportId}`, { observe: 'response', responseType: 'arraybuffer' })).pipe(map(resp => {
-                if (resp.headers.get("Content-Type") == "application/json") {
-                    return JSON.parse(new TextDecoder().decode(resp.body as ArrayBuffer));
-                } else if (resp.headers.get("Content-Type") == "application/zip") {
-                    let result: ExperimentExportPollObject = {
-                        '@self': `${this.rootUrl}/experiments/${experimentId}/export/${exportId}`, // TODO: test if this works with this.rootUrl
-                        exportId: Number(exportId),
-                        status: 'SUCCESS',
-                        fileLink: `${this.rootUrl}/experiments/${experimentId}/export/${exportId}`  // TODO: test if this works with this.rootUrl
-                    };
-                    return result;
-                } else {
-                    throw new Error("Experiment poll returned wrong file format: " + resp.headers.get("Content-Type"));
-                }
-            }));
+            rootUrl => this.http.get(`${rootUrl}/experiments/${experimentId}/export/${exportId}`, { observe: 'response', responseType: 'arraybuffer' })
+                .pipe(
+                    map(resp => {
+                        if (resp.headers.get("Content-Type") == "application/json") {
+                            return JSON.parse(new TextDecoder().decode(resp.body as ArrayBuffer));
+                        } else if (resp.headers.get("Content-Type") == "application/zip") {
+                            let result: ExperimentExportPollObject = {
+                                '@self': `${rootUrl}/experiments/${experimentId}/export/${exportId}`,
+                                exportId: Number(exportId),
+                                status: 'SUCCESS',
+                                fileLink: `${rootUrl}/experiments/${experimentId}/export/${exportId}`
+                            };
+                            return result;
+                        } else {
+                            throw new Error("Experiment poll returned wrong file format: " + resp.headers.get("Content-Type"));
+                        }
+                    }),
+                )
+        );
     }
 
     public getExportList(itemCount: number = 10): Observable<ExportResult[]> {
         let queryParams = new HttpParams().append("item-count", itemCount);
-        return this.callWithRootUrl<ApiObjectListWithoutCount<ExportStatus>>(
-            rootUrl => this.http.get<ApiObjectListWithoutCount<ExportStatus>>(`${rootUrl}/experiments/export-list`, { params: queryParams })).pipe(map(resp => {
-                const exportResultList: ExportResult[] = [];
-                resp.items.forEach(exportStatus => {
-                    var fileLink: string | null;
-                    if (exportStatus.status == "SUCCESS") {
-                        fileLink = `${this.rootUrl}/experiments/${exportStatus.experimentId}/export/${exportStatus.exportId}` // TODO: test if this works with this.rootUrl
-                    } else {
-                        fileLink = null;
-                    }
-                    exportResultList.push({
-                        exportId: exportStatus.exportId,
-                        experimentId: exportStatus.experimentId,
-                        status: exportStatus.status,
-                        name: exportStatus.name,
-                        fileLink: fileLink
-                    })
-                });
-                return exportResultList;
-            }));
+        return this.callWithRootUrl<ExportResult[]>(
+            rootUrl => this.http.get<ApiObjectListWithoutCount<ExportStatus>>(`${rootUrl}/experiments/export-list`, { params: queryParams })
+                .pipe(
+                    map(resp => {
+                        const exportResultList: ExportResult[] = [];
+                        resp.items.forEach(exportStatus => {
+                            var fileLink: string | null;
+                            if (exportStatus.status == "SUCCESS") {
+                                fileLink = `${rootUrl}/experiments/${exportStatus.experimentId}/export/${exportStatus.exportId}`
+                            } else {
+                                fileLink = null;
+                            }
+                            exportResultList.push({
+                                exportId: exportStatus.exportId,
+                                experimentId: exportStatus.experimentId,
+                                status: exportStatus.status,
+                                name: exportStatus.name,
+                                fileLink: fileLink
+                            })
+                        });
+                        return exportResultList;
+                    }),
+                )
+        );
     }
 
     deleteExport(experimentId: number, exportId: number) {
         return this.callWithRootUrl<void>(
-            rootUrl => this.http.delete(`${rootUrl}/experiments/${experimentId}/export/${exportId}/delete`).pipe(map(() => { return; }))
+            rootUrl => this.http.delete(`${rootUrl}/experiments/${experimentId}/export/${exportId}/delete`).pipe(map(() => { this.exportUpdatesSubject.next() }))
         );
     }
 
@@ -352,33 +358,36 @@ export class QhanaBackendService {
         formData.append("file", experimentZip, experimentZip.name);
 
         return this.callWithRootUrl(
-            rootUrl => this.http.post(`${rootUrl}/experiments/import`, formData, {
-                observe: "events", responseType: "json", reportProgress: true
-            })).pipe(
-                map(event => {
-                    if (event.type == HttpEventType.UploadProgress) {
-                        const progress = Math.round(100 * event.loaded / (event.total != undefined ? event.total : 100));
-                        return {
-                            "@self": `${this.rootUrl}/experiments/import`, // TODO: test if this works with this.rootUrl
-                            progress: progress,
-                            uploadStatus: "PENDING"
+            rootUrl => {
+                return this.http.post(
+                    `${rootUrl}/experiments/import`, formData,
+                    { observe: "events", responseType: "json", reportProgress: true }
+                ).pipe(
+                    map(event => {
+                        if (event.type == HttpEventType.UploadProgress) {
+                            const progress = Math.round(100 * event.loaded / (event.total != null ? event.total : 100));
+                            return {
+                                "@self": `${rootUrl}/experiments/import`,
+                                progress: progress,
+                                uploadStatus: "PENDING"
+                            }
+                        } else if (event instanceof HttpResponse) {
+                            return {
+                                "@self": `${rootUrl}/experiments/import`,
+                                progress: 100,
+                                uploadStatus: "DONE",
+                                importId: JSON.parse(JSON.stringify(event.body)).importId
+                            }
+                        } else {
+                            return {
+                                "@self": `${rootUrl}/experiments/import`,
+                                progress: 0,
+                                uploadStatus: "OTHER",
+                            }
                         }
-                    } else if (event instanceof HttpResponse) {
-                        return {
-                            "@self": `${this.rootUrl}/experiments/import`, // TODO: test if this works with this.rootUrl
-                            progress: 100,
-                            uploadStatus: "DONE",
-                            importId: JSON.parse(JSON.stringify(event.body)).importId
-                        }
-                    } else {
-                        return {
-                            "@self": `${this.rootUrl}/experiments/import`, // TODO: test if this works with this.rootUrl
-                            progress: 0,
-                            uploadStatus: "OTHER",
-                        }
-                    }
-                })
-            );
+                    }),
+                )
+            });
     }
 
     public importExperimentPoll(importId: number): Observable<ExperimentImportPollObject> {
