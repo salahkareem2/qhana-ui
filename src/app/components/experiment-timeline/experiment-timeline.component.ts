@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of, Subscription } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
@@ -34,9 +34,9 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
     error: string | null = null;
 
     timelineSteps: Observable<TimelineStepApiObject[]> | null = null;
-    sort: number = 1;
-    pluginName: string | undefined;
-    version: string | undefined;
+    sort: -1 | 0 | 1 = 1;
+    pluginName: string | null = null;
+    version: string | null = null;
     stepStatus: "SUCCESS" | "PENDING" | "ERROR" | "" = "";
     statusValues: SelectValue[] = [
         { value: "", viewValue: "Not selected" },
@@ -74,7 +74,7 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
     }
 
     onSort() {
-        this.sort *= -1;
+        this.sort *= -1; // reverse the sorting order
         this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
     }
 
