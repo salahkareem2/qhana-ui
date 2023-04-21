@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, interval, Subscription } from 'rxjs';
-import { debounceTime, filter, first, map, startWith, switchMap, take, takeWhile } from 'rxjs/operators';
+import { BehaviorSubject, Subscription } from 'rxjs';
+import { debounceTime, filter, map } from 'rxjs/operators';
 import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export-experiment.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
-import { ExperimentApiObject, ExperimentExportPollObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 @Component({
     selector: 'qhana-experiment',
@@ -147,16 +147,11 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     }
 
     showExportExperimentDialog(error?: string) {
-        const dialogRef = this.dialog.open(ExportExperimentDialog, {
+        this.dialog.open(ExportExperimentDialog, {
             minWidth: "20rem", maxWidth: "40rem", width: "60%",
             data: {
                 experimentId: this.experimentId,
                 backend: this.backend,
-            }
-        });
-        dialogRef.afterClosed().subscribe(result => {
-            if (result == null) {
-                return; // dialog was cancelled
             }
         });
     }
