@@ -28,7 +28,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     error: string | null = null;
 
     experimentData: Observable<ExperimentDataApiObject[]> | null = null;
-    sort: number = 1;
+    sort: -1 | 0 | 1 = 1;
     searchValue: string | null = null;
     allVersions: boolean = true;
 
@@ -59,7 +59,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     }
 
     onSort() {
-        this.sort *= -1;
+        this.sort *= -1; // reverse the sorting order
         this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
     }
 

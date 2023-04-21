@@ -1,8 +1,7 @@
 <div class="big-content">
     <div class="flex-header">
         <h1 class="t-page-headline align-arrow">Experiment Data
-            <button mat-icon-button class="arrow-button" (click)="onSort()"
-                aria-label="sort>=0?'arrow_upward':'arrow_downward'">
+            <button mat-icon-button class="arrow-button" (click)="onSort()" aria-label="change sort order">
                 <mat-icon [inline]="true" class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
             </button>
         </h1>
@@ -13,17 +12,27 @@
         </mat-paginator>
     </div>
     <div class="filter">
-        <mat-form-field [style.width.%]="75">
+        <mat-form-field class="search-field no-padding">
             <mat-label>Search data</mat-label>
-            <input [(ngModel)]="searchValue" matInput (keydown.enter)="updatePageContent()">
-            <button mat-button matSuffix class="search-button" (click)="updatePageContent()">Ok</button>
+            <input type="search" [(ngModel)]="searchValue" matInput (keydown.enter)="updatePageContent()">
+            <button mat-icon-button matSuffix (click)="updatePageContent()" [attr.aria-label]="'search'">
+                <mat-icon>search</mat-icon>
+            </button>
         </mat-form-field>
-        <mat-checkbox class="checkbox" color="primary" labelPosition="before" checked="true"
-            (change)="onCheckAllVersions()">All
-            versions</mat-checkbox>
+        <mat-checkbox color="primary" labelPosition="before" checked="true" (change)="onCheckAllVersions()">
+            Show all versions
+        </mat-checkbox>
     </div>
 
     <div class="page-item-list">
+        <mat-card class="page-item card" *ngIf="!(experimentData | async)">
+            <mat-card-title>
+                <span class="t-headline">no data</span>
+            </mat-card-title>
+            <mat-card-content>
+                Use the plugins in the experiment workspace to add data to the experiment.
+            </mat-card-content>
+        </mat-card>
         <mat-card class="page-item card" *ngFor="let data of experimentData | async">
             <mat-card-title>
                 <a class="t-headline title-link"
@@ -48,11 +57,8 @@
                         <dd><a class="download-button" href="{{data.download}}" target="_blank"
                                 rel="noopener noreferrer" mat-flat-button>Dowload as File</a></dd>
                     </div>
-                    <div>
-                        <dt>All versions for this file</dt>
-                        <dd><button mat-flat-button (click)="reloadAllDataVersions(data.name)">Here</button></dd>
-                    </div>
                 </dl>
+                <button mat-flat-button (click)="reloadAllDataVersions(data.name)">Show all versions</button>
             </mat-card-content>
         </mat-card>
     </div>
