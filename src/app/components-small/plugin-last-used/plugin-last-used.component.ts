@@ -62,7 +62,12 @@ export class PluginLastUsedComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.pendingUpdatesSubscription?.unsubscribe();
 
-        this.backend.getTimelineStepsPage(experimentId, 0, 5, -1, plugin.identifier, plugin.version).subscribe(timelineSteps => {
+        this.backend.getTimelineStepsPage(experimentId, {
+            itemCount: 5,
+            sort: -1,
+            pluginName: plugin.identifier,
+            version: plugin.version,
+        }).subscribe(timelineSteps => {
             if (timelineSteps.items.length > 0) {
                 this.updateLastUsedFromStep(timelineSteps.items[0]);
             } else {

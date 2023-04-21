@@ -169,6 +169,16 @@ export interface TimelineStepResultQuality {
     resultQuality: string;
 }
 
+export interface TimelineStepPageOptions {
+    page?: number;
+    itemCount?: number;
+    sort?: number;
+    pluginName?: string;
+    version?: string;
+    stepStatus?: "SUCCESS" | "PENDING" | "ERROR" | "";
+    unclearedSubstep?: number;
+}
+
 function urlIsString(url: string | null): url is string {
     return url != null;
 }
@@ -415,7 +425,7 @@ export class QhanaBackendService {
         );
     }
 
-    public getTimelineStepsPage(experimentId: number | string, page: number = 0, itemCount: number = 10, sort: number = 1, pluginName: string = "", version: string = "", stepStatus: "SUCCESS" | "PENDING" | "ERROR" | "" = "", unclearedSubstep: number = 0): Observable<ApiObjectList<TimelineStepApiObject>> {
+    public getTimelineStepsPage(experimentId: number | string, { page = 0, itemCount = 10, sort = 1, pluginName = "", version = "", stepStatus = "", unclearedSubstep = 0 }: TimelineStepPageOptions): Observable<ApiObjectList<TimelineStepApiObject>> {
         const queryParams = new HttpParams()
             .append("plugin-name", pluginName)
             .append("version", version)
