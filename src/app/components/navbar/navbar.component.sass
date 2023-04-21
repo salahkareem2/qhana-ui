@@ -47,22 +47,13 @@
 .settings-link:visited
     color: var(--text-light-primary, white)
 
+.download-heading
+    width: 20rem
+    padding-inline: 0.5em
+
 .download-item
-    width: 400px
-    display: flex
-    flex-direction: column
-    box-shadow: 0
-    border-radius: 0
-    border: 2px solid var(--border-color)
-    border-top: 0
+    width: 20rem
     padding: 0.5em
-
-.download-item:first-child
-    border-radius: 4px 4px 0 0
-    border-top: 2px solid var(--border-color)
-
-.download-item:last-child
-    border-radius: 0 0 4px 4px
 
 .download-container
     width: 100%
@@ -70,12 +61,8 @@
     flex-direction: row
     justify-content: space-between
     align-items: center
+    gap: 0.3em
 
-.download-button
-    float: right
-
-.delete-button
-    float: right
-
-.download-progress
-    padding-top: 0.5em
+.download-name
+    flex-grow: 1
+    min-width: 6em
