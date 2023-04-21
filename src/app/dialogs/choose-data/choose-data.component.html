@@ -1,7 +1,6 @@
 <div class="flex-header">
     <h1 mat-dialog-title align-arrow>Choose data
-        <button mat-icon-button class="arrow-button" (click)="onSort()"
-            aria-label="sort>=0?'arrow_upward':'arrow_downward'">
+        <button mat-icon-button class="arrow-button" (click)="onSort()" aria-label="change sort order">
             <mat-icon [inline]="true" class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
         </button>
     </h1>
@@ -17,14 +16,16 @@
             [pageIndex]="currentPage" [pageSizeOptions]="[10, 5, 25, 100]" aria-label="Select page">
         </mat-paginator>
         <div class="filter">
-            <mat-form-field [style.width.%]="70">
+            <mat-form-field class="search-field no-padding">
                 <mat-label>Search data</mat-label>
                 <input [(ngModel)]="searchValue" matInput (keydown.enter)="loadData()">
-                <button mat-button matSuffix class="search-button" (click)="loadData()">Ok</button>
+                <button mat-icon-button matSuffix class="search-button" (click)="loadData()">
+                    <mat-icon>search</mat-icon>
+                </button>
             </mat-form-field>
-            <mat-checkbox class="checkbox" color="primary" labelPosition="before" checked="true"
-                (change)="onCheckAllVersions()">All
-                versions</mat-checkbox>
+            <mat-checkbox color="primary" labelPosition="before" checked="true" (change)="onCheckAllVersions()">
+                Show all versions
+            </mat-checkbox>
         </div>
         <mat-selection-list [multiple]="false" color="primary" #selection>
             <mat-list-option *ngFor="let data of dataList" [disabled]="!matching.has(data['@self'])" [value]="data">

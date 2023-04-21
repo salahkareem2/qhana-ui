@@ -22,8 +22,8 @@ export class ChooseDataComponent implements OnInit {
     pageSize: number = 10;
     currentPage: number = 0;
 
-    sort: number = 1;
-    searchValue: string | undefined;
+    sort: -1 | 0 | 1 = 1;
+    searchValue: string | null = null;
     allVersions: boolean = true;
 
     currentPageSubscription: Subscription | null = null;
@@ -74,7 +74,7 @@ export class ChooseDataComponent implements OnInit {
     }
 
     onSort() {
-        this.sort *= -1;
+        this.sort *= -1; // reverse the sorting order
         this.loadData();
     }
 
