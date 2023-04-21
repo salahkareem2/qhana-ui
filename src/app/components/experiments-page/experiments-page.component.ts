@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { CreateExperimentDialog } from 'src/app/dialogs/create-experiment/create-experiment.component';
-import { ImportExperimentDialog } from 'src/app/dialogs/import-experiment/import-experiment.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
@@ -16,6 +15,8 @@ import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana
 })
 export class ExperimentsPageComponent implements OnInit {
 
+    showImport: boolean = false;
+
     collectionSize: number = 0;
 
     loading: boolean = true;
@@ -25,7 +26,7 @@ export class ExperimentsPageComponent implements OnInit {
 
     experiments: Observable<ExperimentApiObject[]> | null = null;
     searchValue: string = "";
-    sort: number = 1;
+    sort: -1 | 0 | 1 = 1;
 
     constructor(private router: Router, private backend: QhanaBackendService, private experimentService: CurrentExperimentService, public dialog: MatDialog) { }
 
@@ -39,7 +40,7 @@ export class ExperimentsPageComponent implements OnInit {
     }
 
     onSort(): void {
-        this.sort *= -1;
+        this.sort *= -1; // reverse the sorting order
         this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount, this.sort)
     }
 
@@ -96,18 +97,18 @@ export class ExperimentsPageComponent implements OnInit {
     }
 
     showImportExperimentDialog() {
-        const dialogRef = this.dialog.open(ImportExperimentDialog, { minWidth: "20rem", maxWidth: "40rem", width: "60%" });
+        /*const dialogRef = this.dialog.open(ImportExperimentDialog, { minWidth: "20rem", maxWidth: "40rem", width: "60%" });
         dialogRef.afterClosed().subscribe(result => {
             if (result == null) {
                 return; // dialog was cancelled
             }
 
-            if (result.experimentId == undefined) {
+            if (result.experimentId == null) {
                 console.error("Incorrect experiment data! Cannot find experiment.", result);
                 return;
             }
 
             this.router.navigate(["/experiments", result.experimentId.toString(), "info"]);
-        });
+        });*/
     }
 }

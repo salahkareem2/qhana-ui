@@ -1,6 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat
 
+@import '~@angular/material/theming'
+
 @include mat.core()
 
 @import 'material-icons/iconfont/material-icons.scss'
@@ -262,14 +264,46 @@ a:hover, a:visited
 .italic
     font-style: italic
 
-.mat-menu-panel.download
-    max-width: none !important
-    position: absolute // TODO: try solve otherwise (used in navbar for download dropdown)
-    top: 13px
-    right: 0
-    opacity: 1
-    .mat-menu-content
-        padding: 0
+.file-input
+    color: var(--text)
+    background-color: var(--background)
+    border: 2px solid var(--border-color, currentColor)
+    border-radius: 5px
+    max-width: initial
+    box-sizing: border-box
+    padding-inline: 0.5rem
+    padding-block: 1.3ex
+
+.file-input:focus
+    outline: none
+
+.file-input:focus-visible
+    outline: 4px solid var(--accent-darker, black)
+
+.file-input::file-selector-button
+    @include mat-elevation(2)
+    right: 0px
+    margin: 0.4rem
+    padding-inline: 1em
+    background-color: var(--primary, purple)
+    color: var(--text-primary, white)
+    cursor: pointer
+    outline: none
+    border: none
+    border-radius: 4px
+    font-size: 14px
+    line-height: 36px
+    font-weight: 600
+
+.file-input::file-selector-button:hover
+    background-color: var(--primary, purple)
+    color: var(--text-primary, white)
+
+.file-input::file-selector-button:active
+    background-color: var(--primary-lighter, purple)
+
+.file-input::file-selector-button:focus-visible
+    outline: 4px solid var(--accent-darker, black)
 
 // material extra styles
 .card.mat-card
@@ -288,6 +322,10 @@ a:hover, a:visited
     opacity: 1
     .mat-menu-content
         padding: 0
+
+.mat-button-toggle-button
+    display: flex
+    align-items: center
 
 // extra helpers
 .strip-button-hover:hover .mat-button-focus-overlay
