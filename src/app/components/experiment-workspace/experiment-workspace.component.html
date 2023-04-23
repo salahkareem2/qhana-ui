@@ -9,7 +9,7 @@
                     <mat-icon>arrow_back</mat-icon>
                 </a -->
             </div>
-            <div *ngIf="!infoAreaActive">
+            <ng-container *ngIf="!infoAreaActive">
                 <div *ngIf="activePlugin == null">
                     <p>Choose a plugin.</p>
                 </div>
@@ -46,13 +46,13 @@
                         </qhana-plugin-uiframe>
                     </mat-card>
                 </div>
-            </div>
-            <div *ngIf="infoAreaActive">
-                <qhana-template-tab-form [formValues]="{ name: templateTab?.name ?? null, description: templateTab?.description ?? null, 
-                    sortKey: templateTab?.sortKey ?? null, filterString: templateTab?.filterString ?? null }"
+            </ng-container>
+            <ng-container *ngIf="infoAreaActive">
+                <qhana-template-tab-form [formValues]="{ name: templateTab?.name ?? '', description: templateTab?.description ?? '', 
+                    sortKey: templateTab?.sortKey ?? 0, filterString: templateTab?.filterString ?? '{}' }"
                     (formSubmit)="onTemplateTabSubmit($event)">
                 </qhana-template-tab-form>
-            </div>
+            </ng-container>
             <div class="scroll-spacer"></div>
         </div>
     </div>
