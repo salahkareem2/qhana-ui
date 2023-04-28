@@ -90,10 +90,12 @@ export class TemplatesService {
     }
 
     async updateTemplate(templateLink: ApiLink, template: TemplateApiObject) {
+        // TODO: This function only calls submitByApiLink with the given parameters. It should be removed and the caller should call submitByApiLink directly.
         return this.registry.submitByApiLink<TemplateApiObject>(templateLink, template);
     }
 
     async updateTab(link: ApiLink, name: string, description: string = "", sortKey: number = 0, filterString: string = "{}", location: string = "workspace") {
+        // TODO: This function only calls submitByApiLink with the given parameters. It should be removed and the caller should call submitByApiLink directly.
         return this.registry.submitByApiLink<TemplateTabApiObject>(link, {
             name: name,
             description: description,

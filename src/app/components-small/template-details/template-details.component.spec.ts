@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TemplateTabFormComponent } from './template-tab-form.component';
+import { TemplateDetailsComponent } from './template-details.component';
 
 describe('TemplateTabFormComponent', () => {
-    let component: TemplateTabFormComponent;
-    let fixture: ComponentFixture<TemplateTabFormComponent>;
+    let component: TemplateDetailsComponent;
+    let fixture: ComponentFixture<TemplateDetailsComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [TemplateTabFormComponent]
+            declarations: [TemplateDetailsComponent]
         })
             .compileComponents();
 
-        fixture = TestBed.createComponent(TemplateTabFormComponent);
+        fixture = TestBed.createComponent(TemplateDetailsComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

@@ -1,15 +1,15 @@
 <div class="workspace-content">
-    <qhana-plugin-sidebar class="sidebar" (tabSelected)="editTemplateTab($event)"></qhana-plugin-sidebar>
+    <qhana-plugin-sidebar class="sidebar" (detailAreaActive)="onActiveAreaChanged($event)"></qhana-plugin-sidebar>
     <div class="content-container">
         <div class="main-content">
-            <div class="title">
-                <h1 class="t-page-headline">Experiment Workspace</h1>
-                <!-- a mat-icon-button aria-label="unselect plugin"
-                    [routerLink]="['/experiments', experimentId, 'workspace']" *ngIf="activePlugin != null">
-                    <mat-icon>arrow_back</mat-icon>
-                </a -->
-            </div>
-            <ng-container *ngIf="!infoAreaActive">
+            <ng-container *ngIf="!detailAreaActive">
+                <div class="title">
+                    <h1 class="t-page-headline">Experiment Workspace</h1>
+                    <!-- a mat-icon-button aria-label="unselect plugin"
+                        [routerLink]="['/experiments', experimentId, 'workspace']" *ngIf="activePlugin != null">
+                        <mat-icon>arrow_back</mat-icon>
+                    </a -->
+                </div>
                 <div *ngIf="activePlugin == null">
                     <p>Choose a plugin.</p>
                 </div>
@@ -47,11 +47,8 @@
                     </mat-card>
                 </div>
             </ng-container>
-            <ng-container *ngIf="infoAreaActive">
-                <qhana-template-tab-form [formValues]="{ name: templateTab?.name ?? '', description: templateTab?.description ?? '', 
-                    sortKey: templateTab?.sortKey ?? 0, filterString: templateTab?.filterString ?? '{}' }"
-                    (formSubmit)="onTemplateTabSubmit($event)">
-                </qhana-template-tab-form>
+            <ng-container *ngIf="detailAreaActive">
+                <qhana-template-details></qhana-template-details>
             </ng-container>
             <div class="scroll-spacer"></div>
         </div>

@@ -65,10 +65,10 @@
             </div>
             <mat-divider></mat-divider>
             <h3 class="sidebar-header">Template Tabs</h3>
-            <div *ngIf="selectedTemplateTabsLink">
+            <ng-container *ngIf="selectedTemplateTabsLink">
                 <qhana-growing-list [apiLink]="selectedTemplateTabsLink" [deleteButton]="this.selectedTemplate ? true : false" 
                     (clickItem)="selectTab($event)"></qhana-growing-list>
-            </div>
+            </ng-container>
             <div *ngIf="this.selectedTemplate">
                 <mat-divider></mat-divider>
                 <h3 class="sidebar-header">Create Template Tab</h3>

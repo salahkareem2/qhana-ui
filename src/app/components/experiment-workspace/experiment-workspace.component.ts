@@ -21,7 +21,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
 
     experimentId: string | null = null;
 
-    infoAreaActive: boolean = false;
+    detailAreaActive: boolean = false;
     templateTab: TemplateTabApiObject | null = null;
     templateTabLink: ApiLink | null = null;
 
@@ -56,6 +56,10 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
         this.parameterSubscription?.unsubscribe();
     }
 
+    onActiveAreaChanged(isDetailAreaActive: boolean) {
+        this.detailAreaActive = isDetailAreaActive;
+    }
+
     async onPluginIdChange(newPluginId: string | null) {
         if (newPluginId == null) {
             this.activePlugin = null;
@@ -78,10 +82,10 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
 
     editTemplateTab(tabLink: ApiLink | null) {
         if (!tabLink) {
-            this.infoAreaActive = false;
+            this.detailAreaActive = false;
             return;
         }
-        this.infoAreaActive = true;
+        this.detailAreaActive = true;
         this.templateTabLink = tabLink;
         this.registry.getByApiLink<TemplateTabApiObject>(tabLink).then(tabResponse => {
             this.templateTab = tabResponse?.data ?? null;
@@ -89,7 +93,6 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
     }
 
     onTemplateTabSubmit(formValues: { name: string, description: string, sortKey: number, filterString: string }) {
-        console.log("update template", formValues, this.templateTabLink)
         if (!this.templateTabLink) {
             return;
         }

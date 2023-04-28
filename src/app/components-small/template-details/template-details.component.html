@@ -1,0 +1,42 @@
+<div class="content-container">
+    <div class="title">
+        <h1 class="t-page-headline">Template: {{templateObject?.name}}</h1>
+    </div>
+
+    <mat-card>
+        <h2>Template Details</h2>
+        <mat-card-content>
+            <p>Name: {{templateObject?.name}}</p>
+            <p>Description: {{templateObject?.description}}</p>
+            <p>Tags:</p>
+            <mat-chip-list>
+                <mat-chip *ngFor="let tag of templateObject?.tags">
+                    {{tag}}
+                </mat-chip>
+            </mat-chip-list>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+        <h2>Template Tab</h2>
+        <form [formGroup]="templateForm" (ngSubmit)="onSubmit()">
+            <mat-form-field class="form-field">
+                <mat-label>Name:</mat-label>
+                <input matInput id="name" formControlName="name" required>
+            </mat-form-field>
+            <mat-form-field class="form-field">
+                <mat-label>Description:</mat-label>
+                <textarea matInput id="description" formControlName="description"></textarea>
+            </mat-form-field>
+            <mat-form-field class="form-field">
+                <mat-label>Sort Key:</mat-label>
+                <input matInput type="number" id="sortKey" formControlName="sortKey">
+            </mat-form-field>
+            <mat-form-field class="form-field">
+                <mat-label>Filter String:</mat-label>
+                <textarea matInput id="filterString" formControlName="filterString"></textarea>
+            </mat-form-field>
+            <button mat-raised-button type="submit" color="primary">Update Template</button>
+        </form>
+    </mat-card>
+</div>
