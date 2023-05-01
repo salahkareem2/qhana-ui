@@ -80,30 +80,6 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
         this.frontendUrl = pluginResponse.data.entryPoint.uiHref;
     }
 
-    editTemplateTab(tabLink: ApiLink | null) {
-        if (!tabLink) {
-            this.detailAreaActive = false;
-            return;
-        }
-        this.detailAreaActive = true;
-        this.templateTabLink = tabLink;
-        this.registry.getByApiLink<TemplateTabApiObject>(tabLink).then(tabResponse => {
-            this.templateTab = tabResponse?.data ?? null;
-        });
-    }
-
-    onTemplateTabSubmit(formValues: { name: string, description: string, sortKey: number, filterString: string }) {
-        if (!this.templateTabLink) {
-            return;
-        }
-        this.registry.getByApiLink<TemplateTabApiObject>(this.templateTabLink).then(response => {
-            let updateLink = response?.links?.find(link => link.rel.some(rel => rel === "update") && link.resourceType == "ui-template-tab") ?? null;
-            if (updateLink) {
-                this.templates.updateTab(updateLink, formValues.name, formValues.description, formValues.sortKey, formValues.filterString);
-            }
-        });
-    }
-
     onKeyDown(event: KeyboardEvent) {
         if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
