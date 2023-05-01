@@ -224,12 +224,15 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     selectTemplate(templateLink: ApiLink | null) {
         this.switchActiveTemplateLink(templateLink);
+        this.detailAreaActive.emit(false);
         if (templateLink == null) {
             this.router.navigate([], {
                 relativeTo: this.route,
                 preserveFragment: true,
                 queryParams: {
                     template: null,
+                    plugin: null,
+                    tab: null,
                 },
                 queryParamsHandling: 'merge',
             });
@@ -240,6 +243,8 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             preserveFragment: true,
             queryParams: {
                 template: templateLink.resourceKey?.uiTemplateId ?? null,
+                plugin: null,
+                tab: null,
             },
             queryParamsHandling: 'merge',
         });
@@ -354,5 +359,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         if (doDelete) {
             this.registry.submitByApiLink(deleteLink);
         }
+
+        this.selectTemplate(null);
     }
 }
