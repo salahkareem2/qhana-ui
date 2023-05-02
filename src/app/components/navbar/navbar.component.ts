@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Component, Input, OnDestroy, OnInit, TrackByFunction } from '@angular/core';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { ApiLink, CollectionApiObject } from 'src/app/services/api-data-types';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TemplateApiObject, TemplatesService } from 'src/app/services/templates.service';
+import { DownloadsService } from 'src/app/services/downloads.service';
+import { ExportResult, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
 @Component({
     selector: 'qhana-navbar',
@@ -32,21 +33,36 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     currentExperiment: Observable<string | null>;
     experimentId: Observable<string | null>;
+    downloadBadgeCounter: Observable<number> | null = null;
+
+    exportList: Observable<ExportResult[] | null> | null = null;
+    error: string | null = null;
 
     extraTabs: ApiLink[] = [];
 
     private defaultTemplateSubscription: Subscription | null = null;
 
-    constructor(private experiment: CurrentExperimentService, private templates: TemplatesService, private registry: PluginRegistryBaseService) {
+    constructor(private experiment: CurrentExperimentService, private templates: TemplatesService, private registry: PluginRegistryBaseService, private backend: QhanaBackendService, private downloadService: DownloadsService) {
         this.currentExperiment = this.experiment.experimentName;
         this.experimentId = this.experiment.experimentId;
     }
-
 
     ngOnInit(): void {
         this.defaultTemplateSubscription = this.templates.defaultTemplate.subscribe(template => {
             this.onTemplateChanges(template);
         });
+        this.downloadBadgeCounter = this.downloadService.getDownloadsCounter();
+        this.exportList = this.downloadService.getExportList();
+    }
+
+    trackExport: TrackByFunction<ExportResult> = (index, item) => item.exportId.toString();
+
+    deleteExport(experimentId: number, exportId: number) {
+        this.backend.deleteExport(experimentId, exportId).subscribe(() => console.log());
+    }
+
+    exportListIsEmpty() {
+        return this.downloadBadgeCounter?.subscribe();
     }
 
     ngOnDestroy(): void {
@@ -70,5 +86,4 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
         groupResponse?.data?.items?.forEach(tab => extraTabs.push(tab));
     }
-
 }

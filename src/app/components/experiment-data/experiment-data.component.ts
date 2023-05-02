@@ -13,7 +13,6 @@ import { ServiceRegistryService } from 'src/app/services/service-registry.servic
     styleUrls: ['./experiment-data.component.sass']
 })
 export class ExperimentDataComponent implements OnInit, OnDestroy {
-
     private routeSubscription: Subscription | null = null;
     private backendUrlSubscription: Subscription | null = null;
 
@@ -29,6 +28,9 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     error: string | null = null;
 
     experimentData: Observable<ExperimentDataApiObject[]> | null = null;
+    sort: -1 | 0 | 1 = 1;
+    searchValue: string | null = null;
+    allVersions: boolean = true;
 
     constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService, private serviceRegistry: ServiceRegistryService) { }
 
@@ -53,8 +55,23 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
     }
 
     onPageChange(pageEvent: PageEvent) {
-        console.log(pageEvent.pageIndex, pageEvent.pageSize);
-        this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize); // TODO test
+        this.updatePageContent(pageEvent.pageIndex, pageEvent.pageSize);
+    }
+
+    onSort() {
+        this.sort *= -1; // reverse the sorting order
+        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
+    }
+
+    onCheckAllVersions() {
+        this.allVersions = !this.allVersions;
+        this.updatePageContent(this.currentPage?.page, this.currentPage?.itemCount);
+    }
+
+    reloadAllDataVersions(dataName: string) {
+        this.searchValue = dataName;
+        this.allVersions = true;
+        this.updatePageContent();
     }
 
     updatePageContent(page: number = 0, itemCount: number = 10) {
@@ -65,7 +82,7 @@ export class ExperimentDataComponent implements OnInit, OnDestroy {
         this.error = null;
         const currentRequest = { page: page, itemCount: itemCount };
         this.currentPage = currentRequest;
-        this.experimentData = this.backend.getExperimentDataPage(this.experimentId, page, itemCount).pipe(
+        this.experimentData = this.backend.getExperimentDataPage(this.experimentId, this.allVersions, this.searchValue, page, itemCount, this.sort).pipe(
             map(value => {
                 if (this.currentPage !== currentRequest) {
                     throw Error("Cancelled by other request.");

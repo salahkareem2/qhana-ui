@@ -17,19 +17,24 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCommonModule, MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule, MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -39,9 +44,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { IframePreviewComponent } from './components-small/iframe-preview/iframe-preview.component';
+import { ImagePreviewComponent } from './components-small/image-preview/image-preview.component';
+import { ImportExperimentComponent } from './components-small/import-experiment/import-experiment.component';
 import { MarkdownPreviewComponent } from './components-small/markdown-preview/markdown-preview.component';
 import { PluginLastUsedComponent } from './components-small/plugin-last-used/plugin-last-used.component';
 import { PluginListItemComponent } from './components-small/plugin-list-item/plugin-list-item.component';
+import { PluginPreviewComponent } from './components-small/plugin-preview/plugin-preview.component';
+import { QueryParamPreviewComponent } from './components-small/query-param-preview/query-param-preview.component';
+import { RawTextPreviewComponent } from './components-small/raw-text-preview/raw-text-preview.component';
 import { StepStatusComponent } from './components-small/step-status/step-status.component';
 import { DataDetailComponent } from './components/data-detail/data-detail.component';
 import { DataPreviewComponent } from './components/data-preview/data-preview.component';
@@ -54,6 +64,7 @@ import { GrowingListComponent } from './components/growing-list/growing-list.com
 import { MarkdownComponent } from './components/markdown/markdown.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { PluginSidebarComponent } from './components/plugin-sidebar/plugin-sidebar.component';
+import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component';
 import { PluginUiframeComponent } from './components/plugin-uiframe/plugin-uiframe.component';
 import { PreviewListComponent } from './components/preview-list/preview-list.component';
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
@@ -65,12 +76,8 @@ import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component
 import { ChoosePluginComponent } from './dialogs/choose-plugin/choose-plugin.component';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
 import { DeleteDialog } from './dialogs/delete-dialog/delete-dialog.dialog';
+import { ExportExperimentDialog } from './dialogs/export-experiment/export-experiment.component';
 import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
-import { QueryParamPreviewComponent } from './components-small/query-param-preview/query-param-preview.component';
-import { ImagePreviewComponent } from './components-small/image-preview/image-preview.component';
-import { RawTextPreviewComponent } from './components-small/raw-text-preview/raw-text-preview.component';
-import { PluginPreviewComponent } from './components-small/plugin-preview/plugin-preview.component';
-import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component';
 
 @NgModule({
     declarations: [
@@ -96,6 +103,7 @@ import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component
         SubstepsDetailsComponent,
         StepStatusComponent,
         MarkdownHelpDialog,
+        ExportExperimentDialog,
         GrowingListComponent,
         DeleteDialog,
         PluginSidebarComponent,
@@ -108,6 +116,7 @@ import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component
         RawTextPreviewComponent,
         PluginPreviewComponent,
         PluginTabComponent,
+        ImportExperimentComponent,
     ],
     imports: [
         BrowserModule,
@@ -119,6 +128,7 @@ import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component
         MatPaginatorModule,
         MatCardModule,
         MatButtonModule,
+        MatButtonToggleModule,
         MatCommonModule,
         MatTabsModule,
         MatRippleModule,
@@ -133,6 +143,10 @@ import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component
         MatProgressBarModule,
         MatExpansionModule,
         MatTooltipModule,
+        MatCheckboxModule,
+        MatRadioModule,
+        MatMenuModule,
+        MatBadgeModule,
     ],
     providers: [
         { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: "outline" } }

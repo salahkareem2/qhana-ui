@@ -1,0 +1,26 @@
+<h1 mat-dialog-title>Export Config</h1>
+<div mat-dialog-content>
+    <mat-radio-group [(ngModel)]="configRestriction" name="restriction">
+        <mat-radio-button *ngFor="let restriction of restrictionValues"
+            [value]="restriction.value">{{restriction.viewValue}}
+        </mat-radio-button>
+    </mat-radio-group>
+
+    <div class="radio-label" *ngIf="configRestriction == 'DATA'">
+        <mat-label>Data versions</mat-label><br>
+    </div>
+    <mat-radio-group *ngIf="configRestriction == 'DATA'" [(ngModel)]="allDataVersions" name="dataVersion">
+        <mat-radio-button *ngFor="let allDataVersionsValue of allDataVersionsValues"
+            [value]="allDataVersionsValue.value">{{allDataVersionsValue.viewValue}}
+        </mat-radio-button>
+    </mat-radio-group><br>
+
+    <div *ngIf="configRestriction == 'STEPS'">
+        <mat-label>Step selection</mat-label><br>
+        <!-- TODO -->
+    </div>
+</div>
+<div class="dialog-actions" mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-button [disabled]="!canExport" (click)="onExport()">Export</button>
+</div>

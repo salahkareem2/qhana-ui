@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { filter, map, mergeMap, take } from 'rxjs/operators';
 import { ServiceRegistryService } from './service-registry.service';
 
@@ -26,6 +26,10 @@ export interface ApiObject {
 
 export interface ApiObjectList<T> extends ApiObject {
     itemCount: number;
+    items: T[];
+}
+
+export interface ApiObjectListWithoutCount<T> extends ApiObject {
     items: T[];
 }
 
@@ -55,6 +59,44 @@ export interface ExperimentDataApiObject extends ApiObject {
 export interface ExperimentDataRef {
     name: string;
     version: string;
+}
+
+export interface ExperimentExportApiObject extends ApiObject {
+    exportId: number;
+}
+
+export interface ExportStatus {
+    exportId: number;
+    experimentId: number;
+    status: "SUCCESS" | "FAILURE" | "PENDING";
+    name: string;
+}
+
+export interface ExportResult extends ExportStatus {
+    fileLink: string | null;
+}
+
+export interface ExperimentExportApiObject extends ApiObject {
+    exportId: number;
+}
+
+export interface ExperimentExportPollObject extends ExperimentExportApiObject {
+    status: string;
+    fileLink?: string;
+}
+
+export interface ExperimentImportApiObject extends ApiObject {
+    progress: number,
+    uploadStatus: "PENDING" | "DONE" | "FAILURE" | "OTHER",
+    importId?: number;
+}
+
+export interface ExperimentImportPollObject extends ApiObject {
+    importId: number,
+    status: string;
+    experimentId?: number;
+    name?: string;
+    description?: string;
 }
 
 export interface TimelineStepQueryFilter {
@@ -125,6 +167,16 @@ export interface TimelineStepResultQuality {
     resultQuality: string;
 }
 
+export interface TimelineStepPageOptions {
+    page?: number;
+    itemCount?: number;
+    sort?: number;
+    pluginName?: string;
+    version?: string;
+    stepStatus?: "SUCCESS" | "PENDING" | "ERROR" | "";
+    unclearedSubstep?: number;
+}
+
 function urlIsString(url: string | null): url is string {
     return url != null;
 }
@@ -138,12 +190,18 @@ export class QhanaBackendService {
 
     private latexUrl: string | null = null;
 
+    private exportUpdatesSubject: Subject<void> = new Subject();
+
     public get backendRootUrl() {
         return this.rootUrl;
     }
 
     public get latexRendererUrl() {
         return this.latexUrl;
+    }
+
+    public getExportUpdates() {
+        return this.exportUpdatesSubject.asObservable();
     }
 
     constructor(private http: HttpClient, private serviceRegistry: ServiceRegistryService) {
@@ -177,9 +235,14 @@ export class QhanaBackendService {
         );
     }
 
-    public getExperimentsPage(page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentApiObject>> {
+    public getExperimentsPage(page: number = 0, itemCount: number = 10, search: string | undefined = undefined, sort: number = 1): Observable<ApiObjectList<ExperimentApiObject>> {
+        let queryParams = new HttpParams();
+        if (search) {
+            queryParams = queryParams.append("search", search);
+        }
+        queryParams = queryParams.append("page", page).append("item-count", itemCount).append("sort", sort);
         return this.callWithRootUrl<ApiObjectList<ExperimentApiObject>>(
-            rootUrl => this.http.get<ApiObjectList<ExperimentApiObject>>(`${rootUrl}/experiments`)
+            rootUrl => this.http.get<ApiObjectList<ExperimentApiObject>>(`${rootUrl}/experiments`, { params: queryParams })
         );
     }
 
@@ -207,10 +270,139 @@ export class QhanaBackendService {
         );
     }
 
-    public getExperimentDataPage(experimentId: number | string, page: number = 0, itemCount: number = 10): Observable<ApiObjectList<ExperimentDataApiObject>> {
-        return this.callWithRootUrl<ApiObjectList<ExperimentDataApiObject>>(
-            rootUrl => this.http.get<ApiObjectList<ExperimentDataApiObject>>(`${rootUrl}/experiments/${experimentId}/data?page=${page}&item-count=${itemCount}`)
+    /**
+     * Export experiment
+     *
+     * @param experimentId experiment id
+     * @param restriction "ALL" for complete experiment, "LOGS" for only steps/substeps, "DATA" for only data files, or "STEPS" for a specified list of steps
+     * @param allDataVersions true if all versions, else only newest
+     * @param stepList specified list of steps
+     * @returns experiment export api object
+     */
+    public exportExperiment(experimentId: number | string, restriction: "ALL" | "LOGS" | "DATA" | "STEPS" = "ALL", allDataVersions: boolean = true, stepList: number[] = []): Observable<ExperimentExportApiObject> {
+        return this.callWithRootUrl<ExperimentExportApiObject>(
+            rootUrl => this.http.post<ExperimentExportApiObject>(`${rootUrl}/experiments/${experimentId}/export`, { restriction, allDataVersions, stepList })
+        ).pipe(map((response) => {
+            this.exportUpdatesSubject.next(); // notify that there was an export
+            return response;
+        }));
+    }
+
+    /**
+     * Poll for result of experiment export
+     *
+     * @param experimentId experiment id
+     * @param exportId id of export resource returned by backend in export step
+     * @returns experiment export poll object with result file link if successful
+     */
+    public exportExperimentPoll(experimentId: number | string, exportId: number | string): Observable<ExperimentExportPollObject> {
+        // TODO: reformat, move pipeline into  callWithRootUrl
+        return this.callWithRootUrl(
+            rootUrl => this.http.get(`${rootUrl}/experiments/${experimentId}/export/${exportId}`, { observe: 'response', responseType: 'arraybuffer' })
+                .pipe(
+                    map(resp => {
+                        if (resp.headers.get("Content-Type") == "application/json") {
+                            return JSON.parse(new TextDecoder().decode(resp.body as ArrayBuffer));
+                        } else if (resp.headers.get("Content-Type") == "application/zip") {
+                            let result: ExperimentExportPollObject = {
+                                '@self': `${rootUrl}/experiments/${experimentId}/export/${exportId}`,
+                                exportId: Number(exportId),
+                                status: 'SUCCESS',
+                                fileLink: `${rootUrl}/experiments/${experimentId}/export/${exportId}`
+                            };
+                            return result;
+                        } else {
+                            throw new Error("Experiment poll returned wrong file format: " + resp.headers.get("Content-Type"));
+                        }
+                    }),
+                )
         );
+    }
+
+    public getExportList(itemCount: number = 10): Observable<ExportResult[]> {
+        let queryParams = new HttpParams().append("item-count", itemCount);
+        return this.callWithRootUrl<ExportResult[]>(
+            rootUrl => this.http.get<ApiObjectListWithoutCount<ExportStatus>>(`${rootUrl}/experiments/export-list`, { params: queryParams })
+                .pipe(
+                    map(resp => {
+                        const exportResultList: ExportResult[] = [];
+                        resp.items.forEach(exportStatus => {
+                            var fileLink: string | null;
+                            if (exportStatus.status == "SUCCESS") {
+                                fileLink = `${rootUrl}/experiments/${exportStatus.experimentId}/export/${exportStatus.exportId}`
+                            } else {
+                                fileLink = null;
+                            }
+                            exportResultList.push({
+                                exportId: exportStatus.exportId,
+                                experimentId: exportStatus.experimentId,
+                                status: exportStatus.status,
+                                name: exportStatus.name,
+                                fileLink: fileLink
+                            })
+                        });
+                        return exportResultList;
+                    }),
+                )
+        );
+    }
+
+    deleteExport(experimentId: number, exportId: number) {
+        return this.callWithRootUrl<void>(
+            rootUrl => this.http.delete(`${rootUrl}/experiments/${experimentId}/export/${exportId}/delete`).pipe(map(() => { this.exportUpdatesSubject.next() }))
+        );
+    }
+
+    public importExperiment(experimentZip: File): Observable<ExperimentImportApiObject> {
+        const formData: FormData = new FormData();
+        formData.append("file", experimentZip, experimentZip.name);
+
+        return this.callWithRootUrl(
+            rootUrl => {
+                return this.http.post(
+                    `${rootUrl}/experiments/import`, formData,
+                    { observe: "events", responseType: "json", reportProgress: true }
+                ).pipe(
+                    map(event => {
+                        if (event.type == HttpEventType.UploadProgress) {
+                            const progress = Math.round(100 * event.loaded / (event.total != null ? event.total : 100));
+                            return {
+                                "@self": `${rootUrl}/experiments/import`,
+                                progress: progress,
+                                uploadStatus: "PENDING"
+                            }
+                        } else if (event instanceof HttpResponse) {
+                            return {
+                                "@self": `${rootUrl}/experiments/import`,
+                                progress: 100,
+                                uploadStatus: "DONE",
+                                importId: JSON.parse(JSON.stringify(event.body)).importId
+                            }
+                        } else {
+                            return {
+                                "@self": `${rootUrl}/experiments/import`,
+                                progress: 0,
+                                uploadStatus: "OTHER",
+                            }
+                        }
+                    }),
+                )
+            });
+    }
+
+    public importExperimentPoll(importId: number): Observable<ExperimentImportPollObject> {
+        return this.callWithRootUrl<ExperimentImportPollObject>(
+            rootUrl => this.http.get<ExperimentImportPollObject>(`${rootUrl}/experiments/import/${importId}`, { responseType: "json" }));
+    }
+
+    public getExperimentDataPage(experimentId: number | string, allVersions: boolean = true, search: string | null = null, page: number = 0, itemCount: number = 10, sort: number = 1): Observable<ApiObjectList<ExperimentDataApiObject>> {
+        let queryParams = new HttpParams().append("all-versions", allVersions);
+        if (search) {
+            queryParams = queryParams.append("search", search);
+        }
+        queryParams = queryParams.append("page", page).append("item-count", itemCount).append("sort", sort);
+        return this.callWithRootUrl<ApiObjectList<ExperimentDataApiObject>>(
+            rootUrl => this.http.get<ApiObjectList<ExperimentDataApiObject>>(`${rootUrl}/experiments/${experimentId}/data`, { params: queryParams }));
     }
 
     public getExperimentData(experimentId: number | string, dataName: string, version: string = "latest"): Observable<ExperimentDataApiObject> {
@@ -242,20 +434,18 @@ export class QhanaBackendService {
         );
     }
 
-    public getTimelineStepsPage(experimentId: number | string, page: number = 0, query: TimelineStepQueryFilter = {}): Observable<ApiObjectList<TimelineStepApiObject>> {
-        const search = new URLSearchParams([["page", page.toString()], ["item-count", query.itemCount?.toString() ?? "10"]]);
-        if (query.pluginName != null) {
-            search.set("plugin-name", query.pluginName);
-        }
-        if (query.version != null) {
-            search.set("version", query.version);
-        }
-        if (query.sort != null) {
-            search.set("sort", query.sort.toString());
-        }
+    public getTimelineStepsPage(experimentId: number | string, { page = 0, itemCount = 10, sort = 1, pluginName = "", version = "", stepStatus = "", unclearedSubstep = 0 }: TimelineStepPageOptions): Observable<ApiObjectList<TimelineStepApiObject>> {
+        const queryParams = new HttpParams()
+            .append("plugin-name", pluginName)
+            .append("version", version)
+            .append("status", stepStatus)
+            .append("uncleared-substep", unclearedSubstep)
+            .append("page", page)
+            .append("item-count", itemCount)
+            .append("sort", sort);
         return this.callWithRootUrl<ApiObjectList<TimelineStepApiObject>>(
             rootUrl => this.http.get<ApiObjectList<TimelineStepApiObject>>(
-                `${rootUrl}/experiments/${experimentId}/timeline?${search.toString()}`
+                `${rootUrl}/experiments/${experimentId}/timeline`, { params: queryParams }
             )
         );
     }
@@ -298,7 +488,7 @@ export class QhanaBackendService {
 
     public getTimelineSubStep(experimentId: number | string, step: number | string, substep: number | string): Observable<TimelineSubStepApiObject> {
         return this.callWithRootUrl<TimelineSubStepApiObject>(
-            rootUrl => this.http.get<TimelineSubStepApiObject>(`${this.rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`)
+            rootUrl => this.http.get<TimelineSubStepApiObject>(`${rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`)
         );
     }
 }
