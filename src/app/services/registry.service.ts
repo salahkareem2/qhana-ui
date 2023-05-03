@@ -144,14 +144,11 @@ export class PluginRegistryBaseService {
     }
 
 
-    private async cacheResults(request: RequestInfo, responseData: ApiResponse<unknown>) {
+    private async cacheResults(request: RequestInfo, responseData: ApiResponse<unknown>, embedded?: Array<ApiResponse<unknown>>) {
         if (this.apiCache == null) {
             return;
         }
         const isGet = typeof request === "string" || request.method === "GET";
-
-        const embedded = responseData?.embedded;
-        delete responseData.embedded; // nothing outside of caching must depend on this!
 
         if (isGet) {
             // only cache the whole response for get requests
@@ -196,10 +193,9 @@ export class PluginRegistryBaseService {
         }
     }
 
-    private async broadcastToSubscriptions(responseData: ApiResponse<unknown>) {
+    private async broadcastToSubscriptions(responseData: ApiResponse<unknown>, embedded?: Array<ApiResponse<unknown>>) {
         this.apiResponseSubject.next(responseData);
 
-        const embedded = responseData?.embedded;
         if (embedded != null) {
             for (const response of embedded) {
                 this.apiResponseSubject.next(response);
@@ -224,8 +220,11 @@ export class PluginRegistryBaseService {
             const responseData = await response.json() as T;
 
             if (isApiResponse(responseData)) {
-                await this.cacheResults(input, responseData);
-                await this.broadcastToSubscriptions(responseData);
+                const embedded = responseData?.embedded;
+                delete responseData.embedded; // nothing outside of caching must depend on this!
+
+                await this.cacheResults(input, responseData, embedded);
+                await this.broadcastToSubscriptions(responseData, embedded);
             }
 
             return responseData;
