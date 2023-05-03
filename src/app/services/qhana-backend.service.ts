@@ -248,13 +248,13 @@ export class QhanaBackendService {
 
     public createExperiment(name: string, description: string): Observable<ExperimentApiObject> {
         return this.callWithRootUrl<ExperimentApiObject>(
-            rootUrl => this.http.post<ExperimentApiObject>(`${rootUrl}/experiments`, { name, description, withCredentials: true })
+            rootUrl => this.http.post<ExperimentApiObject>(`${rootUrl}/experiments`, { name, description}, { withCredentials: true })
         );
     }
 
     public getExperiment(experimentId: number | string): Observable<ExperimentApiObject> {
         return this.callWithRootUrl<ExperimentApiObject>(
-            rootUrl => this.http.get<ExperimentApiObject>(`${rootUrl}/experiments/${experimentId}`, {withCredentials: true})
+            rootUrl => this.http.get<ExperimentApiObject>(`${rootUrl}/experiments/${experimentId}`, { withCredentials: true })
         );
     }
 
@@ -281,7 +281,7 @@ export class QhanaBackendService {
      */
     public exportExperiment(experimentId: number | string, restriction: "ALL" | "LOGS" | "DATA" | "STEPS" = "ALL", allDataVersions: boolean = true, stepList: number[] = []): Observable<ExperimentExportApiObject> {
         return this.callWithRootUrl<ExperimentExportApiObject>(
-            rootUrl => this.http.post<ExperimentExportApiObject>(`${rootUrl}/experiments/${experimentId}/export`, { restriction, allDataVersions, stepList, withCredentials: true })
+            rootUrl => this.http.post<ExperimentExportApiObject>(`${rootUrl}/experiments/${experimentId}/export`, { restriction, allDataVersions, stepList }, { withCredentials: true })
         ).pipe(map((response) => {
             this.exportUpdatesSubject.next(); // notify that there was an export
             return response;
