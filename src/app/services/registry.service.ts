@@ -332,7 +332,10 @@ export class PluginRegistryBaseService {
             return;
         }
         try {
-            const api_root = await this._fetch<ApiResponse<GenericApiObject>>(this.rootUrl, true);
+            let req = new Request(this.rootUrl, {
+                credentials: "include"
+            });
+            const api_root = await this._fetch<ApiResponse<GenericApiObject>>(req, true);
             if (api_root == null) {
                 apiRootSubject.error("Api Root URL not found!");
                 apiRootSubject.complete();
@@ -368,7 +371,10 @@ export class PluginRegistryBaseService {
                 return nextLink;
             }
             // not the last rel
-            base = await this._fetch<ApiResponse<unknown>>(nextLink.href);
+            let req = new Request(nextLink.href, {
+                credentials: "include"
+            });
+            base = await this._fetch<ApiResponse<unknown>>(req);
         }
         return null;
     }
@@ -393,7 +399,10 @@ export class PluginRegistryBaseService {
                     continue; // link already searched
                 }
                 visited.add(link.href);
-                const newBase = await this._fetch<ApiResponse<unknown>>(link.href, false);
+                let req = new Request(link.href, {
+                    credentials: "include"
+                });
+                const newBase = await this._fetch<ApiResponse<unknown>>(req, false);
                 if (newBase == null) {
                     continue;
                 }
@@ -435,7 +444,10 @@ export class PluginRegistryBaseService {
                     return;
                 }
                 visited?.add(link.href);
-                const new_base = await this._fetch<ApiResponse<unknown>>(link.href, ignoreCache);
+                let req = new Request(link.href, {
+                    credentials: "include"
+                });
+                const new_base = await this._fetch<ApiResponse<unknown>>(req, ignoreCache);
                 if (new_base != null) {
                     this.prefetchRelsRecursive(rel, new_base, ignoreCache, visited);
                 }
@@ -467,7 +479,10 @@ export class PluginRegistryBaseService {
     public async getByApiLink<T>(link: ApiLink, searchParams: URLSearchParams | null = null, ignoreCache: boolean | "ignore-embedded" = false): Promise<ApiResponse<T> | null> {
         const url = new URL(link.href)
         searchParams?.forEach((value, key) => url.searchParams.append(key, value));
-        return await this._fetch<ApiResponse<T>>(url.toString(), ignoreCache);
+        let req = new Request(url.toString(), {
+            credentials: "include"
+        });
+        return await this._fetch<ApiResponse<T>>(req, ignoreCache);
     }
 
     public async submitByApiLink<T>(link: ApiLink, data?: any, signal?: AbortSignal, authentication?: string): Promise<ApiResponse<T> | null> {
@@ -486,7 +501,10 @@ export class PluginRegistryBaseService {
         if (signal != null) {
             init.signal = signal;
         }
-        return await this._fetch<ApiResponse<T>>(link.href, true, init);
+        let req = new Request(link.href, {
+            credentials: "include"
+        });
+        return await this._fetch<ApiResponse<T>>(req, true, init);
     }
 
     public async fetch<T>(input: RequestInfo, init?: RequestInit, ignoreCache: boolean | "ignore-embedded" = false): Promise<T | null> {
