@@ -196,10 +196,9 @@ export class PluginRegistryBaseService {
         }
     }
 
-    private async broadcastToSubscriptions(responseData: ApiResponse<unknown>) {
+    private async broadcastToSubscriptions(responseData: ApiResponse<unknown>, embedded?: Array<ApiResponse<unknown>>) {
         this.apiResponseSubject.next(responseData);
 
-        const embedded = responseData?.embedded;
         if (embedded != null) {
             for (const response of embedded) {
                 this.apiResponseSubject.next(response);
@@ -224,8 +223,9 @@ export class PluginRegistryBaseService {
             const responseData = await response.json() as T;
 
             if (isApiResponse(responseData)) {
+                const embedded = responseData?.embedded;
                 await this.cacheResults(input, responseData);
-                await this.broadcastToSubscriptions(responseData);
+                await this.broadcastToSubscriptions(responseData, embedded);
             }
 
             return responseData;
