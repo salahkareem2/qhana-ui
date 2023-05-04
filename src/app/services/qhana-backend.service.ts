@@ -210,7 +210,7 @@ export class QhanaBackendService {
     }
 
     public getPluginEndpoints(): Observable<ApiObjectList<PluginEndpointApiObject>> {
-        return this.http.get<ApiObjectList<PluginEndpointApiObject>>(`${this.rootUrl}/plugin-endpoints`, {withCredentials: true});
+        return this.http.get<ApiObjectList<PluginEndpointApiObject>>(`${this.rootUrl}/plugin-endpoints`, { withCredentials: true });
     }
 
     public addPluginEndpoint(url: string, type?: string): Observable<PluginEndpointApiObject> {
@@ -218,7 +218,7 @@ export class QhanaBackendService {
         if (type != null) {
             body.type = type;
         }
-        return this.http.post<PluginEndpointApiObject>(`${this.rootUrl}/plugin-endpoints`, body, {withCredentials: true});
+        return this.http.post<PluginEndpointApiObject>(`${this.rootUrl}/plugin-endpoints`, body, { withCredentials: true });
     }
 
     private callWithRootUrl<T>(callback: (url: string) => Observable<T>): Observable<T> {
@@ -408,7 +408,7 @@ export class QhanaBackendService {
     public getExperimentData(experimentId: number | string, dataName: string, version: string = "latest"): Observable<ExperimentDataApiObject> {
         const versionQuery = `?version=${version != null ? version : 'latest'}`
         return this.callWithRootUrl<ExperimentDataApiObject>(
-            rootUrl => this.http.get<any>(`${rootUrl}/experiments/${experimentId}/data/${dataName}${versionQuery}`, {withCredentials: true}).pipe(map(data => {
+            rootUrl => this.http.get<any>(`${rootUrl}/experiments/${experimentId}/data/${dataName}${versionQuery}`, { withCredentials: true }).pipe(map(data => {
                 const dataObject: ExperimentDataApiObject = {
                     "@self": data["@self"],
                     download: data.download,
@@ -452,19 +452,19 @@ export class QhanaBackendService {
 
     public createTimelineStep(experimentId: number | string, stepData: TimelineStepPostData): Observable<TimelineStepApiObject> {
         return this.callWithRootUrl<TimelineStepApiObject>(
-            rootUrl => this.http.post<TimelineStepApiObject>(`${rootUrl}/experiments/${experimentId}/timeline`, stepData, {withCredentials: true})
+            rootUrl => this.http.post<TimelineStepApiObject>(`${rootUrl}/experiments/${experimentId}/timeline`, stepData, { withCredentials: true })
         );
     }
 
     public getTimelineStep(experimentId: number | string, step: number | string): Observable<TimelineStepApiObject> {
         return this.callWithRootUrl<TimelineStepApiObject>(
-            rootUrl => this.http.get<TimelineStepApiObject>(`${rootUrl}/experiments/${experimentId}/timeline/${step}`, {withCredentials: true})
+            rootUrl => this.http.get<TimelineStepApiObject>(`${rootUrl}/experiments/${experimentId}/timeline/${step}`, { withCredentials: true })
         );
     }
 
     public getTimelineStepNotes(experimentId: number | string, step: number | string): Observable<TimelineStepNotesApiObject> {
         return this.callWithRootUrl<TimelineStepNotesApiObject>(
-            rootUrl => this.http.get<TimelineStepNotesApiObject>(`${rootUrl}/experiments/${experimentId}/timeline/${step}/notes`, {withCredentials: true})
+            rootUrl => this.http.get<TimelineStepNotesApiObject>(`${rootUrl}/experiments/${experimentId}/timeline/${step}/notes`, { withCredentials: true })
         );
     }
 
@@ -482,13 +482,13 @@ export class QhanaBackendService {
 
     public saveSubStepInputData(experimentId: number | string, step: number | string, substep: number | string, data: TimelineSubStepPostData): Observable<TimelineSubStepApiObject> {
         return this.callWithRootUrl<TimelineSubStepApiObject>(
-            rootUrl => this.http.post<TimelineSubStepApiObject>(`${rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`, data, {withCredentials: true})
+            rootUrl => this.http.post<TimelineSubStepApiObject>(`${rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`, data, { withCredentials: true })
         );
     }
 
     public getTimelineSubStep(experimentId: number | string, step: number | string, substep: number | string): Observable<TimelineSubStepApiObject> {
         return this.callWithRootUrl<TimelineSubStepApiObject>(
-            rootUrl => this.http.get<TimelineSubStepApiObject>(`${rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`, {withCredentials: true})
+            rootUrl => this.http.get<TimelineSubStepApiObject>(`${rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`, { withCredentials: true })
         );
     }
 }
