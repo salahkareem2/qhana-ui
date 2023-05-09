@@ -1,0 +1,54 @@
+<div class="content-container">
+    <div class="title">
+        <h1 class="t-page-headline">Template: {{templateObject?.name}}</h1>
+    </div>
+
+    <mat-card>
+        <div class="card-header">
+            <h2>Template Details</h2>
+            <button mat-icon-button aria-label="Edit item" (click)="updateTemplate()">
+                <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Delete item" (click)="deleteTemplate()">
+                <mat-icon>delete</mat-icon>
+            </button>
+        </div>
+        <mat-card-content>
+            <p>Name: {{templateObject?.name}}</p>
+            <p>Description: {{templateObject?.description}}</p>
+            <p>Tags:</p>
+            <mat-chip-list>
+                <mat-chip *ngFor="let tag of templateObject?.tags">
+                    {{tag}}
+                </mat-chip>
+            </mat-chip-list>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-accordion [multi]="false">
+        <mat-expansion-panel [expanded]="createTabOpen" (opened)="selectTab('new')">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    New Template Tab
+                </mat-panel-title>
+                <mat-panel-description>
+                    Create a new tab for this template.
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <qhana-template-details [templateLink]="templateLink"></qhana-template-details>
+        </mat-expansion-panel>
+        <mat-divider></mat-divider>
+        <mat-expansion-panel *ngFor="let tab of templateTabLinks" [expanded]="tabId == tab.resourceKey?.uiTemplateTabId" 
+            (opened)="selectTab(tab.resourceKey?.uiTemplateTabId ?? null)">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    {{tab.name}}
+                </mat-panel-title>
+                <mat-panel-description>
+                    TODO: load tab description
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <qhana-template-details [tabLink]="tab"></qhana-template-details>
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>

@@ -1,5 +1,4 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -33,20 +32,13 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     selectedTemplate: ApiLink | null = null;
     selectedTemplateName: string | "All Plugins" = "All Plugins";
-    selectedTemplateObject: TemplateApiObject | null = null;
     selectedTemplateTabsLink: ApiLink | null = null;
-    newTemplateName: string = "";
-    newTemplateDescription: string = "";
-    createTabForm = new FormGroup({
-        tabName: new FormControl('', [
-            Validators.required,
-            Validators.minLength(1),
-        ])
-    });
 
     highlightedTemplates: Set<string> = new Set();
 
     highlightedPlugins: Set<string> = new Set();
+
+    highlightedTemplateTabs: Set<string> = new Set();
 
     defaultPluginGroups: PluginGroup[] = [];
 
@@ -57,6 +49,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     // route params
     templateId: string | null = null;
     pluginId: string | null = null;
+    tabId: string | null = null;
 
     private routeParamSubscription: Subscription | null = null;
 
@@ -70,6 +63,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         this.route.queryParamMap.subscribe(params => {
             this.templateId = params.get('template');
             this.pluginId = params.get('plugin');
+            this.tabId = params.get('tab');
             if (this.templateId != null) {
                 this.highlightedTemplates = new Set<string>([this.templateId]);
             } else {
@@ -79,6 +73,11 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 this.highlightedPlugins = new Set<string>([this.pluginId]);
             } else {
                 this.highlightedPlugins.clear();
+            }
+            if (this.tabId != null) {
+                this.highlightedTemplateTabs = new Set<string>([this.tabId]);
+            } else {
+                this.highlightedTemplateTabs.clear();
             }
             this.loadActiveTemplateFromId(this.templateId);
         });
@@ -134,7 +133,6 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         if (activeTemplate == null) {
             this.selectedTemplate = null;
             this.selectedTemplateName = "All Plugins";
-            this.selectedTemplateObject = null;
             this.activeArea = "plugins";
             this.pluginGroups = this.defaultPluginGroups;
             return;
@@ -149,7 +147,6 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         const pluginGroups: PluginGroup[] = [];
         this.pluginGroups = pluginGroups;
         const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(activeTemplate);
-        this.selectedTemplateObject = templateResponse?.data ?? null;
         const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
         this.selectedTemplateTabsLink = workspaceGroupLink ?? null;
         if (workspaceGroupLink == null) {
@@ -272,12 +269,17 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         this.sidebarOpen = pluginId == null; // always close sidebar after successfully selecting plugin
     }
 
-    selectTab(tabLink: ApiLink) {
-        let templateId = tabLink.resourceKey?.uiTemplateId ?? null;
-        let tabId = tabLink.resourceKey?.uiTemplateTabId ?? null;
-        if (this.templateId !== templateId) {
-            this.templateId = templateId;
-            console.warn("The template id in the given link does not match the selected template id!", tabLink);
+    selectTab(tabLink: ApiLink | null) {
+        let templateId = this.templateId;
+        let tabId = null;
+
+        if (tabLink != null) {
+            templateId = tabLink.resourceKey?.uiTemplateId ?? null;
+            tabId = tabLink.resourceKey?.uiTemplateTabId ?? null;
+            if (this.templateId !== templateId) {
+                this.templateId = templateId;
+                console.warn("The template id in the given link does not match the selected template id!", tabLink);
+            }
         }
         this.router.navigate([], {
             relativeTo: this.route,
@@ -299,43 +301,6 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             return;
         }
         this.templates.addTemplate(templateData);
-    }
-
-    createTemplateTab() {
-        if (!this.selectedTemplate || !this.createTabForm.valid) {
-            return;
-        }
-        this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate).then(response => {
-            let createLink = response?.links?.find(link => link.rel.some(rel => rel === "create") && link.resourceType == "ui-template-tab") ?? null;
-            if (createLink && this.createTabForm.value.tabName) {
-                this.templates.updateTab(createLink, this.createTabForm.value.tabName);
-            }
-        });
-    }
-
-    // TODO: separate function to update template
-    async updateTemplate() {
-        if (this.selectedTemplate == null) {
-            return;
-        }
-
-        let template: TemplateApiObject | null = null;
-        let updateLink: ApiLink | null = null;
-        let response = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate);
-        template = response?.data ?? null;
-        updateLink = response?.links?.find(link => link.rel.some(rel => rel === "update") && link.resourceType == "ui-template") ?? null;
-
-        const dialogRef = this.dialog.open(ChangeUiTemplateComponent, { data: { template: template }, minWidth: "20rem", maxWidth: "40rem", width: "60%" });
-        const templateData: TemplateApiObject = await dialogRef.afterClosed().toPromise();
-
-        if (!templateData) {
-            return;
-        }
-
-        if (updateLink) {
-            this.templates.updateTemplate(updateLink, templateData);
-            // TODO: update template list
-        }
     }
 
     async deleteSelectedTemplate() {

@@ -74,6 +74,7 @@ import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component
 import { ChangeUiTemplateComponent } from './dialogs/change-ui-template/change-ui-template.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TemplateDetailsComponent } from './components-small/template-details/template-details.component';
+import { ExperimentWorkspaceDetailComponent } from './components/experiment-workspace-detail/experiment-workspace-detail.component';
 
 @NgModule({
     declarations: [
@@ -113,6 +114,7 @@ import { TemplateDetailsComponent } from './components-small/template-details/te
         PluginTabComponent,
         ChangeUiTemplateComponent,
         TemplateDetailsComponent,
+        ExperimentWorkspaceDetailComponent,
     ],
     imports: [
         BrowserModule,
