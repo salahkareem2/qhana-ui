@@ -3,12 +3,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/change-ui-template.component';
 import { DeleteDialog } from 'src/app/dialogs/delete-dialog/delete-dialog.dialog';
 import { ApiLink, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TemplateTabApiObject } from 'src/app/services/templates.service';
 import { TemplateApiObject } from 'src/app/services/templates.service';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
     selector: 'qhana-experiment-workspace-detail',
@@ -17,14 +18,23 @@ import { TemplateApiObject } from 'src/app/services/templates.service';
 })
 export class ExperimentWorkspaceDetailComponent implements OnInit {
 
+    readonly separatorKeysCodes = [ENTER, COMMA] as const;
+
     templateId: string | null = null;
     tabId: string | null | undefined = null;
+
     templateObject: TemplateApiObject | null = null;
     tabObject: TemplateTabApiObject | null = null;
+
     templateLink: ApiLink | null = null;
     tabLink: ApiLink | null = null;
     templateTabLinks: ApiLink[] = [];
-    createTabOpen: boolean = true;
+
+    createTabOpen: boolean = false;
+
+    editTemplateName: string | null = null;
+    editTemplateDescription: string | null = null;
+    editTemplateTags: string[] = [];
 
     // TODO: add validators
     templateForm: FormGroup = this.fb.group({
@@ -66,7 +76,6 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                 this.tabId = tabId;
                 this.tabLink = this.templateTabLinks.find(link => link.resourceKey?.["uiTemplateTabId"] === tabId) ?? null;
                 if (this.tabLink == null) {
-                    console.warn("Tab not found");
                     return;
                 }
                 const tab = await this.registry.getByApiLink<TemplateTabApiObject>(this.tabLink);
@@ -117,7 +126,6 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     }
 
     selectTab(tabId: string | null) {
-
         if (tabId === 'new') {
             this.createTabOpen = true;
             tabId = null;
@@ -132,6 +140,29 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
             },
             queryParamsHandling: 'merge',
         });
+    }
+
+    editTemplate() {
+        this.editTemplateName = this.templateObject?.name ?? null;
+        this.editTemplateDescription = this.templateObject?.description ?? null;
+        this.editTemplateTags = this.templateObject?.tags ?? [];
+    }
+
+    addTag(event: MatChipInputEvent) {
+        const value = event.value;
+        if (!value || this.editTemplateTags?.includes(value)) {
+            return;
+        }
+        this.editTemplateTags?.push(value);
+        event.chipInput!.clear();
+    }
+
+    removeTag(tag: string) {
+        // remove tag from editTemplateObject
+        const index = this.editTemplateTags.indexOf(tag);
+        if (index !== undefined && index > -1) {
+            this.editTemplateTags.splice(index, 1);
+        }
     }
 
     async deleteTemplate() {
@@ -157,29 +188,32 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
         }
 
         // TODO: deselect template
-        // this.selectTemplate(null);
+    }
+
+    cancelEditTemplate() {
+        this.editTemplateName = null;
+        this.editTemplateDescription = null;
+        this.editTemplateTags = [];
     }
 
     async updateTemplate() {
         if (this.templateLink == null) {
+            console.warn("No template selected");
             return;
         }
 
-        let template: TemplateApiObject | null = null;
         let updateLink: ApiLink | null = null;
         let response = await this.registry.getByApiLink<TemplateApiObject>(this.templateLink);
-        template = response?.data ?? null;
         updateLink = response?.links?.find(link => link.rel.some(rel => rel === "update") && link.resourceType == "ui-template") ?? null;
 
-        const dialogRef = this.dialog.open(ChangeUiTemplateComponent, { data: { template: template }, minWidth: "20rem", maxWidth: "40rem", width: "60%" });
-        const templateData: TemplateApiObject = await dialogRef.afterClosed().toPromise();
-
-        if (!templateData) {
-            return;
-        }
-
         if (updateLink) {
-            this.registry.submitByApiLink<TemplateApiObject>(updateLink, templateData);
+            this.registry.submitByApiLink<TemplateApiObject>(updateLink, {
+                name: this.editTemplateName,
+                description: this.editTemplateDescription,
+                tags: this.editTemplateTags
+            });
         }
+
+        this.cancelEditTemplate();
     }
 }

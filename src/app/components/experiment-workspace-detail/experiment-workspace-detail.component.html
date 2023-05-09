@@ -6,7 +6,7 @@
     <mat-card>
         <div class="card-header">
             <h2>Template Details</h2>
-            <button mat-icon-button aria-label="Edit item" (click)="updateTemplate()">
+            <button mat-icon-button aria-label="Edit item" (click)="editTemplate()">
                 <mat-icon>edit</mat-icon>
             </button>
             <button mat-icon-button aria-label="Delete item" (click)="deleteTemplate()">
@@ -14,14 +14,41 @@
             </button>
         </div>
         <mat-card-content>
-            <p>Name: {{templateObject?.name}}</p>
-            <p>Description: {{templateObject?.description}}</p>
-            <p>Tags:</p>
-            <mat-chip-list>
-                <mat-chip *ngFor="let tag of templateObject?.tags">
-                    {{tag}}
-                </mat-chip>
-            </mat-chip-list>
+            <ng-container *ngIf="editTemplateName">
+                <mat-form-field class="form-field">
+                    <mat-label>Name</mat-label>
+                    <input matInput [(ngModel)]="editTemplateName" required minlength="1">
+                </mat-form-field>
+                <mat-form-field class="form-field">
+                    <mat-label>Description</mat-label>
+                    <textarea matInput [(ngModel)]="editTemplateDescription"></textarea>
+                </mat-form-field>
+                <mat-form-field class="form-field">
+                    <mat-label>Tags</mat-label>
+                    <mat-chip-list #chiplist>
+                        <mat-chip *ngFor="let tag of editTemplateTags" [selectable]="true" [removable]="true" (removed)="removeTag(tag)">
+                            {{tag}}
+                            <mat-icon matChipRemove>cancel</mat-icon>
+                        </mat-chip>
+                        <input matInput [matChipInputFor]="chiplist" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                            [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addTag($event)">
+                    </mat-chip-list>
+                </mat-form-field>
+                <div class="edit-template-buttons">
+                    <button mat-raised-button color="primary" (click)="updateTemplate()">Update Template</button>
+                    <button mat-raised-button (click)="cancelEditTemplate()">Cancel</button>
+                </div>
+            </ng-container>
+            <ng-container *ngIf="!editTemplateName">
+                <p>Name: {{templateObject?.name}}</p>
+                <p>Description: {{templateObject?.description}}</p>
+                <p>Tags:</p>
+                <mat-chip-list>
+                    <mat-chip *ngFor="let tag of templateObject?.tags">
+                        {{tag}}
+                    </mat-chip>
+                </mat-chip-list>
+            </ng-container>
         </mat-card-content>
     </mat-card>
 
