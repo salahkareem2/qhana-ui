@@ -68,10 +68,8 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             return from(result);
         })).subscribe();
 
-
         if (this.apiLink != null) {
             this.replaceApiLink(this.apiLink);
-            return;
         }
         const rels = this.rels
         if (rels != null) {

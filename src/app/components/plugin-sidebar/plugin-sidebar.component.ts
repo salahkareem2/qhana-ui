@@ -2,6 +2,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild, Output, EventEmitt
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/change-ui-template.component';
 import { DeleteDialog } from 'src/app/dialogs/delete-dialog/delete-dialog.dialog';
 import { ApiLink, ApiResponse, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
@@ -100,6 +101,38 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 this.switchActiveTemplateLink(template?.self ?? null);
             }
         });
+        this.registry.newApiObjectSubject
+            .pipe(filter(newObject => newObject.new.resourceType === "ui-template-tab"))
+            .subscribe(async newObject => {
+                if (this.templateId !== newObject.new.resourceKey?.uiTemplateId || this.selectedTemplate == null) {
+                    return;
+                }
+                if (this.selectedTemplateTabsLink == null && this.selectedTemplate != null) {
+                    // TODO: set this.selectedTemplateTabsLink (doesn't exist before first template tab is created)
+                    const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate);
+                    const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
+                }
+                const tabResponse = await this.registry.getByApiLink<TemplateTabApiObject>(newObject.new);
+                if (tabResponse) {
+                    this.pluginGroups.push({
+                        name: tabResponse.data.name,
+                        open: false,
+                        description: tabResponse.data.description,
+                        link: tabResponse.data.plugins,
+                    });
+                }
+                if (this.activeArea === "detail") {
+                    this.selectTab(newObject.new);
+                }
+            });
+        this.registry.deletedApiObjectSubject
+            .pipe(filter(deletedObject => deletedObject.deleted.resourceType === "ui-template-tab"))
+            .subscribe(deletedObject => {
+                if (this.templateId !== deletedObject.deleted.resourceKey?.uiTemplateId || this.selectedTemplate == null) {
+                    return;
+                }
+                this.pluginGroups = this.pluginGroups.filter(group => group.link.resourceKey?.['?template-tab'] !== deletedObject.deleted.resourceKey?.uiTemplateTabId);
+            });
     }
 
     ngOnDestroy(): void {

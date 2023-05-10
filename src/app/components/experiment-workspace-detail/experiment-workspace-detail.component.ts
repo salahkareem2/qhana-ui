@@ -30,9 +30,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     tabLink: ApiLink | null = null;
     templateTabLinks: ApiLink[] = [];
 
-    templateTabDescriptions: { [id: string] : string} = {'' : ''};
-
-    createTabOpen: boolean = false;
+    templateTabDescriptions: { [id: string]: string } = { '': '' };
 
     editTemplateName: string | null = null;
     editTemplateDescription: string | null = null;
@@ -95,7 +93,6 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
             }
         });
 
-
         this.registry.deletedApiObjectSubject
             .pipe(filter(deletedObject => deletedObject.deleted.resourceType === "ui-template" || deletedObject.deleted.resourceType === "ui-template-tab"))
             .subscribe(deletedObject => {
@@ -112,6 +109,21 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                         },
                         queryParamsHandling: 'merge',
                     });
+                }
+                if (deletedObject.deleted.resourceKey?.uiTemplateTabId && deletedObject.deleted.resourceKey?.uiTemplateTabId in this.templateTabDescriptions) {
+                    delete this.templateTabDescriptions[deletedObject.deleted.resourceKey?.uiTemplateTabId];
+                    this.templateTabLinks = this.templateTabLinks.filter(link => link.resourceKey?.uiTemplateTabId !== deletedObject.deleted.resourceKey?.uiTemplateTabId);
+                }
+            });
+
+        this.registry.newApiObjectSubject
+            .pipe(filter(newObject => newObject.new.resourceType === "ui-template-tab"))
+            .subscribe(async newObject => {
+                const tabId = newObject.new.resourceKey?.uiTemplateTabId;
+                if (tabId != null) {
+                    const tab = await this.registry.getByApiLink<TemplateTabApiObject>(newObject.new);
+                    this.templateTabDescriptions[tabId] = tab?.data?.description ?? '';
+                    this.templateTabLinks.push(newObject.new);
                 }
             });
     }
@@ -135,12 +147,6 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     }
 
     selectTab(tabId: string | null) {
-        if (tabId === 'new') {
-            this.createTabOpen = true;
-            tabId = null;
-        } else {
-            this.createTabOpen = false;
-        }
         this.router.navigate([], {
             relativeTo: this.route,
             preserveFragment: true,
