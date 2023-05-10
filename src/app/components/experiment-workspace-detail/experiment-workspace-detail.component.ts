@@ -186,8 +186,6 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
         if (doDelete) {
             this.registry.submitByApiLink(deleteLink);
         }
-
-        // TODO: deselect template
     }
 
     cancelEditTemplate() {

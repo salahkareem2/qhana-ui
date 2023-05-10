@@ -46,7 +46,11 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
 
     registerParameterSubscription() {
         this.parameterSubscription = this.route.queryParamMap.subscribe(params => {
+            const templateId = params.get('template');
             const pluginId = params.get('plugin');
+            if (templateId == null) {
+                this.detailAreaActive = false;
+            }
             this.onPluginIdChange(pluginId);
         });
     }
