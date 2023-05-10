@@ -72,7 +72,7 @@
                     {{tab.name}}
                 </mat-panel-title>
                 <mat-panel-description>
-                    TODO: load tab description
+                    {{templateTabDescriptions[tab.resourceKey?.uiTemplateTabId ?? '']}}
                 </mat-panel-description>
             </mat-expansion-panel-header>
             <qhana-template-details [tabLink]="tab"></qhana-template-details>

@@ -8,7 +8,7 @@ import { ApiLink, CollectionApiObject, PageApiObject } from 'src/app/services/ap
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TemplateTabApiObject } from 'src/app/services/templates.service';
 import { TemplateApiObject } from 'src/app/services/templates.service';
-import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 
 @Component({
@@ -29,6 +29,8 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     templateLink: ApiLink | null = null;
     tabLink: ApiLink | null = null;
     templateTabLinks: ApiLink[] = [];
+
+    templateTabDescriptions: { [id: string] : string} = {'' : ''};
 
     createTabOpen: boolean = false;
 
@@ -71,6 +73,13 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                 }
                 const tabsResponse = await this.registry.getByApiLink<CollectionApiObject>(workspaceGroupLink);
                 this.templateTabLinks = tabsResponse?.data?.items ?? [];
+
+                tabsResponse?.data?.items?.forEach(async tabLink => {
+                    const tab = await this.registry.getByApiLink<TemplateTabApiObject>(tabLink);
+                    if (tabLink.resourceKey?.uiTemplateTabId && tab?.data) {
+                        this.templateTabDescriptions[tabLink.resourceKey.uiTemplateTabId] = tab?.data.description ?? '';
+                    }
+                });
             }
             if (tabId !== this.tabId) {
                 this.tabId = tabId;
@@ -148,6 +157,12 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
         this.editTemplateTags = this.templateObject?.tags ?? [];
     }
 
+    cancelEditTemplate() {
+        this.editTemplateName = null;
+        this.editTemplateDescription = null;
+        this.editTemplateTags = [];
+    }
+
     addTag(event: MatChipInputEvent) {
         const value = event.value;
         if (!value || this.editTemplateTags?.includes(value)) {
@@ -158,7 +173,6 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     }
 
     removeTag(tag: string) {
-        // remove tag from editTemplateObject
         const index = this.editTemplateTags.indexOf(tag);
         if (index !== undefined && index > -1) {
             this.editTemplateTags.splice(index, 1);
@@ -186,12 +200,6 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
         if (doDelete) {
             this.registry.submitByApiLink(deleteLink);
         }
-    }
-
-    cancelEditTemplate() {
-        this.editTemplateName = null;
-        this.editTemplateDescription = null;
-        this.editTemplateTags = [];
     }
 
     async updateTemplate() {
