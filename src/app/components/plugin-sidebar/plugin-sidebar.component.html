@@ -5,7 +5,7 @@
             (click)="switchActiveArea('templates')">
             <mat-icon>menu_open</mat-icon>
         </button>
-        <button mat-ripple class="sidebar-button {{(activeArea === 'detail') ? 'active' : ''}}"
+        <button mat-ripple class="sidebar-button {{(activeArea === 'detail') ? 'active' : ''}}" *ngIf="selectedTemplate"
             matTooltip="Template Details" matTooltipPosition="after" aria-label="template details"
             (click)="switchActiveArea('detail')">
             <mat-icon>info</mat-icon>
