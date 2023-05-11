@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, TrackByFunction } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, TrackByFunction } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { from, isObservable, Observable, Subject, Subscription } from 'rxjs';
 import { concatMap, filter } from 'rxjs/operators';
@@ -100,12 +100,6 @@ export class GrowingListComponent implements OnInit, OnDestroy {
         this.newItemsSubscription?.unsubscribe();
         this.changedItemsSubscription?.unsubscribe();
         this.deletedItemsSubscription?.unsubscribe();
-    }
-
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes.apiLink && changes.apiLink.currentValue) {
-            this.replaceApiLink(changes.apiLink.currentValue);
-        }
     }
 
     replaceApiLink(newApiLink: ApiLink): void {
