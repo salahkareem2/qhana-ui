@@ -22,5 +22,5 @@
 </mat-card-content>
 <ng-container *ngIf="substep && substep.inputData != null && substep.inputData.length > 0">
     <h2>Input</h2>
-    <qhana-preview-list [dataList]="substep?.inputData ?? []"></qhana-preview-list>
+    <qhana-preview-list [dataList]="substep.inputData"></qhana-preview-list>
 </ng-container>

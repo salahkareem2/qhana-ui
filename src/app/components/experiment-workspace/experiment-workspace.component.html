@@ -23,7 +23,7 @@
                                     [hidden]="expandedPluginDescription">chevron_right</mat-icon>
                                 <mat-icon aria-hidden="false" aria-label="expand description"
                                     [hidden]="!expandedPluginDescription">expand_more</mat-icon>
-                                <span class="t-title">{{activePlugin.title ?? activePlugin.identifier}}
+                                <span class="t-title">{{activePlugin.title}}
                                     (@{{activePlugin.version}})</span>
                                 <qhana-plugin-last-used class="plugin-status" [plugin]="activePlugin" [spinner]="20">
                                 </qhana-plugin-last-used>
