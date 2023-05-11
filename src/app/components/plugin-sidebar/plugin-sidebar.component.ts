@@ -133,6 +133,14 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 }
                 this.pluginGroups = this.pluginGroups.filter(group => group.link.resourceKey?.['?template-tab'] !== deletedObject.deleted.resourceKey?.uiTemplateTabId);
             });
+        this.registry.changedApiObjectSubject
+            .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template"))
+            .subscribe(changedObject => {
+                if (this.templateId !== changedObject.changed.resourceKey?.uiTemplateId || this.selectedTemplate == null) {
+                    return;
+                }
+                this.selectedTemplateName = changedObject.changed.name ?? "Unknown";
+            });
     }
 
     ngOnDestroy(): void {

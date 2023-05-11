@@ -126,6 +126,15 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                     this.templateTabLinks.push(newObject.new);
                 }
             });
+
+        this.registry.changedApiObjectSubject
+            .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template"))
+            .subscribe(async changedObject => {
+                if (changedObject.changed.resourceKey?.uiTemplateId === this.templateId) {
+                    const template = await this.registry.getByApiLink<TemplateApiObject>(changedObject.changed);
+                    this.templateObject = template?.data ?? null;
+                }
+            });
     }
 
     onSubmit() {
