@@ -156,6 +156,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     }
 
     selectTab(tabId: string | null) {
+        const id = tabId ? "tab-" + tabId : "new-template-panel"
         this.router.navigate([], {
             relativeTo: this.route,
             preserveFragment: true,
@@ -164,6 +165,10 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
             },
             queryParamsHandling: 'merge',
         });
+        const elmnt = document.getElementById(id);
+        if (elmnt) {
+            elmnt.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+        }
     }
 
     editTemplate() {
