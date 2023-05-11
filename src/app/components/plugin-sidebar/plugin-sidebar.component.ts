@@ -108,9 +108,9 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                     return;
                 }
                 if (this.selectedTemplateTabsLink == null && this.selectedTemplate != null) {
-                    // TODO: set this.selectedTemplateTabsLink (doesn't exist before first template tab is created)
-                    const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate);
+                    const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate, null, true);
                     const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
+                    this.selectedTemplateTabsLink = workspaceGroupLink ?? null;
                 }
                 const tabResponse = await this.registry.getByApiLink<TemplateTabApiObject>(newObject.new);
                 if (tabResponse) {
