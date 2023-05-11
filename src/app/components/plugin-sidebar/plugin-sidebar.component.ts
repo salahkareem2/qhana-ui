@@ -308,7 +308,9 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
         if (tabLink != null) {
             templateId = tabLink.resourceKey?.uiTemplateId ?? null;
-            tabId = tabLink.resourceKey?.uiTemplateTabId ?? null;
+            if (tabLink.resourceKey?.uiTemplateTabId !== this.tabId) {
+                tabId = tabLink.resourceKey?.uiTemplateTabId ?? null;
+            }
             if (this.templateId !== templateId) {
                 this.templateId = templateId;
                 console.warn("The template id in the given link does not match the selected template id!", tabLink);
