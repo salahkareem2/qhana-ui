@@ -21,7 +21,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
     templateId: string | null = null;
-    tabId: string | null | undefined = null;
+    tabId: string | null = null;
 
     templateObject: TemplateApiObject | null = null;
     tabObject: TemplateTabApiObject | null = null;
