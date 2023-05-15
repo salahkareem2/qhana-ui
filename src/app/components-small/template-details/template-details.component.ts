@@ -44,33 +44,31 @@ export class TemplateDetailsComponent implements OnInit {
     }
 
     async onSubmit() {
+        let findString: string;
+        let response;
         if (this.templateLink != null) {
-            this.registry.getByApiLink<TemplateApiObject>(this.templateLink).then(response => {
-                const createLink = response?.links?.find(link => link.rel.some(rel => rel === "create") && link.resourceType == "ui-template-tab") ?? null;
-                if (createLink) {
-                    this.registry.submitByApiLink<TemplateTabApiObject>(createLink, {
-                        name: this.templateForm.value.name,
-                        description: this.templateForm.value.description,
-                        sortKey: this.templateForm.value.sortKey,
-                        filterString: this.templateForm.value.filterString,
-                        location: "workspace"
-                    });
-                    this.templateForm.reset(this.initialValues);
-                }
-            });
+            findString = "create";
+            response = await this.registry.getByApiLink<TemplateApiObject>(this.templateLink);
         } else if (this.tabLink != null) {
-            this.registry.getByApiLink<TemplateTabApiObject>(this.tabLink).then(response => {
-                const updateLink = response?.links?.find(link => link.rel.some(rel => rel === "update") && link.resourceType == "ui-template-tab") ?? null;
-                if (updateLink) {
-                    this.registry.submitByApiLink<TemplateTabApiObject>(updateLink, {
-                        name: this.templateForm.value.name,
-                        description: this.templateForm.value.description,
-                        sortKey: this.templateForm.value.sortKey,
-                        filterString: this.templateForm.value.filterString,
-                        location: "workspace"
-                    });
-                }
+            response = await this.registry.getByApiLink<TemplateTabApiObject>(this.tabLink);
+            findString = "update";
+        } else {
+            console.warn("TemplateDetailsComponent: neither templateLink nor tabLink is set");
+            return;
+        }
+        const link = response?.links?.find(link => link.rel.some(rel => rel === findString) && link.resourceType == "ui-template-tab") ?? null;
+        if (link != null) {
+            this.registry.submitByApiLink<TemplateTabApiObject>(link, {
+                name: this.templateForm.value.name,
+                description: this.templateForm.value.description,
+                sortKey: this.templateForm.value.sortKey,
+                filterString: this.templateForm.value.filterString,
+                location: "workspace"
             });
+            if (this.templateLink != null) {
+                this.templateForm.reset(this.initialValues);
+                this.templateForm.controls.name.setErrors(null);
+            }
         }
     }
 }
