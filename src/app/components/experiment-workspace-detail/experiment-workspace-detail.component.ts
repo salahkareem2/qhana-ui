@@ -45,9 +45,12 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
         filterString: "{}"
     });
 
-    private deleteObjectSubscription: Subscription | null = null;
-    private newObjectSubscription: Subscription | null = null;
-    private changObjectSubscription: Subscription | null = null;
+    private deletedTemplateSubscription: Subscription | null = null;
+    private changedTemplateSubscription: Subscription | null = null;
+
+    private deletedTabSubscription: Subscription | null = null;
+    private newTabSubscription: Subscription | null = null;
+    private changedTabSubscription: Subscription | null = null;
 
     constructor(private route: ActivatedRoute, private router: Router, private registry: PluginRegistryBaseService, private fb: FormBuilder, private dialog: MatDialog) { }
 
@@ -67,19 +70,31 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        this.deleteObjectSubscription?.unsubscribe();
-        this.newObjectSubscription?.unsubscribe();
-        this.changObjectSubscription?.unsubscribe();
+        this.deletedTemplateSubscription?.unsubscribe();
+        this.changedTemplateSubscription?.unsubscribe();
+        this.newTabSubscription?.unsubscribe();
+        this.deletedTabSubscription?.unsubscribe();
+        this.changedTabSubscription?.unsubscribe();
     }
 
     private registerObjectSubscriptions() {
-        this.deleteObjectSubscription = this.registry.deletedApiObjectSubject
-            .pipe(filter(deletedObject => deletedObject.deleted.resourceType === "ui-template" || deletedObject.deleted.resourceType === "ui-template-tab"))
+        // automatically deselect deleted template
+        this.deletedTemplateSubscription = this.registry.deletedApiObjectSubject
+            .pipe(filter(deletedObject => deletedObject.deleted.resourceType === "ui-template"))
             .subscribe(deletedObject => {
                 if (deletedObject.deleted.resourceKey?.uiTemplateId === this.templateId) {
-                    this.templateId = deletedObject.deleted.resourceType === "ui-template" ? null : this.templateId;
-                    this.tabId = deletedObject.deleted.resourceKey?.uiTemplateTabId === this.tabId ? null : this.tabId;
+                    this.templateId = null;
+                    this.tabId = null;
                     this.navigateToTab();
+                }
+            });
+
+        // automatically deselect deleted tab
+        this.deletedTabSubscription = this.registry.deletedApiObjectSubject
+            .pipe(filter(deletedObject => deletedObject.deleted.resourceType === "ui-template-tab"))
+            .subscribe(deletedObject => {
+                if (deletedObject.deleted.resourceKey?.uiTemplateTabId === this.tabId) {
+                    this.deselectTab(null);
                 }
                 if (deletedObject.deleted.resourceKey?.uiTemplateTabId && deletedObject.deleted.resourceKey?.uiTemplateTabId in this.templateTabDescriptions) {
                     delete this.templateTabDescriptions[deletedObject.deleted.resourceKey?.uiTemplateTabId];
@@ -87,7 +102,8 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                 }
             });
 
-        this.newObjectSubscription = this.registry.newApiObjectSubject
+        // automatically select new tab
+        this.newTabSubscription = this.registry.newApiObjectSubject
             .pipe(filter(newObject => newObject.new.resourceType === "ui-template-tab" && newObject.new.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(async newObject => {
                 const tabId = newObject.new.resourceKey?.uiTemplateTabId;
@@ -98,11 +114,23 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                 }
             });
 
-        this.changObjectSubscription = this.registry.changedApiObjectSubject
+        // update template object if selected template changed
+        this.changedTabSubscription = this.registry.changedApiObjectSubject
             .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template" && changedObject.changed.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(async changedObject => {
                 const template = await this.registry.getByApiLink<TemplateApiObject>(changedObject.changed);
                 this.templateObject = template?.data ?? null;
+            });
+
+        // update tab description if selected tab changed
+        this.changedTabSubscription = this.registry.changedApiObjectSubject
+            .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template-tab" && changedObject.changed.resourceKey?.uiTemplateId === this.templateId))
+            .subscribe(async changedObject => {
+                const tabId = changedObject.changed.resourceKey?.uiTemplateTabId;
+                if (tabId != null) {
+                    const tab = await this.registry.getByApiLink<TemplateTabApiObject>(changedObject.changed);
+                    this.templateTabDescriptions[tabId] = tab?.data?.description ?? '';
+                }
             });
     }
 
