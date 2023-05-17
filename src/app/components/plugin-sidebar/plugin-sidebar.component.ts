@@ -114,11 +114,8 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     private registerObjectSubscriptions() {
         this.registry.newApiObjectSubject
-            .pipe(filter(newObject => newObject.new.resourceType === "ui-template-tab"))
+            .pipe(filter(newObject => newObject.new.resourceType === "ui-template-tab" && newObject.new.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(async newObject => {
-                if (this.templateId !== newObject.new.resourceKey?.uiTemplateId || this.selectedTemplate == null) {
-                    return;
-                }
                 if (this.selectedTemplateTabsLink == null && this.selectedTemplate != null) {
                     const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate, null, true);
                     const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
@@ -138,19 +135,13 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 }
             });
         this.registry.deletedApiObjectSubject
-            .pipe(filter(deletedObject => deletedObject.deleted.resourceType === "ui-template-tab"))
+            .pipe(filter(deletedObject => deletedObject.deleted.resourceType === "ui-template-tab" && deletedObject.deleted.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(deletedObject => {
-                if (this.templateId !== deletedObject.deleted.resourceKey?.uiTemplateId || this.selectedTemplate == null) {
-                    return;
-                }
                 this.pluginGroups = this.pluginGroups.filter(group => group.link.resourceKey?.['?template-tab'] !== deletedObject.deleted.resourceKey?.uiTemplateTabId);
             });
         this.registry.changedApiObjectSubject
-            .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template"))
+            .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template" && this.templateId !== changedObject.changed.resourceKey?.uiTemplateId))
             .subscribe(changedObject => {
-                if (this.templateId !== changedObject.changed.resourceKey?.uiTemplateId || this.selectedTemplate == null) {
-                    return;
-                }
                 this.selectedTemplateName = changedObject.changed.name ?? "Unknown";
             });
     }
