@@ -46,11 +46,9 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
 
     registerParameterSubscription() {
         this.parameterSubscription = this.route.queryParamMap.subscribe(params => {
-            const templateId = params.get('template');
             const pluginId = params.get('plugin');
-            if (templateId == null) {
-                this.detailAreaActive = false;
-            }
+            const templateTabId = params.get('tab');
+            this.detailAreaActive = templateTabId != null;
             this.onPluginIdChange(pluginId);
         });
     }
@@ -58,10 +56,6 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.routeSubscription?.unsubscribe();
         this.parameterSubscription?.unsubscribe();
-    }
-
-    onActiveAreaChanged(isDetailAreaActive: boolean) {
-        this.detailAreaActive = isDetailAreaActive;
     }
 
     async onPluginIdChange(newPluginId: string | null) {

@@ -63,7 +63,16 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                 this.updateTabId(tabId);
             }
         });
+        this.registerObjectSubscriptions();
+    }
 
+    ngOnDestroy() {
+        this.deleteObjectSubscription?.unsubscribe();
+        this.newObjectSubscription?.unsubscribe();
+        this.changObjectSubscription?.unsubscribe();
+    }
+
+    private registerObjectSubscriptions() {
         this.deleteObjectSubscription = this.registry.deletedApiObjectSubject
             .pipe(filter(deletedObject => deletedObject.deleted.resourceType === "ui-template" || deletedObject.deleted.resourceType === "ui-template-tab"))
             .subscribe(deletedObject => {
@@ -95,12 +104,6 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                 const template = await this.registry.getByApiLink<TemplateApiObject>(changedObject.changed);
                 this.templateObject = template?.data ?? null;
             });
-    }
-
-    ngOnDestroy() {
-        this.deleteObjectSubscription?.unsubscribe();
-        this.newObjectSubscription?.unsubscribe();
-        this.changObjectSubscription?.unsubscribe();
     }
 
     private async updateTemplateId(templateId: string) {
@@ -145,7 +148,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
         }
     }
 
-    navigateToTab() {
+    private navigateToTab() {
         this.router.navigate([], {
             relativeTo: this.route,
             preserveFragment: true,
@@ -158,13 +161,22 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
         });
     }
 
-    selectTab(tabId: string | null) {
-        const id = tabId ? "tab-" + tabId : "new-template-panel"
+    selectTab(tabId: string) {
+        this.tabId = tabId;
+        const id = tabId === 'new' ? "new-template-panel" : "tab-" + tabId;
         this.navigateToTab();
         const elmnt = document.getElementById(id);
         if (elmnt) {
-            elmnt.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+            elmnt.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
         }
+    }
+
+    deselectTab(tabId: string | null) {
+        if (tabId !== this.tabId) {
+            return;
+        }
+        this.tabId = 'null';
+        this.navigateToTab();
     }
 
     editTemplate() {

@@ -56,8 +56,6 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     @ViewChild('searchInput', { static: true }) searchInput: ElementRef<HTMLInputElement> | null = null;
 
-    @Output() detailAreaActive = new EventEmitter<boolean>();
-
     constructor(private route: ActivatedRoute, private router: Router, private templates: TemplatesService, private registry: PluginRegistryBaseService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
@@ -77,8 +75,14 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             }
             if (this.tabId != null) {
                 this.highlightedTemplateTabs = new Set<string>([this.tabId]);
+                if (this.activeArea !== "detail") {
+                    this.switchActiveArea("detail");
+                }
             } else {
                 this.highlightedTemplateTabs.clear();
+                if (this.activeArea === "detail") {
+                    this.switchActiveArea("plugins");
+                }
             }
             this.loadActiveTemplateFromId(this.templateId);
         });
@@ -101,6 +105,14 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 this.switchActiveTemplateLink(template?.self ?? null);
             }
         });
+        this.registerObjectSubscriptions();
+    }
+
+    ngOnDestroy(): void {
+        this.routeParamSubscription?.unsubscribe();
+    }
+
+    private registerObjectSubscriptions() {
         this.registry.newApiObjectSubject
             .pipe(filter(newObject => newObject.new.resourceType === "ui-template-tab"))
             .subscribe(async newObject => {
@@ -143,10 +155,6 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             });
     }
 
-    ngOnDestroy(): void {
-        this.routeParamSubscription?.unsubscribe();
-    }
-
     private async loadActiveTemplateFromId(newTemplateId: string | null) {
         if (newTemplateId == null) {
             this.switchActiveTemplateLink(null);
@@ -178,9 +186,10 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             this.pluginGroups = this.defaultPluginGroups;
             return;
         }
+        const tabId = this.route.snapshot.queryParamMap.get('tab');
         this.selectedTemplate = activeTemplate;
         this.selectedTemplateName = activeTemplate.name ?? "Unknown";
-        this.activeArea = "plugins";
+        this.activeArea = tabId ? "detail" : "plugins";
         this.loadPluginTemplate(activeTemplate);
     }
 
@@ -210,6 +219,22 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         });
     }
 
+    private navigate(template: string | null = null, plugin: string | null = null, tab: string | null = null) {
+        this.templateId = template;
+        this.pluginId = plugin;
+        this.tabId = tab;
+        this.router.navigate([], {
+            relativeTo: this.route,
+            preserveFragment: true,
+            queryParams: {
+                template: template,
+                plugin: plugin,
+                tab: tab,
+            },
+            queryParamsHandling: 'merge',
+        });
+    }
+
     switchActiveArea(newArea: 'search' | 'detail' | 'templates' | 'plugins', group?: PluginGroup) {
         if (this.activeArea === newArea && this.sidebarOpen) {
             // potentially close sidebar
@@ -221,9 +246,9 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         }
 
         if (this.activeArea === 'detail' && newArea !== 'detail') {
-            this.detailAreaActive.emit(false)
+            this.navigate(this.templateId, this.pluginId, null);
         } else if (this.activeArea !== 'detail' && newArea === 'detail') {
-            this.detailAreaActive.emit(true)
+            this.navigate(this.templateId, null, this.tabId ?? 'new');
         }
 
         this.sidebarOpen = true;
@@ -262,30 +287,11 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     selectTemplate(templateLink: ApiLink | null) {
         this.switchActiveTemplateLink(templateLink);
-        this.detailAreaActive.emit(false);
         if (templateLink == null) {
-            this.router.navigate([], {
-                relativeTo: this.route,
-                preserveFragment: true,
-                queryParams: {
-                    template: null,
-                    plugin: null,
-                    tab: null,
-                },
-                queryParamsHandling: 'merge',
-            });
+            this.navigate(null, null, null);
             return;
         }
-        this.router.navigate([], {
-            relativeTo: this.route,
-            preserveFragment: true,
-            queryParams: {
-                template: templateLink.resourceKey?.uiTemplateId ?? null,
-                plugin: null,
-                tab: null,
-            },
-            queryParamsHandling: 'merge',
-        });
+        this.navigate(templateLink.resourceKey?.uiTemplateId ?? null, null, null);
     }
 
     selectPlugin(pluginLink: ApiLink) {
@@ -295,16 +301,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 // double click deselects plugin
                 pluginId = null;
             }
-            this.router.navigate([], {
-                relativeTo: this.route,
-                preserveFragment: true,
-                queryParams: {
-                    template: this.templateId,
-                    plugin: pluginId,
-                    tab: null,
-                },
-                queryParamsHandling: 'merge',
-            });
+            this.navigate(this.templateId, pluginId, null);
         }
         this.activeArea = "plugins";
         this.sidebarOpen = pluginId == null; // always close sidebar after successfully selecting plugin
@@ -312,7 +309,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     selectTab(tabLink: ApiLink | null) {
         let templateId = this.templateId;
-        let tabId = null;
+        let tabId: string | null = 'null';
 
         if (tabLink != null) {
             templateId = tabLink.resourceKey?.uiTemplateId ?? null;
@@ -324,16 +321,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 console.warn("The template id in the given link does not match the selected template id!", tabLink);
             }
         }
-        this.router.navigate([], {
-            relativeTo: this.route,
-            preserveFragment: true,
-            queryParams: {
-                template: templateId,
-                tab: tabId,
-                plugin: null,
-            },
-            queryParamsHandling: 'merge',
-        });
+        this.navigate(templateId, null, tabId);
     }
 
     async createTemplate() {
