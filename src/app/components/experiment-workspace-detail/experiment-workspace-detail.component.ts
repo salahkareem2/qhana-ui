@@ -236,7 +236,6 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     }
 
     async deleteTemplate() {
-        // TODO: same as in growing-list.component.ts:onDeleteItem -> refactor
         if (this.templateLink == null) {
             return;
         }

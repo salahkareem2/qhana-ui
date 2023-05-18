@@ -20,7 +20,7 @@ export class TemplateDetailsComponent implements OnInit {
         filterString: "{}"
     };
 
-    // TODO: add validators
+    // TODO: Since the new UI is no longer in the workspace sidebar, it is reasonable to manage tabs for other locations
     templateForm: FormGroup = this.fb.group({
         name: ["", Validators.required],
         description: "",
