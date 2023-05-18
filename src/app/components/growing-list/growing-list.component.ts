@@ -68,16 +68,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             return from(result);
         })).subscribe();
 
-        if (this.apiLink != null) {
-            this.replaceApiLink(this.apiLink);
-        } else {
-            const rels = this.rels
-            if (rels != null) {
-                this.registry.resolveRecursiveRels(rels).then((apiLink) => this.replaceApiLink(apiLink));
-            }
-        }
-
-        this.registerSubscriptions();
+        this.setupGrowingList();
     }
 
     ngOnDestroy(): void {
@@ -88,12 +79,35 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.apiLink && changes.apiLink.currentValue) {
-            this.replaceApiLink(changes.apiLink.currentValue);
+        if (changes.apiLink?.previousValue || changes.rels?.previousValue || changes.query?.previousValue || changes.newItemRels?.previousValue) {
+            this.newItemsSubscription?.unsubscribe();
+            this.changedItemsSubscription?.unsubscribe();
+            this.deletedItemsSubscription?.unsubscribe();
+            this.updateQueueSubscription = null;
+            this.newItemsSubscription = null;
+            this.changedItemsSubscription = null;
+            this.deletedItemsSubscription = null;
+            this.startApiLink = null;
+            this.startQueryArgs = null;
+            this.loadMoreApiLink = null;
+            this.isLoading = false;
+            this.loadMoreClicked = false;
+            this.lastCollectionSize = null;
+            this.items = [];
+            this.setupGrowingList();
         }
     }
 
-    private registerSubscriptions() {
+    private setupGrowingList() {
+        if (this.apiLink != null) {
+            this.replaceApiLink(this.apiLink);
+        } else {
+            const rels = this.rels
+            if (rels != null) {
+                this.registry.resolveRecursiveRels(rels).then((apiLink) => this.replaceApiLink(apiLink));
+            }
+        }
+
         // handle api updates
         const newItemRels = this.newItemRels;
         if (newItemRels) {
