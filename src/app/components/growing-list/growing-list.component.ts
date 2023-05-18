@@ -70,12 +70,30 @@ export class GrowingListComponent implements OnInit, OnDestroy {
 
         if (this.apiLink != null) {
             this.replaceApiLink(this.apiLink);
-        }
-        const rels = this.rels
-        if (rels != null) {
-            this.registry.resolveRecursiveRels(rels).then((apiLink) => this.replaceApiLink(apiLink));
+        } else {
+            const rels = this.rels
+            if (rels != null) {
+                this.registry.resolveRecursiveRels(rels).then((apiLink) => this.replaceApiLink(apiLink));
+            }
         }
 
+        this.registerSubscriptions();
+    }
+
+    ngOnDestroy(): void {
+        this.updateQueueSubscription?.unsubscribe();
+        this.newItemsSubscription?.unsubscribe();
+        this.changedItemsSubscription?.unsubscribe();
+        this.deletedItemsSubscription?.unsubscribe();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.apiLink && changes.apiLink.currentValue) {
+            this.replaceApiLink(changes.apiLink.currentValue);
+        }
+    }
+
+    private registerSubscriptions() {
         // handle api updates
         const newItemRels = this.newItemRels;
         if (newItemRels) {
@@ -95,26 +113,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             .subscribe(deletedObject => this.updateQueue.next(() => this.onDeletedObjectQueued(deletedObject.deleted)));
     }
 
-    ngOnDestroy(): void {
-        this.updateQueueSubscription?.unsubscribe();
-        this.newItemsSubscription?.unsubscribe();
-        this.changedItemsSubscription?.unsubscribe();
-        this.deletedItemsSubscription?.unsubscribe();
-    }
-
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes.apiLink && changes.apiLink.currentValue) {
-            this.replaceApiLink(changes.apiLink.currentValue);
-        }
-    }
-
     replaceApiLink(newApiLink: ApiLink): void {
-        if (newApiLink.href === this.startApiLink?.href) {
-            if (this.query === this.startQueryArgs) {
-                // nothing changed, nothing to do
-                return;
-            }
-        }
         if (!matchesLinkRel(newApiLink, "page") && !matchesLinkRel(newApiLink, "collection")) {
             console.warn("The given api link does not correspond to a collection resource!", this.apiLink);
             return;

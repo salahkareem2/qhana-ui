@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -53,13 +53,17 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     tabId: string | null = null;
 
     private routeParamSubscription: Subscription | null = null;
+    private newTabSubscription: Subscription | null = null;
+    private changedTabSubscription: Subscription | null = null;
+    private deletedTabSubscription: Subscription | null = null;
+    private changedTemplateSubscription: Subscription | null = null;
 
     @ViewChild('searchInput', { static: true }) searchInput: ElementRef<HTMLInputElement> | null = null;
 
     constructor(private route: ActivatedRoute, private router: Router, private templates: TemplatesService, private registry: PluginRegistryBaseService, private dialog: MatDialog) { }
 
     ngOnInit(): void {
-        this.route.queryParamMap.subscribe(params => {
+        this.routeParamSubscription = this.route.queryParamMap.subscribe(params => {
             this.templateId = params.get('template');
             this.pluginId = params.get('plugin');
             this.tabId = params.get('tab');
@@ -86,6 +90,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             }
             this.loadActiveTemplateFromId(this.templateId);
         });
+
         this.registry.resolveRecursiveRels([["plugin", "collection"]]).then((apiLink) => {
             const pluginTypes = new Map<string, string>([["processing", "Processing Plugins"], ["conversion", "Conversion Plugins"], ["visualization", "Visualization Plugins"]]);
             pluginTypes.forEach((name, pluginType) => {
@@ -99,21 +104,28 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 });
             });
         });
+
         this.templates.defaultTemplate.subscribe(template => {
             this.defaultTemplate = template;
             if (this.templateId == null) {
                 this.switchActiveTemplateLink(template?.self ?? null);
             }
         });
+
         this.registerObjectSubscriptions();
     }
 
     ngOnDestroy(): void {
         this.routeParamSubscription?.unsubscribe();
+        this.newTabSubscription?.unsubscribe();
+        this.changedTabSubscription?.unsubscribe();
+        this.deletedTabSubscription?.unsubscribe();
+        this.changedTemplateSubscription?.unsubscribe();
     }
 
     private registerObjectSubscriptions() {
-        this.registry.newApiObjectSubject
+        // handle new template tabs
+        this.newTabSubscription = this.registry.newApiObjectSubject
             .pipe(filter(newObject => newObject.new.resourceType === "ui-template-tab" && newObject.new.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(async newObject => {
                 if (this.selectedTemplateTabsLink == null && this.selectedTemplate != null) {
@@ -121,6 +133,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                     const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
                     this.selectedTemplateTabsLink = workspaceGroupLink ?? null;
                 }
+                // add plugins to corresponding group
                 const tabResponse = await this.registry.getByApiLink<TemplateTabApiObject>(newObject.new);
                 if (tabResponse) {
                     this.pluginGroups.push({
@@ -130,16 +143,37 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                         link: tabResponse.data.plugins,
                     });
                 }
-                if (this.activeArea === "detail") {
+                // select new tab
+                if (this.activeArea === "detail" && this.templateId === newObject.new.resourceKey?.uiTemplateId && this.tabId === 'new') {
                     this.selectTab(newObject.new);
                 }
             });
-        this.registry.deletedApiObjectSubject
+
+        // update plugins in template tabs after changes
+        this.changedTabSubscription = this.registry.changedApiObjectSubject
+            .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template-tab" && changedObject.changed.resourceKey?.uiTemplateId === this.templateId))
+            .subscribe(async changedObject => {
+                const tabId = changedObject.changed.resourceKey?.uiTemplateTabId ?? null;
+                const tabResponse = await this.registry.getByApiLink<TemplateTabApiObject>(changedObject.changed);
+                const tabLink = tabResponse?.data?.plugins ?? null;
+                const tabGroup = this.pluginGroups.find(group => group.link.resourceKey?.['?template-tab'] === tabId);
+                console.log("changed tab", tabId, tabLink, tabGroup)
+                if (tabGroup == null) {
+                    console.warn(`Could not find plugin group for template tab ${tabId}`, changedObject);
+                    return;
+                }
+                tabGroup.link = tabLink ?? tabGroup.link;
+            });
+
+        // romove deleted template tabs
+        this.deletedTabSubscription = this.registry.deletedApiObjectSubject
             .pipe(filter(deletedObject => deletedObject.deleted.resourceType === "ui-template-tab" && deletedObject.deleted.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(deletedObject => {
                 this.pluginGroups = this.pluginGroups.filter(group => group.link.resourceKey?.['?template-tab'] !== deletedObject.deleted.resourceKey?.uiTemplateTabId);
             });
-        this.registry.changedApiObjectSubject
+
+        // update template name in sidebar
+        this.changedTemplateSubscription = this.registry.changedApiObjectSubject
             .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template" && this.templateId !== changedObject.changed.resourceKey?.uiTemplateId))
             .subscribe(changedObject => {
                 this.selectedTemplateName = changedObject.changed.name ?? "Unknown";
