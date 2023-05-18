@@ -53,7 +53,8 @@
     </mat-card>
 
     <mat-accordion [multi]="false">
-        <mat-expansion-panel (opened)="selectTab('new')" id="new-template-panel" [expanded]="tabId === 'new'">
+        <h3 mat-subheader>Create New Template Tab</h3>
+        <mat-expansion-panel (afterExpand)="selectTab('new')" id="new-template-panel" [expanded]="tabId === 'new'">
             <mat-expansion-panel-header>
                 <mat-panel-title>
                     New Template Tab
@@ -65,6 +66,7 @@
             <qhana-template-details [templateLink]="templateLink"></qhana-template-details>
         </mat-expansion-panel>
         <mat-divider></mat-divider>
+        <h3 mat-subheader>Workspace Tabs</h3>
         <mat-expansion-panel *ngFor="let tab of templateTabLinks" [expanded]="tabId == tab.resourceKey?.uiTemplateTabId"
             (afterExpand)="selectTab(tab.resourceKey?.uiTemplateTabId ?? 'null')" (closed)="deselectTab(tab.resourceKey?.uiTemplateTabId ?? null)" 
             [id]="'tab-' + tab.resourceKey?.uiTemplateTabId">
