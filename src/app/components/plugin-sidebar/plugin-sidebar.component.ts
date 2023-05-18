@@ -123,30 +123,34 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         this.changedTemplateSubscription?.unsubscribe();
     }
 
+    private async handleNewTemplateTab(newTabLink: ApiLink) {
+        if (this.selectedTemplateTabsLink == null && this.selectedTemplate != null) {
+            const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate, null, true);
+            const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
+            this.selectedTemplateTabsLink = workspaceGroupLink ?? null;
+        }
+        // add plugins to corresponding group
+        const tabResponse = await this.registry.getByApiLink<TemplateTabApiObject>(newTabLink);
+        if (tabResponse) {
+            this.pluginGroups.push({
+                name: tabResponse.data.name,
+                open: false,
+                description: tabResponse.data.description,
+                link: tabResponse.data.plugins,
+            });
+        }
+        // select new tab
+        if (this.activeArea === "detail" && this.templateId === newTabLink.resourceKey?.uiTemplateId && this.tabId === 'new') {
+            this.selectTab(newTabLink);
+        }
+    }
+
     private registerObjectSubscriptions() {
         // handle new template tabs
         this.newTabSubscription = this.registry.newApiObjectSubject
             .pipe(filter(newObject => newObject.new.resourceType === "ui-template-tab" && newObject.new.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(async newObject => {
-                if (this.selectedTemplateTabsLink == null && this.selectedTemplate != null) {
-                    const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate, null, true);
-                    const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
-                    this.selectedTemplateTabsLink = workspaceGroupLink ?? null;
-                }
-                // add plugins to corresponding group
-                const tabResponse = await this.registry.getByApiLink<TemplateTabApiObject>(newObject.new);
-                if (tabResponse) {
-                    this.pluginGroups.push({
-                        name: tabResponse.data.name,
-                        open: false,
-                        description: tabResponse.data.description,
-                        link: tabResponse.data.plugins,
-                    });
-                }
-                // select new tab
-                if (this.activeArea === "detail" && this.templateId === newObject.new.resourceKey?.uiTemplateId && this.tabId === 'new') {
-                    this.selectTab(newObject.new);
-                }
+                this.handleNewTemplateTab(newObject.new);
             });
 
         // update plugins in template tabs after changes
