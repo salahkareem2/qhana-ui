@@ -83,10 +83,11 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             this.newItemsSubscription?.unsubscribe();
             this.changedItemsSubscription?.unsubscribe();
             this.deletedItemsSubscription?.unsubscribe();
-            this.updateQueueSubscription = null;
+            this.updateQueueSubscription?.unsubscribe();
             this.newItemsSubscription = null;
             this.changedItemsSubscription = null;
             this.deletedItemsSubscription = null;
+            this.updateQueueSubscription = null;
             this.startApiLink = null;
             this.startQueryArgs = null;
             this.loadMoreApiLink = null;
