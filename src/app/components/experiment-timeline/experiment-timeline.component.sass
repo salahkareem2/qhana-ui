@@ -24,3 +24,41 @@
 .paginator
     background-color: var(--background)
     color: var(--text)
+
+@mixin arrow-icon-size($scale: 1.25)
+    transform: scale($scale)
+
+.align-arrow
+    display: flex
+    align-items: center
+
+.arrow-button
+    margin-left: 0.5em
+    font-size: 0.8em
+
+.arrow
+    display: inline-block
+    align-items: center
+    justify-content: center
+    color: dimgray
+    font-weight: 1000
+    cursor: pointer
+
+.filter
+    width: 100%
+    margin-block-end: 0.8rem
+
+.search-field
+    width: 100%
+
+.mat-radio-group
+    display: flex
+    width: 100%
+    gap: 1rem
+
+.radio-label
+    padding-bottom: 0.5em
+
+.heading-icon
+    margin-inline-end: 0.5em
+    font-size: 160%

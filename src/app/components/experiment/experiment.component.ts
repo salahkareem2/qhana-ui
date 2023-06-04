@@ -1,7 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
+import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export-experiment.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 
@@ -32,7 +34,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     experimentDescription: string = ""; // only updated on initial experiment load
     currentExperimentDescription: string = "";
 
-    constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService) { }
+    constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService, public dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params.pipe(map(params => params.experimentId)).subscribe(experimentId => {
@@ -141,6 +143,16 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             this.experiment = result;
             this.updateStatus = 'saved';
             this.experimentService.reloadExperiment();
+        });
+    }
+
+    showExportExperimentDialog(error?: string) {
+        this.dialog.open(ExportExperimentDialog, {
+            minWidth: "20rem", maxWidth: "40rem", width: "60%",
+            data: {
+                experimentId: this.experimentId,
+                backend: this.backend,
+            }
         });
     }
 
