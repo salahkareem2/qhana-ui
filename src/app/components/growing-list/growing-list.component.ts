@@ -129,6 +129,12 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     }
 
     replaceApiLink(newApiLink: ApiLink): void {
+        if (newApiLink.href === this.startApiLink?.href) {
+            if (this.query === this.startQueryArgs) {
+                // nothing changed, nothing to do
+                return;
+            }
+        }
         if (!matchesLinkRel(newApiLink, "page") && !matchesLinkRel(newApiLink, "collection")) {
             console.warn("The given api link does not correspond to a collection resource!", this.apiLink);
             return;

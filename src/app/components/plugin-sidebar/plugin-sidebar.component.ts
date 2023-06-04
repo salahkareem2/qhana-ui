@@ -158,15 +158,8 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
             .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template-tab" && changedObject.changed.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(async changedObject => {
                 const tabId = changedObject.changed.resourceKey?.uiTemplateTabId ?? null;
-                const tabResponse = await this.registry.getByApiLink<TemplateTabApiObject>(changedObject.changed);
-                const tabLink = tabResponse?.data?.plugins ?? null;
-                const tabGroup = this.pluginGroups.find(group => group.link.resourceKey?.['?template-tab'] === tabId);
-                console.log("changed tab", tabId, tabLink, tabGroup)
-                if (tabGroup == null) {
-                    console.warn(`Could not find plugin group for template tab ${tabId}`, changedObject);
-                    return;
-                }
-                tabGroup.link = tabLink ?? tabGroup.link;
+                const tabIndex = this.pluginGroups.findIndex(group => group.link.resourceKey?.['?template-tab'] === tabId);
+                this.pluginGroups[tabIndex] = { ...this.pluginGroups[tabIndex] };
             });
 
         // romove deleted template tabs

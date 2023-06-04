@@ -39,7 +39,7 @@ export class PluginListItemComponent implements OnChanges {
             this.updateIsInSearch()
             return;
         }
-        const pluginResponse = await this.registry.getByApiLink<PluginApiObject>(this.link);
+        const pluginResponse = await this.registry.getByApiLink<PluginApiObject>(this.link, null, true);
 
         this.plugin = pluginResponse?.data ?? null;
         if (this.plugin != null) {
