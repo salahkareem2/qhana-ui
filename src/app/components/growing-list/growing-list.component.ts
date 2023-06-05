@@ -72,18 +72,12 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.updateQueueSubscription?.unsubscribe();
-        this.newItemsSubscription?.unsubscribe();
-        this.changedItemsSubscription?.unsubscribe();
-        this.deletedItemsSubscription?.unsubscribe();
+        this.unsubscribeAll();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.apiLink?.previousValue || changes.rels?.previousValue || changes.query?.previousValue || changes.newItemRels?.previousValue) {
-            this.newItemsSubscription?.unsubscribe();
-            this.changedItemsSubscription?.unsubscribe();
-            this.deletedItemsSubscription?.unsubscribe();
-            this.updateQueueSubscription?.unsubscribe();
+            this.unsubscribeAll();
             this.newItemsSubscription = null;
             this.changedItemsSubscription = null;
             this.deletedItemsSubscription = null;
@@ -97,6 +91,13 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             this.items = [];
             this.setupGrowingList();
         }
+    }
+
+    private unsubscribeAll(): void {
+        this.newItemsSubscription?.unsubscribe();
+        this.changedItemsSubscription?.unsubscribe();
+        this.deletedItemsSubscription?.unsubscribe();
+        this.updateQueueSubscription?.unsubscribe();
     }
 
     private setupGrowingList() {
