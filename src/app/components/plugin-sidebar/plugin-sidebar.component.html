@@ -50,10 +50,18 @@
         </div>
         <div class="template-tab-sidebar" [hidden]="activeArea != 'detail'">
             <mat-divider></mat-divider>
-            <h3 class="sidebar-header">Template Tabs</h3>
-            <qhana-growing-list *ngIf="selectedTemplateTabsLink" [apiLink]="selectedTemplateTabsLink" 
-            [deleteButton]="this.selectedTemplate ? true : false" [highlighted]="highlightedTemplateTabs" 
-            [highlightByKey]="'uiTemplateTabId'" (clickItem)="selectTab($event)" [newItemRels]="['ui-template-tab']"></qhana-growing-list>
+            <ng-container *ngIf="workspaceTabsLink">
+                <h3 class="sidebar-header">Workspace Tabs</h3>
+                <qhana-growing-list [apiLink]="workspaceTabsLink" [deleteButton]="this.selectedTemplate ? true : false" 
+                [highlighted]="highlightedTemplateTabs" [highlightByKey]="'uiTemplateTabId'" (clickItem)="selectTab($event)" 
+                [newItemRels]="['ui-template-tab']"></qhana-growing-list>
+            </ng-container>
+            <ng-container *ngIf="experimentNavigationTabsLink">
+                <h3 class="sidebar-header">Experiment Navigation Tabs</h3>
+                <qhana-growing-list [apiLink]="experimentNavigationTabsLink" [deleteButton]="this.selectedTemplate ? true : false" 
+                [highlighted]="highlightedTemplateTabs" [highlightByKey]="'uiTemplateTabId'" (clickItem)="selectTab($event)" 
+                [newItemRels]="['ui-template-tab']"></qhana-growing-list>
+            </ng-container>
         </div>
         <details class="plugin-group" [open]="group.open" *ngFor="let group of pluginGroups"
             [hidden]="activeArea == 'detail' || activeArea == 'templates'">

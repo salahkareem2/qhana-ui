@@ -33,7 +33,8 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     selectedTemplate: ApiLink | null = null;
     selectedTemplateName: string | "All Plugins" = "All Plugins";
-    selectedTemplateTabsLink: ApiLink | null = null;
+    workspaceTabsLink: ApiLink | null = null;
+    experimentNavigationTabsLink: ApiLink | null = null;
 
     highlightedTemplates: Set<string> = new Set();
 
@@ -124,10 +125,15 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     }
 
     private async handleNewTemplateTab(newTabLink: ApiLink) {
-        if (this.selectedTemplateTabsLink == null && this.selectedTemplate != null) {
+        if (this.workspaceTabsLink == null && this.selectedTemplate != null) {
             const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate, null, true);
             const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
-            this.selectedTemplateTabsLink = workspaceGroupLink ?? null;
+            this.workspaceTabsLink = workspaceGroupLink ?? null;
+        }
+        if (this.experimentNavigationTabsLink == null && this.selectedTemplate != null) {
+            const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate, null, true);
+            const experimentNavigationGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "experiment-navigation");
+            this.experimentNavigationTabsLink = experimentNavigationGroupLink ?? null;
         }
         // add plugins to corresponding group
         const tabResponse = await this.registry.getByApiLink<TemplateTabApiObject>(newTabLink);
@@ -220,7 +226,9 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         this.pluginGroups = pluginGroups;
         const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(activeTemplate);
         const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
-        this.selectedTemplateTabsLink = workspaceGroupLink ?? null;
+        this.workspaceTabsLink = workspaceGroupLink ?? null;
+        const experimentNavigationGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "experiment-navigation");
+        this.experimentNavigationTabsLink = experimentNavigationGroupLink ?? null;
         if (workspaceGroupLink == null) {
             return;
         }
@@ -357,7 +365,6 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     }
 
     async deleteSelectedTemplate() {
-        // TODO: same as in growing-list.component.ts:onDeleteItem -> refactor
         if (this.selectedTemplate == null) {
             return;
         }

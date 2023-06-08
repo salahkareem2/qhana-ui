@@ -225,6 +225,11 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     }
 
     private async onNewObjectQueued(newObjectLink: ApiLink) {
+        if (this.apiLink != null) {
+            // make sure the new object is part of the collection
+            this.reloadAll();
+            return;
+        }
         this.items = [...this.items, newObjectLink];
         this.itemsChanged.emit([...this.items]);
         this.lastCollectionSize = (this.lastCollectionSize ?? 0) + 1; // extrapolate collection size
@@ -243,6 +248,10 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             newItems[index] = changedObjectLink;
             this.items = newItems;
             this.itemsChanged.emit([...this.items]);
+        } else if (existing) {
+            // some other property changed that may have removed it from list
+            this.reloadAll();
+            return;
         }
 
         const newItemRels = this.newItemRels;

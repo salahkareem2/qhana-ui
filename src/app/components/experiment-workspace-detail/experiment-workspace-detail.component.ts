@@ -29,7 +29,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
 
     templateLink: ApiLink | null = null;
     tabLink: ApiLink | null = null;
-    templateTabLinks: ApiLink[] = [];
+    templateTabLinks: { [group: string]: ApiLink[] } = {};
 
     templateTabDescriptions: { [id: string]: string } = { '': '' };
 
@@ -51,11 +51,12 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     private deletedTabSubscription: Subscription | null = null;
     private newTabSubscription: Subscription | null = null;
     private changedTabSubscription: Subscription | null = null;
+    private routeParamSubscription: Subscription | null = null;
 
     constructor(private route: ActivatedRoute, private router: Router, private registry: PluginRegistryBaseService, private fb: FormBuilder, private dialog: MatDialog) { }
 
     ngOnInit() {
-        this.route.queryParamMap.subscribe(async params => {
+        this.routeParamSubscription = this.route.queryParamMap.subscribe(async params => {
             const templateId = params.get('template');
             const tabId = params.get('tab');
 
@@ -75,6 +76,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
         this.newTabSubscription?.unsubscribe();
         this.deletedTabSubscription?.unsubscribe();
         this.changedTabSubscription?.unsubscribe();
+        this.routeParamSubscription?.unsubscribe();
     }
 
     private registerObjectSubscriptions() {
@@ -98,7 +100,9 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                 }
                 if (deletedObject.deleted.resourceKey?.uiTemplateTabId && deletedObject.deleted.resourceKey?.uiTemplateTabId in this.templateTabDescriptions) {
                     delete this.templateTabDescriptions[deletedObject.deleted.resourceKey?.uiTemplateTabId];
-                    this.templateTabLinks = this.templateTabLinks.filter(link => link.href !== deletedObject.deleted.href);
+                    for (const group in this.templateTabLinks) {
+                        this.templateTabLinks[group] = this.templateTabLinks[group].filter(link => link.href !== deletedObject.deleted.href);
+                    }
                 }
             });
 
@@ -107,15 +111,23 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
             .pipe(filter(newObject => newObject.new.resourceType === "ui-template-tab" && newObject.new.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(async newObject => {
                 const tabId = newObject.new.resourceKey?.uiTemplateTabId;
+                const group = newObject.new.resourceKey?.['?group'];
+                if (group == null) {
+                    console.warn("new tab has no group", newObject.new);
+                    return;
+                }
                 if (tabId != null) {
                     const tab = await this.registry.getByApiLink<TemplateTabApiObject>(newObject.new);
                     this.templateTabDescriptions[tabId] = tab?.data?.description ?? '';
-                    this.templateTabLinks.push(newObject.new);
+                    if (this.templateTabLinks[group] == null) {
+                        this.templateTabLinks[group] = [];
+                    }
+                    this.templateTabLinks[group].push(newObject.new);
                 }
             });
 
         // update template object if selected template changed
-        this.changedTabSubscription = this.registry.changedApiObjectSubject
+        this.changedTemplateSubscription = this.registry.changedApiObjectSubject
             .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template" && changedObject.changed.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(async changedObject => {
                 const template = await this.registry.getByApiLink<TemplateApiObject>(changedObject.changed);
@@ -127,9 +139,20 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
             .pipe(filter(changedObject => changedObject.changed.resourceType === "ui-template-tab" && changedObject.changed.resourceKey?.uiTemplateId === this.templateId))
             .subscribe(async changedObject => {
                 const tabId = changedObject.changed.resourceKey?.uiTemplateTabId;
+                const group = changedObject.changed.resourceKey?.['?group'];
                 if (tabId != null) {
                     const tab = await this.registry.getByApiLink<TemplateTabApiObject>(changedObject.changed);
                     this.templateTabDescriptions[tabId] = tab?.data?.description ?? '';
+                }
+                if (group == null) {
+                    console.warn("changed tab has no group", changedObject.changed);
+                    return;
+                }
+                if (!this.templateTabLinks[group].includes(changedObject.changed)) {
+                    for (const group in this.templateTabLinks) {
+                        this.templateTabLinks[group] = this.templateTabLinks[group].filter(link => link.href !== changedObject.changed.href);
+                    }
+                    this.templateTabLinks[group].push(changedObject.changed);
                 }
             });
     }
@@ -147,25 +170,39 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
         }
         const template = await this.registry.getByApiLink<TemplateApiObject>(this.templateLink);
         this.templateObject = template?.data ?? null;
-        const workspaceGroupLink = template?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
-        if (workspaceGroupLink == null) {
-            console.warn("Workspace not found");
+        const groupLinks = template?.data?.groups;
+        if (groupLinks == null) {
+            console.warn("No group links found");
             return;
         }
-        const tabsResponse = await this.registry.getByApiLink<CollectionApiObject>(workspaceGroupLink);
-        this.templateTabLinks = tabsResponse?.data?.items ?? [];
-
-        tabsResponse?.data?.items?.forEach(async tabLink => {
-            const tab = await this.registry.getByApiLink<TemplateTabApiObject>(tabLink);
-            if (tabLink.resourceKey?.uiTemplateTabId && tab?.data) {
-                this.templateTabDescriptions[tabLink.resourceKey.uiTemplateTabId] = tab?.data.description ?? '';
+        for (const groupLink of groupLinks) {
+            const group = groupLink.resourceKey?.["?group"];
+            if (group == null) {
+                console.warn("No location found: ", groupLink);
+                continue;
             }
-        });
+            const tabsResponse = await this.registry.getByApiLink<CollectionApiObject>(groupLink);
+            const tabLinks = tabsResponse?.data?.items ?? [];
+
+            tabsResponse?.data?.items?.forEach(async tabLink => {
+                const tab = await this.registry.getByApiLink<TemplateTabApiObject>(tabLink);
+                if (tabLink.resourceKey?.uiTemplateTabId && tab?.data) {
+                    this.templateTabDescriptions[tabLink.resourceKey.uiTemplateTabId] = tab?.data.description ?? '';
+                }
+            });
+            this.templateTabLinks[group] = tabLinks;
+        }
     }
 
     private async updateTabId(tabId: string | null) {
         this.tabId = tabId;
-        this.tabLink = this.templateTabLinks.find(link => link.resourceKey?.["uiTemplateTabId"] === tabId) ?? null;
+        for (const tabLinks of Object.values(this.templateTabLinks)) {
+            const tabLink = tabLinks.find(link => link.resourceKey?.["uiTemplateTabId"] === tabId);
+            if (tabLink != null) {
+                this.tabLink = tabLink;
+                break;
+            }
+        }
         if (this.tabLink == null) {
             return;
         }

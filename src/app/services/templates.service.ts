@@ -35,6 +35,7 @@ export interface TemplateTabApiObject extends ApiObject {  // TODO check fields
     description: string;
     sortKey: number;
     filterString: string;
+    location: string;
     plugins: ApiLink;
 }
 
