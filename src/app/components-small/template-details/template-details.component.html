@@ -1,10 +1,10 @@
 <h2>Template Tab</h2>
 <form [formGroup]="templateForm" (ngSubmit)="onSubmit()">
     <mat-form-field class="form-field">
-        <mat-label>Location (where the tab appears)</mat-label>
+        <mat-label>Location</mat-label>
         <mat-select formControlName="location">
-            <mat-option *ngFor="let location of locations" [value]="location">
-                {{location}}
+            <mat-option *ngFor="let location of locations" [value]="location.value">
+                {{location.description}}
             </mat-option>
         </mat-select>
     </mat-form-field>
@@ -28,42 +28,41 @@
     <details>
         <summary>Filter String Info</summary>
         
-        <i>
-            <p>Enter a filter string as JSON object. Filter strings have the following keys:</p>
-            <ul>
-                <li>name: Represents the name of a plugin.</li>
-                <li>tag: Allows filtering elements by their assigned tags.</li>
-                <li>version: Uses PEP 440 version specifier to filter elements based on specific versions or version ranges.</li>
-                <li>not: Specifies a filter string to exclude certain elements.</li>
-                <li>and: Includes multiple filter strings, with elements passing all conditions included in the filtered results (intersection).</li>
-                <li>or: Includes multiple filter strings, with elements meeting at least one condition included in the filtered results (union).</li>
-            </ul>
-            <p>Examples:</p>
-            <mat-form-field class="form-field">
-                <textarea class="filter-example" matInput disabled rows="3">
+        <i>Enter a filter string as JSON object. Filter strings have the following keys:</i>
+        <dl>
+            <dt>name</dt> <dd>Represents the name of a plugin.</dd>
+            <dt>tag</dt> <dd>Allows filtering elements by their assigned tags.</dd>
+            <dt>version</dt> <dd>Uses PEP 440 version specifier to filter elements based on specific versions or version ranges.</dd>
+            <dt>not</dt> <dd>Specifies a filter string to exclude certain elements.</dd>
+            <dt>and</dt> <dd>Includes multiple filter strings, with elements passing all conditions included in the filtered results (intersection).</dd>
+            <dt>or</dt> <dd>Includes multiple filter strings, with elements meeting at least one condition included in the filtered results (union).</dd>
+        </dl>
+        <mat-divider></mat-divider>
+        <p>Examples:</p>
+        <mat-form-field class="form-field">
+            <textarea class="filter-example" matInput disabled rows="3">
 { 
     "name": "hello-world" 
 }
-                </textarea>
-            </mat-form-field>
-            <mat-form-field class="form-field">
-                <textarea class="filter-example" matInput disabled rows="3">
+            </textarea>
+        </mat-form-field>
+        <mat-form-field class="form-field">
+            <textarea class="filter-example" matInput disabled rows="3">
 { 
     "not": { "name": "hello-world" } 
 }
-                </textarea>
-            </mat-form-field>
-            <mat-form-field class="form-field">
-                <textarea class="filter-example" matInput disabled rows="6">
+            </textarea>
+        </mat-form-field>
+        <mat-form-field class="form-field">
+            <textarea class="filter-example" matInput disabled rows="6">
 { 
     "and": [
         { "tag": "data-loading" },
         { "version": ">=0.2.0" }
     ]
 }
-                </textarea>
-            </mat-form-field>
-        </i>
+            </textarea>
+        </mat-form-field>
     </details>
     <br>
     <button mat-raised-button type="submit" color="primary">{{templateLink ? 'Create' : 'Update'}} Tab</button>

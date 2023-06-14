@@ -13,6 +13,11 @@ export function isInSetValidator(validValues: any[]): Validators {
     };
 }
 
+export interface Location {
+    value: string;
+    description: string;
+}
+
 
 @Component({
     selector: 'qhana-template-details',
@@ -23,14 +28,17 @@ export class TemplateDetailsComponent implements OnInit {
     @Input() templateLink: ApiLink | null = null;
     @Input() tabLink: ApiLink | null = null;
 
-    locations: string[] = ["workspace", "experiment-navigation"];
+    locations: Location[] = [
+        { value: "workspace", description: "Workspace (appears in the plugin sidebar)" },
+        { value: "experiment-navigation", description: "Experiment Navigation (appears in the top navigation bar)" }
+    ];
 
     private initialValues = {
         name: "",
         description: "",
         sortKey: 0,
         filterString: "{}",
-        location: this.locations[0]
+        location: this.locations[0].value
     };
 
     templateForm: FormGroup = this.fb.group({
@@ -38,7 +46,7 @@ export class TemplateDetailsComponent implements OnInit {
         description: this.initialValues.description,
         sortKey: this.initialValues.sortKey,
         filterString: [this.initialValues.filterString, Validators.minLength(2)], // TODO: validate using JSON schema
-        location: [this.initialValues.location, [Validators.required, isInSetValidator(this.locations)]]
+        location: [this.initialValues.location, [Validators.required, isInSetValidator(this.locations.map(location => location.value))]]
     });
 
     constructor(private registry: PluginRegistryBaseService, private fb: FormBuilder) { }
