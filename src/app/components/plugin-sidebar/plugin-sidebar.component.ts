@@ -125,14 +125,11 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     }
 
     private async handleNewTemplateTab(newTabLink: ApiLink) {
-        if (this.workspaceTabsLink == null && this.selectedTemplate != null) {
+        if ((this.workspaceTabsLink == null || this.experimentNavigationTabsLink == null) && this.selectedTemplate != null) {
             const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate, null, true);
             const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
-            this.workspaceTabsLink = workspaceGroupLink ?? null;
-        }
-        if (this.experimentNavigationTabsLink == null && this.selectedTemplate != null) {
-            const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate, null, true);
             const experimentNavigationGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "experiment-navigation");
+            this.workspaceTabsLink = workspaceGroupLink ?? null;
             this.experimentNavigationTabsLink = experimentNavigationGroupLink ?? null;
         }
         // add plugins to corresponding group
