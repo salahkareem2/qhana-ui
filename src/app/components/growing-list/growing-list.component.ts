@@ -250,6 +250,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             this.itemsChanged.emit([...this.items]);
         } else if (existing) {
             // some other property changed that may have removed it from list
+            // TODO: This should not trigger a full reload of everything
             this.reloadAll();
             return;
         }
