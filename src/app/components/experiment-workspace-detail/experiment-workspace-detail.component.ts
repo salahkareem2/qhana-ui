@@ -64,7 +64,15 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                 this.updateTemplateId(templateId);
             }
             if (tabId !== this.tabId) {
-                this.updateTabId(tabId);
+                this.tabId = tabId;
+                for (const tabLinks of Object.values(this.templateTabLinks)) {
+                    const tabLink = tabLinks.find(link => link.resourceKey?.["uiTemplateTabId"] === tabId);
+                    if (tabLink != null) {
+                        this.tabLink = tabLink;
+                        this.updateTabId();
+                        break;
+                    }
+                }
             }
         });
         this.registerObjectSubscriptions();
@@ -194,15 +202,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
         }
     }
 
-    private async updateTabId(tabId: string | null) {
-        this.tabId = tabId;
-        for (const tabLinks of Object.values(this.templateTabLinks)) {
-            const tabLink = tabLinks.find(link => link.resourceKey?.["uiTemplateTabId"] === tabId);
-            if (tabLink != null) {
-                this.tabLink = tabLink;
-                break;
-            }
-        }
+    private async updateTabId() {
         if (this.tabLink == null) {
             return;
         }
