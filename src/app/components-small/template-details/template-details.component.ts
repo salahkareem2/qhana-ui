@@ -4,10 +4,9 @@ import { ApiLink, ApiResponse } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TemplateApiObject, TemplateTabApiObject } from 'src/app/services/templates.service';
 
-export function arrayValidator(validArray: any[]): Validators {
+export function isInSetValidator(validValues: any[]): Validators {
     return (control: FormControl): { [key: string]: any } | null => {
-        const value = control.value;
-        if (validArray.indexOf(value) === -1) {
+        if (!validValues.includes(control.value)) {
             return { invalidValue: true };
         }
         return null;
@@ -39,7 +38,7 @@ export class TemplateDetailsComponent implements OnInit {
         description: this.initialValues.description,
         sortKey: this.initialValues.sortKey,
         filterString: [this.initialValues.filterString, Validators.minLength(2)], // TODO: validate using JSON schema
-        location: [this.initialValues.location, [Validators.required, arrayValidator(this.locations)]]
+        location: [this.initialValues.location, [Validators.required, isInSetValidator(this.locations)]]
     });
 
     constructor(private registry: PluginRegistryBaseService, private fb: FormBuilder) { }
