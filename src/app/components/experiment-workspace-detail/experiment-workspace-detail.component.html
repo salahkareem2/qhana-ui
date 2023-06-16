@@ -75,7 +75,9 @@
                     {{tab.name}}
                 </mat-panel-title>
                 <mat-panel-description>
-                    {{templateTabDescriptions[tab.resourceKey?.uiTemplateTabId ?? '']}}
+                    <ng-container *ngIf="templateTabObjects[tab.resourceKey?.uiTemplateTabId ?? '']">
+                        {{templateTabObjects[tab.resourceKey?.uiTemplateTabId ?? ''].description}}
+                    </ng-container>
                 </mat-panel-description>
             </mat-expansion-panel-header>
             <qhana-template-details [tabLink]="tab"></qhana-template-details>
@@ -90,7 +92,9 @@
                     {{tab.name}}
                 </mat-panel-title>
                 <mat-panel-description>
-                    {{templateTabDescriptions[tab.resourceKey?.uiTemplateTabId ?? '']}}
+                    <ng-container *ngIf="templateTabObjects[tab.resourceKey?.uiTemplateTabId ?? '']">
+                        {{templateTabObjects[tab.resourceKey?.uiTemplateTabId ?? ''].description}}
+                    </ng-container>
                 </mat-panel-description>
             </mat-expansion-panel-header>
             <qhana-template-details [tabLink]="tab"></qhana-template-details>
