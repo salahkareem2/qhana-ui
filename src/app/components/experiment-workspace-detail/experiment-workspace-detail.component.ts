@@ -114,7 +114,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
                 if (deletedObject.deleted.resourceKey?.uiTemplateTabId === this.tabId) {
                     this.deselectTab(null);
                 }
-                if (deletedObject.deleted.resourceKey?.uiTemplateTabId && deletedObject.deleted.resourceKey?.uiTemplateTabId in this.templateTabObjects) {
+                if (deletedObject.deleted.resourceKey?.uiTemplateTabId && Object.hasOwn(this.templateTabObjects, deletedObject.deleted.resourceKey?.uiTemplateTabId)) {
                     delete this.templateTabObjects[deletedObject.deleted.resourceKey?.uiTemplateTabId];
                     for (const group in this.templateTabLinks) {
                         this.templateTabLinks[group] = this.templateTabLinks[group].filter(link => link.href !== deletedObject.deleted.href);
