@@ -123,11 +123,11 @@
     <ng-container
         *ngIf="stepTabId === 'outputs' && timelineStep.outputData != null && timelineStep.outputData.length > 0">
         <h2>Output</h2>
-        <qhana-preview-list [dataList]="timelineStep.outputData ?? []"></qhana-preview-list>
+        <qhana-preview-list [dataList]="timelineStep.outputData"></qhana-preview-list>
     </ng-container>
     <ng-container *ngIf="stepTabId === 'inputs' && timelineStep.inputData != null && timelineStep.inputData.length > 0">
         <h2>Input</h2>
-        <qhana-preview-list [dataList]="timelineStep.inputData ?? []"></qhana-preview-list>
+        <qhana-preview-list [dataList]="timelineStep.inputData"></qhana-preview-list>
     </ng-container>
 
     <ng-container *ngIf="stepTabId === 'steps' || (stepTabId === 'overview' && timelineStep.status === 'PENDING')">

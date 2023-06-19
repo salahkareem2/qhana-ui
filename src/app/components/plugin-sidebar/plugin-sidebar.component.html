@@ -1,13 +1,17 @@
 <div class="sidebar-container">
     <div class="nav-icons" [attr.data-open]="sidebarOpen ? 'yes' : 'no'">
         <button mat-ripple class="sidebar-button {{(activeArea === 'templates') ? 'active' : ''}}"
-            matTooltip="Choose Template"  matTooltipPosition="after"aria-label="choose template"
+            matTooltip="Choose Template" matTooltipPosition="after" aria-label="choose template"
             (click)="switchActiveArea('templates')">
             <mat-icon>menu_open</mat-icon>
         </button>
-        <button mat-ripple class="sidebar-button {{(activeArea === 'search') ? 'active' : ''}}"
-            matTooltip="Search" matTooltipPosition="after" aria-label="search plugins"
-            (click)="switchActiveArea('search')">
+        <button mat-ripple class="sidebar-button {{(activeArea === 'detail') ? 'active' : ''}}" *ngIf="selectedTemplate"
+            matTooltip="Template Details" matTooltipPosition="after" aria-label="template details"
+            (click)="switchActiveArea('detail')">
+            <mat-icon>info</mat-icon>
+        </button>
+        <button mat-ripple class="sidebar-button {{(activeArea === 'search') ? 'active' : ''}}" matTooltip="Search"
+            matTooltipPosition="after" aria-label="search plugins" (click)="switchActiveArea('search')">
             <mat-icon>search</mat-icon>
         </button>
         <button mat-ripple class="sidebar-button {{(activeArea === 'plugins' && activeGroup == group) ? 'active' : ''}}"
@@ -27,20 +31,39 @@
                     </h2>
                 </summary>
                 <mat-divider></mat-divider>
-                <button mat-button class="w-100 all-plugins-button" (click)="selectTemplate(null)">show all plugins</button>
+                <button mat-button class="w-100 all-plugins-button" (click)="selectTemplate(null)">show all
+                    plugins</button>
                 <mat-divider></mat-divider>
-                <!-- TODO add interaction/selection once templates are fully supported in the registry -->
                 <qhana-growing-list [rels]="['ui-template', 'collection']" [newItemRels]="['ui-template']"
-                    [highlighted]="highlightedTemplates" [highlightByKey]="'templateId'" (clickItem)="selectTemplate($event)"></qhana-growing-list>
+                    [highlighted]="highlightedTemplates" [highlightByKey]="'uiTemplateId'"
+                    (clickItem)="selectTemplate($event)"></qhana-growing-list>
                 <mat-divider></mat-divider>
+                <button mat-ripple class="sidebar-button w-100" (click)="createTemplate()">Create Template</button>
             </details>
-            <mat-form-field class="full-width" color="primary">
+            <mat-form-field class="full-width" color="primary"
+                [hidden]="activeArea == 'detail' || activeArea == 'templates'">
                 <mat-label>Search plugins</mat-label>
                 <input matInput placeholder="search" (focus)="activeArea = 'search'" autocomplete="off" #searchInput>
                 <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
         </div>
-        <details class="plugin-group" [open]="group.open" *ngFor="let group of pluginGroups">
+        <div class="template-tab-sidebar" [hidden]="activeArea != 'detail'">
+            <mat-divider></mat-divider>
+            <ng-container *ngIf="workspaceTabsLink">
+                <h3 class="sidebar-header">Workspace Tabs</h3>
+                <qhana-growing-list [apiLink]="workspaceTabsLink" [deleteButton]="this.selectedTemplate ? true : false" 
+                [highlighted]="highlightedTemplateTabs" [highlightByKey]="'uiTemplateTabId'" (clickItem)="selectTab($event)" 
+                [newItemRels]="['ui-template-tab']"></qhana-growing-list>  <!-- TODO only using the rel to differentiate the tabs is not enough -->
+            </ng-container>
+            <ng-container *ngIf="experimentNavigationTabsLink">
+                <h3 class="sidebar-header">Experiment Navigation Tabs</h3>
+                <qhana-growing-list [apiLink]="experimentNavigationTabsLink" [deleteButton]="this.selectedTemplate ? true : false" 
+                [highlighted]="highlightedTemplateTabs" [highlightByKey]="'uiTemplateTabId'" (clickItem)="selectTab($event)" 
+                [newItemRels]="['ui-template-tab']"></qhana-growing-list>  <!-- TODO only using the rel to differentiate the tabs is not enough -->
+            </ng-container>
+        </div>
+        <details class="plugin-group" [open]="group.open" *ngFor="let group of pluginGroups"
+            [hidden]="activeArea == 'detail' || activeArea == 'templates'">
             <summary class="no-decoration" (click)="togglePluginGroup(group, $event)">
                 <mat-divider></mat-divider>
                 <h3 class="plugin-group-header">
@@ -54,7 +77,8 @@
                 <mat-divider></mat-divider>
             </summary>
             <qhana-growing-list [apiLink]="group.link" [query]="group?.query ?? null" [search]="searchInput.value"
-                [highlighted]="highlightedPlugins" [highlightByKey]="'pluginId'" (clickItem)="selectPlugin($event)"></qhana-growing-list>
+                [highlighted]="highlightedPlugins" [highlightByKey]="'pluginId'"
+                (clickItem)="selectPlugin($event)"></qhana-growing-list>
             <mat-divider></mat-divider>
         </details>
     </div>

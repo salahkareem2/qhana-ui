@@ -2,12 +2,13 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import TimeAgo from 'javascript-time-ago';
 import { Subscription } from 'rxjs';
-import { CollectionApiObject } from 'src/app/services/api-data-types';
+import { ApiLink, CollectionApiObject } from 'src/app/services/api-data-types';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { PluginApiObject } from 'src/app/services/qhana-api-data-types';
 import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { FormSubmitData } from '../plugin-uiframe/plugin-uiframe.component';
+import { TemplateTabApiObject, TemplatesService } from 'src/app/services/templates.service';
 
 @Component({
     selector: 'qhana-experiment-workspace',
@@ -20,6 +21,10 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
 
     experimentId: string | null = null;
 
+    detailAreaActive: boolean = false;
+    templateTab: TemplateTabApiObject | null = null;
+    templateTabLink: ApiLink | null = null;
+
     parameterSubscription: Subscription | null = null;
     activePlugin: PluginApiObject | null = null;
 
@@ -29,7 +34,7 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
     stepsPerPage: number = 100;
 
     expandedPluginDescription: boolean = false;
-    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private registry: PluginRegistryBaseService, private backend: QhanaBackendService, private router: Router) { }
+    constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private registry: PluginRegistryBaseService, private backend: QhanaBackendService, private router: Router, private templates: TemplatesService) { }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params.subscribe(params => {
@@ -42,6 +47,8 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
     registerParameterSubscription() {
         this.parameterSubscription = this.route.queryParamMap.subscribe(params => {
             const pluginId = params.get('plugin');
+            const templateTabId = params.get('tab');
+            this.detailAreaActive = templateTabId != null;
             this.onPluginIdChange(pluginId);
         });
     }

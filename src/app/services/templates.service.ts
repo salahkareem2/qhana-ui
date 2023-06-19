@@ -15,7 +15,6 @@
  */
 
 import { Injectable } from '@angular/core';
-import { DefaultTitleStrategy } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { ApiLink, ApiObject, PageApiObject } from './api-data-types';
 import { CurrentExperimentService } from './current-experiment.service';
@@ -35,7 +34,8 @@ export interface TemplateTabApiObject extends ApiObject {  // TODO check fields
     name: string;
     description: string;
     sortKey: number;
-    pluginsFilter: string;
+    filterString: string;
+    location: string;
     plugins: ApiLink;
 }
 
@@ -85,4 +85,8 @@ export class TemplatesService {
         }
     }
 
+    async addTemplate(newTemplate: TemplateApiObject) {
+        const createLink = await this.registry.searchResolveRels(["create", "ui-template"]);
+        return this.registry.submitByApiLink<TemplateApiObject>(createLink, newTemplate);
+    }
 }

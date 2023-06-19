@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, TrackByFunction } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges, TrackByFunction } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { from, isObservable, Observable, Subject, Subscription } from 'rxjs';
 import { concatMap, filter } from 'rxjs/operators';
 import { DeleteDialog } from 'src/app/dialogs/delete-dialog/delete-dialog.dialog';
 import { ApiLink, ApiObject, isCollectionApiObject, matchesLinkRel } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
+
 
 @Component({
     selector: 'qhana-growing-list',
@@ -34,6 +35,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     @Input() highlightByKey: string | null = null;
 
     @Output() itemsChanged: EventEmitter<ApiLink[]> = new EventEmitter<ApiLink[]>();
+    @Output() collectionSize: EventEmitter<number> = new EventEmitter<number>();
     @Output() clickItem: EventEmitter<ApiLink> = new EventEmitter<ApiLink>();
     @Output() editItem: EventEmitter<ApiLink> = new EventEmitter<ApiLink>();
     @Output() deleteItem: EventEmitter<ApiLink> = new EventEmitter<ApiLink>();
@@ -43,6 +45,8 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     loadMoreApiLink: ApiLink | null = null;
     isLoading: boolean = false;
     loadMoreClicked: boolean = false;
+
+    private lastCollectionSize: number | null = null;
 
     private updateQueue: Subject<() => Promise<unknown> | Observable<unknown>> = new Subject();
 
@@ -64,14 +68,46 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             return from(result);
         })).subscribe();
 
+        this.setupGrowingList();
+    }
 
+    ngOnDestroy(): void {
+        this.unsubscribeAll();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.apiLink?.previousValue || changes.rels?.previousValue || changes.query?.previousValue || changes.newItemRels?.previousValue) {
+            this.unsubscribeAll();
+            this.newItemsSubscription = null;
+            this.changedItemsSubscription = null;
+            this.deletedItemsSubscription = null;
+            this.updateQueueSubscription = null;
+            this.startApiLink = null;
+            this.startQueryArgs = null;
+            this.loadMoreApiLink = null;
+            this.isLoading = false;
+            this.loadMoreClicked = false;
+            this.lastCollectionSize = null;
+            this.items = [];
+            this.setupGrowingList();
+        }
+    }
+
+    private unsubscribeAll(): void {
+        this.newItemsSubscription?.unsubscribe();
+        this.changedItemsSubscription?.unsubscribe();
+        this.deletedItemsSubscription?.unsubscribe();
+        this.updateQueueSubscription?.unsubscribe();
+    }
+
+    private setupGrowingList() {
         if (this.apiLink != null) {
             this.replaceApiLink(this.apiLink);
-            return;
-        }
-        const rels = this.rels
-        if (rels != null) {
-            this.registry.resolveRecursiveRels(rels).then((apiLink) => this.replaceApiLink(apiLink));
+        } else {
+            const rels = this.rels
+            if (rels != null) {
+                this.registry.resolveRecursiveRels(rels).then((apiLink) => this.replaceApiLink(apiLink));
+            }
         }
 
         // handle api updates
@@ -93,13 +129,6 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             .subscribe(deletedObject => this.updateQueue.next(() => this.onDeletedObjectQueued(deletedObject.deleted)));
     }
 
-    ngOnDestroy(): void {
-        this.updateQueueSubscription?.unsubscribe();
-        this.newItemsSubscription?.unsubscribe();
-        this.changedItemsSubscription?.unsubscribe();
-        this.deletedItemsSubscription?.unsubscribe();
-    }
-
     replaceApiLink(newApiLink: ApiLink): void {
         if (newApiLink.href === this.startApiLink?.href) {
             if (this.query === this.startQueryArgs) {
@@ -115,6 +144,8 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             console.warn("The given api link does not correspond to the first page of a paginated collection resource!", this.apiLink);
         }
         this.loadMoreApiLink = null;
+        this.lastCollectionSize = null;
+        this.collectionSize.emit(0);
         const query = this.query;
         this.updateQueue.next(() => this.replaceApiLinkQueued(newApiLink, query));
     }
@@ -153,6 +184,8 @@ export class GrowingListComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.loadMoreClicked = false;
         this.itemsChanged.emit([...this.items]);
+        this.lastCollectionSize = response.data.collectionSize;
+        this.collectionSize.emit(response.data.collectionSize);
     }
 
     loadMore() {
@@ -187,11 +220,20 @@ export class GrowingListComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.loadMoreClicked = false;
         this.itemsChanged.emit([...this.items]);
+        this.lastCollectionSize = response.data.collectionSize;
+        this.collectionSize.emit(response.data.collectionSize);
     }
 
     private async onNewObjectQueued(newObjectLink: ApiLink) {
+        if (this.apiLink != null) {
+            // make sure the new object is part of the collection
+            this.reloadAll();
+            return;
+        }
         this.items = [...this.items, newObjectLink];
         this.itemsChanged.emit([...this.items]);
+        this.lastCollectionSize = (this.lastCollectionSize ?? 0) + 1; // extrapolate collection size
+        this.collectionSize.emit(this.lastCollectionSize ?? 0);
     }
 
     private async onChangedObjectQueued(changedObjectLink: ApiLink) {
@@ -206,6 +248,11 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             newItems[index] = changedObjectLink;
             this.items = newItems;
             this.itemsChanged.emit([...this.items]);
+        } else if (existing) {
+            // some other property changed that may have removed it from list
+            // TODO: This should not trigger a full reload of everything
+            this.reloadAll();
+            return;
         }
 
         const newItemRels = this.newItemRels;
@@ -221,6 +268,15 @@ export class GrowingListComponent implements OnInit, OnDestroy {
         }
         this.items = newItems;
         this.itemsChanged.emit([...this.items]);
+        if (this.lastCollectionSize == null) {
+            this.collectionSize.emit(0);
+        } else if (this.lastCollectionSize == 1) {
+            this.lastCollectionSize = null; // assume deleted last item
+            this.collectionSize.emit(0);
+        } else {
+            this.lastCollectionSize -= 1; // extrapolate collection size
+            this.collectionSize.emit(this.lastCollectionSize);
+        }
     }
 
     trackBy: TrackByFunction<ApiLink> = (index, item: ApiLink): string => {

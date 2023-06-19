@@ -78,6 +78,10 @@ import { CreateExperimentDialog } from './dialogs/create-experiment/create-exper
 import { DeleteDialog } from './dialogs/delete-dialog/delete-dialog.dialog';
 import { ExportExperimentDialog } from './dialogs/export-experiment/export-experiment.component';
 import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
+import { ChangeUiTemplateComponent } from './dialogs/change-ui-template/change-ui-template.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { TemplateDetailsComponent } from './components-small/template-details/template-details.component';
+import { ExperimentWorkspaceDetailComponent } from './components/experiment-workspace-detail/experiment-workspace-detail.component';
 
 @NgModule({
     declarations: [
@@ -116,6 +120,9 @@ import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.compon
         RawTextPreviewComponent,
         PluginPreviewComponent,
         PluginTabComponent,
+        ChangeUiTemplateComponent,
+        TemplateDetailsComponent,
+        ExperimentWorkspaceDetailComponent,
         ImportExperimentComponent,
     ],
     imports: [
@@ -143,6 +150,7 @@ import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.compon
         MatProgressBarModule,
         MatExpansionModule,
         MatTooltipModule,
+        ReactiveFormsModule,
         MatCheckboxModule,
         MatRadioModule,
         MatMenuModule,
