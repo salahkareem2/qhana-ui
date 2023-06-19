@@ -117,9 +117,9 @@ export class PluginTabComponent implements OnInit, OnDestroy {
 
         if (navigate) {
             if (pluginLink != null) {
-                this.router.navigate(['/experiments', this.currentExperimentId, 'extra', this.currentTabId, 'plugin', pluginLink.resourceKey?.pluginId]);
+                this.router.navigate(['/experiments', this.currentExperimentId, 'extra', this.currentTabId, 'plugin', pluginLink.resourceKey?.pluginId], { queryParamsHandling: 'preserve' });
             } else {
-                this.router.navigate(['/experiments', this.currentExperimentId, 'extra', this.currentTabId]);
+                this.router.navigate(['/experiments', this.currentExperimentId, 'extra', this.currentTabId], { queryParamsHandling: 'preserve' });
             }
         }
     }
