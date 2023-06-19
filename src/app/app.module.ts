@@ -82,6 +82,8 @@ import { ChangeUiTemplateComponent } from './dialogs/change-ui-template/change-u
 import { ReactiveFormsModule } from '@angular/forms';
 import { TemplateDetailsComponent } from './components-small/template-details/template-details.component';
 import { ExperimentWorkspaceDetailComponent } from './components/experiment-workspace-detail/experiment-workspace-detail.component';
+import { PluginFilterNodeComponent } from './components-small/plugin-filter-node/plugin-filter-node.component';
+import { PluginFilterEditorComponent } from './components-small/plugin-filter-editor/plugin-filter-editor.component';
 
 @NgModule({
     declarations: [
@@ -124,6 +126,8 @@ import { ExperimentWorkspaceDetailComponent } from './components/experiment-work
         TemplateDetailsComponent,
         ExperimentWorkspaceDetailComponent,
         ImportExperimentComponent,
+        PluginFilterNodeComponent,
+        PluginFilterEditorComponent,
     ],
     imports: [
         BrowserModule,

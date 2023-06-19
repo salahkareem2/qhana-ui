@@ -1,8 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ApiLink, ApiResponse } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TemplateApiObject, TemplateTabApiObject } from 'src/app/services/templates.service';
+import { PluginFilterEditorComponent } from '../plugin-filter-editor/plugin-filter-editor.component';
 
 export function isInSetValidator(validValues: any[]): Validators {
     return (control: FormControl): { [key: string]: any } | null => {
@@ -28,6 +29,8 @@ export class TemplateDetailsComponent implements OnInit {
     @Input() templateLink: ApiLink | null = null;
     @Input() tabLink: ApiLink | null = null;
 
+    @ViewChild("filterEditor") filterEditor: PluginFilterEditorComponent | null = null;
+
     locations: Location[] = [
         { value: "workspace", description: "Workspace (appears in the plugin sidebar)" },
         { value: "experiment-navigation", description: "Experiment Navigation (appears in the top navigation bar)" }
@@ -37,7 +40,6 @@ export class TemplateDetailsComponent implements OnInit {
         name: "",
         description: "",
         sortKey: 0,
-        filterString: "{}",
         location: this.locations[0].value
     };
 
@@ -45,7 +47,6 @@ export class TemplateDetailsComponent implements OnInit {
         name: [this.initialValues.name, Validators.required],
         description: this.initialValues.description,
         sortKey: this.initialValues.sortKey,
-        filterString: [this.initialValues.filterString, Validators.minLength(2)], // TODO: validate using JSON schema
         location: [this.initialValues.location, [Validators.required, isInSetValidator(this.locations.map(location => location.value))]]
     });
 
@@ -58,7 +59,6 @@ export class TemplateDetailsComponent implements OnInit {
                     name: response?.data?.name ?? this.initialValues.name,
                     description: response?.data?.description ?? this.initialValues.description,
                     sortKey: response?.data?.sortKey ?? this.initialValues.sortKey,
-                    filterString: response?.data?.filterString ?? this.initialValues.filterString,
                     location: response?.data?.location ?? this.initialValues.location
                 });
             });
@@ -78,13 +78,14 @@ export class TemplateDetailsComponent implements OnInit {
             console.warn("TemplateDetailsComponent: neither templateLink nor tabLink is set");
             return;
         }
+        const filterString = this.filterEditor?.filterString ?? "{}";
         const link = response?.links?.find(link => link.rel.some(rel => rel === findString) && link.resourceType == "ui-template-tab") ?? null;
         if (link != null) {
             this.registry.submitByApiLink<TemplateTabApiObject>(link, {
                 name: this.templateForm.value.name,
                 description: this.templateForm.value.description,
                 sortKey: this.templateForm.value.sortKey,
-                filterString: this.templateForm.value.filterString,
+                filterString: filterString,
                 location: this.templateForm.value.location
             });
             if (this.templateLink != null) {
