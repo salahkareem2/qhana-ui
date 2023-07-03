@@ -15,13 +15,12 @@ export class PluginFilterEditorComponent implements OnInit {
     filterString: string = "{}";
     filterControl = new FormControl(this.filterString, [Validators.required, Validators.minLength(2)]);  // TODO: Add validator for JSON
 
-    filterObject: any = null;
+    filterObject: any = {};
 
     constructor(private registry: PluginRegistryBaseService) { }
 
     ngOnInit(): void {
         if (this.tabLink == null) {
-            console.warn("No tab link provided to plugin filter node component");
             return;
         }
         this.registry.getByApiLink<TemplateTabApiObject>(this.tabLink).then(response => {
