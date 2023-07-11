@@ -20,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
@@ -140,6 +141,7 @@ import { PluginFilterEditorComponent } from './components-small/plugin-filter-ed
         MatCardModule,
         MatButtonModule,
         MatButtonToggleModule,
+        MatSlideToggleModule,
         MatCommonModule,
         MatTabsModule,
         MatRippleModule,

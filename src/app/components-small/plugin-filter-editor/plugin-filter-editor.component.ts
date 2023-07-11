@@ -17,6 +17,8 @@ export class PluginFilterEditorComponent implements OnInit {
 
     filterObject: any = {};
 
+    showEditor: boolean = true;
+
     constructor(private registry: PluginRegistryBaseService) { }
 
     ngOnInit(): void {
