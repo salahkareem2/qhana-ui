@@ -20,7 +20,7 @@
         <mat-label>Sort Key:</mat-label>
         <input matInput type="number" formControlName="sortKey">
     </mat-form-field>
-    <qhana-plugin-filter-editor #filterEditor [tabLink]="tabLink"></qhana-plugin-filter-editor>
+    <qhana-plugin-filter-editor [tabLink]="tabLink" (filterEmitter)="onFilterChange($event)"></qhana-plugin-filter-editor>
     <br>
     <button mat-raised-button type="submit" color="primary">{{templateLink ? 'Create' : 'Update'}} Tab</button>
 </form>

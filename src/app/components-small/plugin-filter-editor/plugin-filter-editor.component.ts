@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { ApiLink } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
@@ -11,6 +11,7 @@ import { TemplateTabApiObject } from 'src/app/services/templates.service';
 })
 export class PluginFilterEditorComponent implements OnInit {
     @Input() tabLink: ApiLink | null = null;
+    @Output() filterEmitter: EventEmitter<string> = new EventEmitter<string>();
 
     filterString: string = "{}";
     filterControl = new FormControl(this.filterString, [Validators.required, Validators.minLength(2)]);  // TODO: Add validator for JSON
@@ -36,6 +37,7 @@ export class PluginFilterEditorComponent implements OnInit {
         this.filterObject = value;
         this.filterString = JSON.stringify(this.filterObject, null, 2);
         this.filterControl.setValue(this.filterString);
+        this.filterEmitter.emit(this.filterString);
     }
 
     copyFilterString() {

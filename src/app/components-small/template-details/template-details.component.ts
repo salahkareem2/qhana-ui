@@ -1,9 +1,8 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ApiLink, ApiResponse } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TemplateApiObject, TemplateTabApiObject } from 'src/app/services/templates.service';
-import { PluginFilterEditorComponent } from '../plugin-filter-editor/plugin-filter-editor.component';
 
 export function isInSetValidator(validValues: any[]): Validators {
     return (control: FormControl): { [key: string]: any } | null => {
@@ -29,7 +28,7 @@ export class TemplateDetailsComponent implements OnInit {
     @Input() templateLink: ApiLink | null = null;
     @Input() tabLink: ApiLink | null = null;
 
-    @ViewChild("filterEditor") filterEditor: PluginFilterEditorComponent | null = null;
+    filterString: string = "{}";
 
     locations: Location[] = [
         { value: "workspace", description: "Workspace (appears in the plugin sidebar)" },
@@ -78,7 +77,7 @@ export class TemplateDetailsComponent implements OnInit {
             console.warn("TemplateDetailsComponent: neither templateLink nor tabLink is set");
             return;
         }
-        const filterString = this.filterEditor?.filterString ?? "{}";
+        const filterString = this.filterString;
         const link = response?.links?.find(link => link.rel.some(rel => rel === findString) && link.resourceType == "ui-template-tab") ?? null;
         if (link != null) {
             this.registry.submitByApiLink<TemplateTabApiObject>(link, {
@@ -93,5 +92,9 @@ export class TemplateDetailsComponent implements OnInit {
                 this.templateForm.controls.name.setErrors(null);
             }
         }
+    }
+
+    onFilterChange(filterString: string) {
+        this.filterString = filterString;
     }
 }
