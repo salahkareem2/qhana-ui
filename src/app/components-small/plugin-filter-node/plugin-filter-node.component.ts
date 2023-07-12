@@ -71,7 +71,7 @@ export class PluginFilterNodeComponent implements OnInit {
 
     addFilter(type: 'name' | 'tag' | 'version' | 'and' | 'or' = 'name') {
         if (this.children == null) {
-            console.warn("No children provided to plugin filter node component");
+            console.warn("Cannot add child filter because the plugin filter node component is a leaf node!");
             return;
         }
         this.children.push({
