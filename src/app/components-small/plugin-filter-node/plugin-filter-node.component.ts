@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 
+type FilterType = 'and' | 'or' | 'name' | 'tag' | 'version';
+
 @Component({
     selector: 'qhana-plugin-filter-node',
     templateUrl: './plugin-filter-node.component.html',
@@ -11,7 +13,7 @@ export class PluginFilterNodeComponent implements OnInit {
     @Input() depth: number = 0;
     @Output() childChange = new EventEmitter<[number, any]>();
 
-    type: 'and' | 'or' | 'name' | 'tag' | 'version' | null = null;
+    type: FilterType | null = null;
     children: any[] | null = null;
     value: string | null = null;
     inverted: boolean = false;
@@ -36,19 +38,24 @@ export class PluginFilterNodeComponent implements OnInit {
             console.warn("No filter object provided to plugin filter node component");
             return;
         }
+        // Should filters have multiple attributes at some point, this must be changed
+        const type = Object.keys(filter)[0];
+        if (type !== 'and' && type !== 'or' && type !== 'name' && type !== 'tag' && type !== 'version') {
+            console.warn("Invalid filter type provided to plugin filter node component");
+            return;
+        }
+        this.type = type as FilterType;
         const isLeaf = filter.and == null && filter.or == null;
         if (isLeaf) {
-            this.type = filter.version ? 'version' : filter.tag ? 'tag' : 'name';
-            this.value = filter.name ?? filter.tag ?? filter.version;
+            this.value = filter[this.type];
         } else {
-            this.type = filter.and ? 'and' : 'or';
-            this.children = filter.and ?? filter.or;
+            this.children = filter[this.type];
         }
         this.filterObject = currentValue;
         this.childChange.emit([this.index, this.filterObject]);
     }
 
-    setFilter(type: 'name' | 'tag' | 'version' | 'and' | 'or') {
+    setFilter(type: FilterType) {
         const isLeaf = type !== 'and' && type !== 'or';
         this.type = type;
         this.children = isLeaf ? null : [];
@@ -69,7 +76,7 @@ export class PluginFilterNodeComponent implements OnInit {
         this.childChange.emit([this.index, this.filterObject]);
     }
 
-    addFilter(type: 'name' | 'tag' | 'version' | 'and' | 'or' = 'name') {
+    addFilter(type: FilterType = 'name') {
         if (this.children == null) {
             console.warn("No children provided to plugin filter node component");
             return;
@@ -104,7 +111,7 @@ export class PluginFilterNodeComponent implements OnInit {
         this.updateFilterObject();
     }
 
-    changeType(type: 'name' | 'tag' | 'version' | 'and' | 'or') {
+    changeType(type: FilterType) {
         if (type == null) {
             return;
         }
