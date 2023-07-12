@@ -36,7 +36,7 @@ export class PluginFilterNodeComponent implements OnInit {
             console.warn("No filter object provided to plugin filter node component");
             return;
         }
-        const isLeaf = (filter.name != null) || filter.tag || filter.version;
+        const isLeaf = filter.and == null && filter.or == null;
         if (isLeaf) {
             this.type = filter.version ? 'version' : filter.tag ? 'tag' : 'name';
             this.value = filter.name ?? filter.tag ?? filter.version;
@@ -49,7 +49,7 @@ export class PluginFilterNodeComponent implements OnInit {
     }
 
     setFilter(type: 'name' | 'tag' | 'version' | 'and' | 'or') {
-        const isLeaf = type === 'name' || type === 'tag' || type === 'version';
+        const isLeaf = type !== 'and' && type !== 'or';
         this.type = type;
         this.children = isLeaf ? null : [];
         this.value = isLeaf ? "" : null;
@@ -109,7 +109,7 @@ export class PluginFilterNodeComponent implements OnInit {
             return;
         }
         const filter = this.filterObject.not ?? this.filterObject;
-        const isLeaf = type === 'name' || type === 'tag' || type === 'version';
+        const isLeaf = type !== 'and' && type !== 'or';
         if (this.type != null) {
             delete filter[this.type]
         }

@@ -13,7 +13,7 @@
             Filter
         </button>
     </div>
-    <mat-card *ngIf="!isFilterEmpty()" class="filter-node mat-elevation-z0" [ngClass]="{'filter-leaf' : type === 'name' || type === 'tag' || type === 'version'}">
+    <mat-card *ngIf="!isFilterEmpty()" class="filter-node mat-elevation-z0" [ngClass]="{'filter-leaf' : type !== 'and' && type !== 'or'}">
         <mat-card-header>
             <ng-container *ngIf="children != null">
                 <div class="config-header">
