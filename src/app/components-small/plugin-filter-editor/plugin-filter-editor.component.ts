@@ -50,8 +50,12 @@ export class PluginFilterEditorComponent implements OnInit {
             return;
         }
         if (this.filterControl.valid) {
-            this.filterObject = JSON.parse(filterValue);
-            this.filterString = filterValue;
+            try {
+                this.filterObject = JSON.parse(filterValue);
+                this.filterString = filterValue;
+            } catch (e) {
+                console.warn("Invalid filter string", this.filterObject, "\nError:", e);
+            }
         }
     }
 
