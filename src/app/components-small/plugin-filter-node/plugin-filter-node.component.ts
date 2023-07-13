@@ -78,9 +78,8 @@ export class PluginFilterNodeComponent implements OnInit {
             console.warn("Cannot add child filter because the plugin filter node component is a leaf node!");
             return;
         }
-        this.children.push({
-            [type]: type === 'and' || type === 'or' ? [] : ""
-        });
+        const filterValue = (type === 'and' || type === 'or') ? [] : "";
+        this.children.push({ [type]: filterValue });
         this.updateFilterObject();
     }
 
