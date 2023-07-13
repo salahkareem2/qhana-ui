@@ -43,11 +43,12 @@
         </mat-card-header>
         <mat-card-content>
             <ng-container *ngIf="children != null">
+                <span *ngIf="inverted" class="t-subheading">Not:</span>
                 <qhana-plugin-filter-node *ngFor="let child of children; let i = index" [filterObject]="children[i]" [index]="i" 
                     [depth]="depth + 1" (childChange)="updateChild($event)" (delete)="deleteChild($event)"></qhana-plugin-filter-node>
             </ng-container>
             <div class="config-filter" *ngIf="value != null">
-                <h3 *ngIf="inverted">Not:</h3>
+                <span *ngIf="inverted" class="t-subheading">Not:</span>
                 <mat-form-field class="inner-form-field">
                     <mat-label>Filter Type:</mat-label>
                     <mat-select [value]="type" (valueChange)="changeType($event)">
