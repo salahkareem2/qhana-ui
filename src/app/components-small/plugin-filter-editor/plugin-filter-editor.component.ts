@@ -54,4 +54,10 @@ export class PluginFilterEditorComponent implements OnInit {
             this.filterString = filterValue;
         }
     }
+
+    deleteFilter(index: number) {
+        this.filterString = "{}";
+        this.filterControl.setValue(this.filterString);
+        this.updateFilterEditor();
+    }
 }

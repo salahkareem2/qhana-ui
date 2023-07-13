@@ -12,6 +12,7 @@ export class PluginFilterNodeComponent implements OnInit {
     @Input() index: number = 0;
     @Input() depth: number = 0;
     @Output() childChange = new EventEmitter<[number, any]>();
+    @Output() delete = new EventEmitter<number>();
 
     type: FilterType | null = null;
     children: any[] | null = null;
@@ -63,17 +64,13 @@ export class PluginFilterNodeComponent implements OnInit {
         this.updateFilterObject();
     }
 
-    deleteFilter() {
-        if (this.depth === 0) {
-            this.type = null;
-            this.children = null;
-            this.value = null;
-            this.inverted = false;
-            this.filterObject = {};
-        } else {
-            this.filterObject = null;
+    deleteChild(index: number) {
+        if (this.children == null) {
+            console.warn("Cannot delete child filter: Filter has no children!");
+            return;
         }
-        this.childChange.emit([this.index, this.filterObject]);
+        this.children.splice(index, 1);
+        this.updateFilterObject();
     }
 
     addFilter(type: FilterType = 'name') {

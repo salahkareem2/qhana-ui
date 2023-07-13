@@ -34,7 +34,7 @@
                             <mat-icon>add</mat-icon>
                             Filter
                         </button>
-                        <button mat-raised-button type="button" (click)="deleteFilter()">
+                        <button mat-raised-button type="button" (click)="delete.emit(index)">
                             <mat-icon>delete</mat-icon>
                         </button>
                     </div>
@@ -44,7 +44,7 @@
         <mat-card-content>
             <ng-container *ngIf="children != null">
                 <qhana-plugin-filter-node *ngFor="let child of children; let i = index" [filterObject]="children[i]" [index]="i" 
-                    [depth]="depth + 1" (childChange)="updateChild($event)"></qhana-plugin-filter-node>
+                    [depth]="depth + 1" (childChange)="updateChild($event)" (delete)="deleteChild($event)"></qhana-plugin-filter-node>
             </ng-container>
             <div class="config-filter" *ngIf="value != null">
                 <h3 *ngIf="inverted">Not:</h3>
@@ -61,7 +61,7 @@
                     <textarea matInput [value]="value" (input)="updateFilterString($event)" cdkTextareaAutosize #autosize="cdkTextareaAutosize"
                     cdkAutosizeMinRows="1" cdkAutosizeMaxRows="15"></textarea>
                 </mat-form-field>
-                <button mat-raised-button type="button" (click)="deleteFilter()">
+                <button mat-raised-button type="button" (click)="delete.emit(index)">
                     <mat-icon>delete</mat-icon>
                 </button>
             </div>
