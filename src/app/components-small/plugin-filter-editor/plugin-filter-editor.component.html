@@ -3,7 +3,7 @@
     <mat-slide-toggle [(ngModel)]="showEditor">
         Editor Mode {{ showEditor ? '(UI)' : '(JSON)' }}
     </mat-slide-toggle>
-    <qhana-plugin-filter-node *ngIf="filterObject && showEditor" [filterObject]="filterObject" (childChange)="updateFilter($event)" (delete)="deleteFilter($event)"></qhana-plugin-filter-node>
+    <qhana-plugin-filter-node *ngIf="filterObject && showEditor" [filterObject]="filterObject" (childChange)="updateFilter($event)" (delete)="deleteFilter()"></qhana-plugin-filter-node>
     <ng-container *ngIf="!showEditor">
         <mat-form-field class="form-field">
             <mat-label>Filter String:</mat-label>

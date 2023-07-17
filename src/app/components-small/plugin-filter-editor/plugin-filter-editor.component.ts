@@ -32,8 +32,7 @@ export class PluginFilterEditorComponent implements OnInit {
         });
     }
 
-    updateFilter(event: [number, any]) {
-        const [index, value] = event;
+    updateFilter(value: any) {
         this.filterObject = value;
         this.filterString = JSON.stringify(this.filterObject, null, 2);
         this.filterControl.setValue(this.filterString);
@@ -59,7 +58,7 @@ export class PluginFilterEditorComponent implements OnInit {
         }
     }
 
-    deleteFilter(index: number) {
+    deleteFilter() {
         this.filterString = "{}";
         this.filterControl.setValue(this.filterString);
         this.updateFilterEditor();

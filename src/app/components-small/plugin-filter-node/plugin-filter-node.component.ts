@@ -9,10 +9,9 @@ type FilterType = 'and' | 'or' | 'name' | 'tag' | 'version';
 })
 export class PluginFilterNodeComponent implements OnInit {
     @Input() filterObject: any;
-    @Input() index: number = 0;
     @Input() depth: number = 0;
-    @Output() childChange = new EventEmitter<[number, any]>();
-    @Output() delete = new EventEmitter<number>();
+    @Output() childChange = new EventEmitter<any>();
+    @Output() delete = new EventEmitter<void>();
 
     type: FilterType | null = null;
     children: any[] | null = null;
@@ -32,6 +31,9 @@ export class PluginFilterNodeComponent implements OnInit {
     }
 
     setupFilter() {
+        if (Object.keys(this.filterObject).length === 0) {
+            return;
+        }
         const currentValue = this.filterObject;
         const filter = currentValue.not ?? this.filterObject;
         this.inverted = currentValue.not != null;
@@ -53,7 +55,7 @@ export class PluginFilterNodeComponent implements OnInit {
             this.children = filter[this.type];
         }
         this.filterObject = currentValue;
-        this.childChange.emit([this.index, this.filterObject]);
+        this.childChange.emit(this.filterObject);
     }
 
     setFilter(type: FilterType) {
@@ -90,15 +92,14 @@ export class PluginFilterNodeComponent implements OnInit {
         }
         const filter = this.filterObject.not ?? this.filterObject;
         filter[this.type] = this.children ?? this.value;
-        this.childChange.emit([this.index, this.filterObject]);
+        this.childChange.emit(this.filterObject);
     }
 
-    updateChild(event: [number, any]) {
+    updateChild(value: any, index: number) {
         if (this.children == null) {
             console.warn("No children provided to plugin filter node component");
             return;
         }
-        const [index, value] = event;
         if (value == null) {
             this.children.splice(index, 1);
         } else {
@@ -124,7 +125,7 @@ export class PluginFilterNodeComponent implements OnInit {
             this.value = null;
             filter[type] = this.children ?? [];
         }
-        this.childChange.emit([this.index, this.filterObject]);
+        this.childChange.emit(this.filterObject);
     }
 
     updateFilterString(event: any) {
@@ -139,7 +140,7 @@ export class PluginFilterNodeComponent implements OnInit {
         } else {
             this.filterObject = this.filterObject.not;
         }
-        this.childChange.emit([this.index, this.filterObject]);
+        this.childChange.emit(this.filterObject);
     }
 
     isFilterEmpty(): boolean {
