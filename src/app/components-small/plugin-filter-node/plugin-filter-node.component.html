@@ -1,5 +1,5 @@
 <div>
-    <div *ngIf="isFilterEmpty()" class="create-buttons">
+    <div *ngIf="isEmpty" class="create-buttons">
         <button mat-raised-button type="button" (click)="setFilter('and')" color="primary">
             <mat-icon>add</mat-icon>
             AND
@@ -13,7 +13,7 @@
             Filter
         </button>
     </div>
-    <mat-card *ngIf="!isFilterEmpty()" class="filter-node mat-elevation-z0" [ngClass]="{'filter-leaf' : type !== 'and' && type !== 'or'}">
+    <mat-card *ngIf="!isEmpty" class="filter-node mat-elevation-z0" [ngClass]="{'filter-leaf' : type !== 'and' && type !== 'or'}">
         <mat-card-header>
             <ng-container *ngIf="children != null">
                 <div class="config-header">

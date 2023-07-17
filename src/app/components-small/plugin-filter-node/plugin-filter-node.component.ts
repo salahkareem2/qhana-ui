@@ -17,6 +17,7 @@ export class PluginFilterNodeComponent implements OnInit {
     children: any[] | null = null;
     value: string | null = null;
     inverted: boolean = false;
+    isEmpty: boolean = true;
 
     constructor() { }
 
@@ -31,7 +32,8 @@ export class PluginFilterNodeComponent implements OnInit {
     }
 
     setupFilter() {
-        if (Object.keys(this.filterObject).length === 0) {
+        this.isEmpty = Object.keys(this.filterObject).length === 0;
+        if (this.isEmpty) {
             return;
         }
         const currentValue = this.filterObject;
@@ -64,6 +66,7 @@ export class PluginFilterNodeComponent implements OnInit {
         this.children = isLeaf ? null : [];
         this.value = isLeaf ? "" : null;
         this.updateFilterObject();
+        this.isEmpty = false;
     }
 
     deleteChild(index: number) {
@@ -141,10 +144,5 @@ export class PluginFilterNodeComponent implements OnInit {
             this.filterObject = this.filterObject.not;
         }
         this.childChange.emit(this.filterObject);
-    }
-
-    isFilterEmpty(): boolean {
-        const filter = this.filterObject.not ?? this.filterObject;
-        return Object.keys(filter).length === 0;
     }
 }
