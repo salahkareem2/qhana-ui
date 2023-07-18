@@ -41,9 +41,11 @@ export class PluginFilterNodeComponent implements OnInit {
             console.warn("No filter object provided to plugin filter node component");
             return;
         }
+        if (this.isEmpty) {
+            return;
+        }
         // Should filters have multiple attributes at some point, this must be changed
         const type = Object.keys(filter)[0];
-        // TODO: check for empty filter (currently prints warning)
         if (type !== 'and' && type !== 'or' && type !== 'name' && type !== 'tag' && type !== 'version') {
             console.warn("Invalid filter type provided to plugin filter node component");
             return;
