@@ -44,8 +44,11 @@ export class PluginFilterNodeComponent implements OnInit {
         if (this.isEmpty) {
             return;
         }
-        // Should filters have multiple attributes at some point, this must be changed
-        const type = Object.keys(filter)[0];
+        const filterKeys = Object.keys(filter)
+        if (filterKeys.length != 1) {
+            console.error("Filters with more than one attribute are not supported!");
+        }
+        const type = filterKeys[0];
         if (type !== 'and' && type !== 'or' && type !== 'name' && type !== 'tag' && type !== 'version') {
             console.warn("Invalid filter type provided to plugin filter node component");
             return;
