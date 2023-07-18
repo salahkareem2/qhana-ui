@@ -93,8 +93,4 @@ export class TemplateDetailsComponent implements OnInit {
             }
         }
     }
-
-    onFilterChange(filterString: string) {
-        this.filterString = filterString;
-    }
 }
