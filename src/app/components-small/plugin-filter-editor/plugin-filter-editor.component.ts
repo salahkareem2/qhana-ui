@@ -29,6 +29,7 @@ export class PluginFilterEditorComponent implements OnInit {
         this.registry.getByApiLink<TemplateTabApiObject>(this.tabLink).then(response => {
             this.filterString = response?.data?.filterString ?? this.filterString;
             this.filterObject = JSON.parse(this.filterString);
+            this.updateFilter(this.filterObject);
         });
     }
 

@@ -8,11 +8,12 @@ type FilterType = 'and' | 'or' | 'name' | 'tag' | 'version';
     styleUrls: ['./plugin-filter-node.component.sass']
 })
 export class PluginFilterNodeComponent implements OnInit {
-    @Input() filterObject: any;
+    @Input() filterIn: any;
     @Input() depth: number = 0;
-    @Output() childChange = new EventEmitter<any>();
+    @Output() filterOut = new EventEmitter<any>();
     @Output() delete = new EventEmitter<void>();
 
+    filterObject: any = {};
     type: FilterType | null = null;
     children: any[] | null = null;
     value: string | null = null;
@@ -26,25 +27,23 @@ export class PluginFilterNodeComponent implements OnInit {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.filterObject != null) {
+        if (changes.filterIn.previousValue != null) {
             this.setupFilter();
         }
     }
 
     setupFilter() {
-        this.isEmpty = Object.keys(this.filterObject).length === 0;
-        if (this.isEmpty) {
-            return;
-        }
-        const currentValue = this.filterObject;
-        const filter = currentValue.not ?? this.filterObject;
-        this.inverted = currentValue.not != null;
+        this.isEmpty = Object.keys(this.filterIn).length === 0;
+        this.filterObject = { ...this.filterIn };
+        const filter = this.filterObject.not ?? this.filterObject;
+        this.inverted = this.filterObject.not != null;
         if (filter == null) {
             console.warn("No filter object provided to plugin filter node component");
             return;
         }
         // Should filters have multiple attributes at some point, this must be changed
         const type = Object.keys(filter)[0];
+        // TODO: check for empty filter (currently prints warning)
         if (type !== 'and' && type !== 'or' && type !== 'name' && type !== 'tag' && type !== 'version') {
             console.warn("Invalid filter type provided to plugin filter node component");
             return;
@@ -56,8 +55,20 @@ export class PluginFilterNodeComponent implements OnInit {
         } else {
             this.children = filter[this.type];
         }
-        this.filterObject = currentValue;
-        this.childChange.emit(this.filterObject);
+    }
+
+    updateFilterObject() {
+        if (this.type == null) {
+            console.warn("No type provided to plugin filter node component");
+            return;
+        }
+        const filter = { ...this.filterObject };
+        if (this.inverted) {
+            filter.not[this.type] = this.children ?? this.value;
+        } else {
+            filter[this.type] = this.children ?? this.value;
+        }
+        this.filterOut.emit(filter);
     }
 
     setFilter(type: FilterType) {
@@ -88,16 +99,6 @@ export class PluginFilterNodeComponent implements OnInit {
         this.updateFilterObject();
     }
 
-    updateFilterObject() {
-        if (this.type == null) {
-            console.warn("No type provided to plugin filter node component");
-            return;
-        }
-        const filter = this.filterObject.not ?? this.filterObject;
-        filter[this.type] = this.children ?? this.value;
-        this.childChange.emit(this.filterObject);
-    }
-
     updateChild(value: any, index: number) {
         if (this.children == null) {
             console.warn("No children provided to plugin filter node component");
@@ -112,10 +113,10 @@ export class PluginFilterNodeComponent implements OnInit {
     }
 
     changeType(type: FilterType) {
-        if (type == null) {
+        if (type == null || this.type === type) {
             return;
         }
-        const filter = this.filterObject.not ?? this.filterObject;
+        const filter = { ...(this.filterObject.not ?? this.filterObject) };
         const isLeaf = type !== 'and' && type !== 'or';
         if (this.type != null) {
             delete filter[this.type]
@@ -128,7 +129,7 @@ export class PluginFilterNodeComponent implements OnInit {
             this.value = null;
             filter[type] = this.children ?? [];
         }
-        this.childChange.emit(this.filterObject);
+        this.filterOut.emit(filter);
     }
 
     updateFilterString(event: any) {
@@ -136,13 +137,13 @@ export class PluginFilterNodeComponent implements OnInit {
         this.updateFilterObject();
     }
 
-    invertFilter() {
-        this.inverted = !this.inverted;
+    invertFilter(event: any) {
+        this.inverted = event.checked;
         if (this.inverted) {
             this.filterObject = { not: this.filterObject };
         } else {
             this.filterObject = this.filterObject.not;
         }
-        this.childChange.emit(this.filterObject);
+        this.filterOut.emit({ ...this.filterObject });
     }
 }

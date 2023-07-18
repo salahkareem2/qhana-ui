@@ -44,8 +44,8 @@
         <mat-card-content>
             <ng-container *ngIf="children != null">
                 <span *ngIf="inverted" class="t-subheading">Not:</span>
-                <qhana-plugin-filter-node *ngFor="let child of children; let i = index" [filterObject]="children[i]"
-                    [depth]="depth + 1" (childChange)="updateChild($event, i)" (delete)="deleteChild(i)"></qhana-plugin-filter-node>
+                <qhana-plugin-filter-node *ngFor="let child of children; let i = index" [filterIn]="children[i]"
+                    [depth]="depth + 1" (filterOut)="updateChild($event, i)" (delete)="deleteChild(i)"></qhana-plugin-filter-node>
             </ng-container>
             <div class="config-filter" *ngIf="value != null">
                 <span *ngIf="inverted" class="t-subheading">Not:</span>
@@ -66,7 +66,7 @@
                     <mat-icon>delete</mat-icon>
                 </button>
             </div>
-            <mat-checkbox [checked]="inverted" (change)="invertFilter()">Invert - <i>Negate this filter</i></mat-checkbox>
+            <mat-checkbox [checked]="inverted" (change)="invertFilter($event)">Invert - <i>Negate this filter</i></mat-checkbox>
         </mat-card-content>
     </mat-card>
 </div>
