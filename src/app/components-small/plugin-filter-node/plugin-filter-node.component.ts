@@ -1,6 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 
-type FilterType = 'and' | 'or' | 'name' | 'tag' | 'version';
+// Define filter types ('not' excluded)
+// The PluginFilterNodeComponent component is designed to encapsulate a filter object and the information wether the filter is inverted ('not').
+// When the filter is inverted, the filter object is wrapped in a 'not' object and the 'inverted' property is set to true.
+const filterTypes = ['and', 'or', 'name', 'tag', 'version'] as const;
+type FilterType = (typeof filterTypes)[number];
+const isFilterType = (x: any): x is FilterType => filterTypes.includes(x);
 
 @Component({
     selector: 'qhana-plugin-filter-node',
@@ -46,11 +51,11 @@ export class PluginFilterNodeComponent implements OnInit {
         }
         const filterKeys = Object.keys(filter)
         if (filterKeys.length != 1) {
-            console.error("Filters with more than one attribute are not supported!");
+            console.error("Filters with more than one attribute are not supported! ", filterKeys);
         }
         const type = filterKeys[0];
-        if (type !== 'and' && type !== 'or' && type !== 'name' && type !== 'tag' && type !== 'version') {
-            console.warn("Invalid filter type provided to plugin filter node component");
+        if (!isFilterType(type)) {
+            console.warn("Invalid filter type provided to plugin filter node component: ", type);
             return;
         }
         this.type = type as FilterType;
