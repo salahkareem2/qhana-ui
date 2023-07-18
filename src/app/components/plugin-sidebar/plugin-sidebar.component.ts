@@ -7,7 +7,7 @@ import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/ch
 import { DeleteDialog } from 'src/app/dialogs/delete-dialog/delete-dialog.dialog';
 import { ApiLink, ApiResponse, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
-import { TemplateApiObject, TemplatesService, TemplateTabApiObject } from 'src/app/services/templates.service';
+import { TemplateApiObject, TemplateTabApiObject, TemplatesService } from 'src/app/services/templates.service';
 
 
 export interface PluginGroup {
@@ -34,13 +34,10 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     selectedTemplate: ApiLink | null = null;
     selectedTemplateName: string | "All Plugins" = "All Plugins";
     workspaceTabsLink: ApiLink | null = null;
-    experimentNavigationTabsLink: ApiLink | null = null;
 
     highlightedTemplates: Set<string> = new Set();
 
     highlightedPlugins: Set<string> = new Set();
-
-    highlightedTemplateTabs: Set<string> = new Set();
 
     defaultPluginGroups: PluginGroup[] = [];
 
@@ -49,6 +46,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     pluginGroups: PluginGroup[] = this.defaultPluginGroups;
 
     // route params
+    useDefaultTemplate: boolean = true;
     templateId: string | null = null;
     pluginId: string | null = null;
     tabId: string | null = null;
@@ -65,7 +63,12 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.routeParamSubscription = this.route.queryParamMap.subscribe(params => {
-            this.templateId = params.get('template');
+            let templateId = params.get('template');
+            this.useDefaultTemplate = templateId !== "all-plugins";
+            if (templateId === "all-plugins") {
+                templateId = null;
+            }
+            this.templateId = templateId;
             this.pluginId = params.get('plugin');
             this.tabId = params.get('tab');
             if (this.templateId != null) {
@@ -79,12 +82,10 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 this.highlightedPlugins.clear();
             }
             if (this.tabId != null) {
-                this.highlightedTemplateTabs = new Set<string>([this.tabId]);
                 if (this.activeArea !== "detail") {
                     this.switchActiveArea("detail");
                 }
             } else {
-                this.highlightedTemplateTabs.clear();
                 if (this.activeArea === "detail") {
                     this.switchActiveArea("plugins");
                 }
@@ -108,7 +109,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
         this.templates.defaultTemplate.subscribe(template => {
             this.defaultTemplate = template;
-            if (this.templateId == null) {
+            if (this.templateId == null && this.useDefaultTemplate) {
                 this.switchActiveTemplateLink(template?.self ?? null);
             }
         });
@@ -125,12 +126,14 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     }
 
     private async handleNewTemplateTab(newTabLink: ApiLink) {
-        if ((this.workspaceTabsLink == null || this.experimentNavigationTabsLink == null) && this.selectedTemplate != null) {
-            const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(this.selectedTemplate, null, true);
-            const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
-            const experimentNavigationGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "experiment-navigation");
+        if (this.workspaceTabsLink == null && this.selectedTemplate != null) {
+            if (newTabLink.resourceKey?.uiTemplateId == null) {
+                console.warn("New tab has no uiTemplateId", newTabLink);
+                return;
+            }
+            const tabGroups = await this.templates.getTemplateTabGroups(newTabLink.resourceKey?.uiTemplateId);
+            const workspaceGroupLink = tabGroups.find(group => group.resourceKey?.["?group"] === "workspace");
             this.workspaceTabsLink = workspaceGroupLink ?? null;
-            this.experimentNavigationTabsLink = experimentNavigationGroupLink ?? null;
         }
         // add plugins to corresponding group
         const tabResponse = await this.registry.getByApiLink<TemplateTabApiObject>(newTabLink);
@@ -163,6 +166,25 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 const tabId = changedObject.changed.resourceKey?.uiTemplateTabId ?? null;
                 const tabIndex = this.pluginGroups.findIndex(group => group.link.resourceKey?.['?template-tab'] === tabId);
                 this.pluginGroups[tabIndex] = { ...this.pluginGroups[tabIndex] };
+                const tabResponse = await this.registry.getByApiLink<TemplateTabApiObject>(changedObject.changed);
+                if (tabResponse == null) {
+                    console.warn("Could not load template tab", changedObject.changed);
+                    return;
+                }
+                if (tabIndex < 0) {
+                    this.pluginGroups.push({
+                        name: tabResponse.data.name,
+                        open: false,
+                        description: tabResponse.data.description,
+                        link: tabResponse.data.plugins,
+                    });
+                } else {
+                    this.pluginGroups[tabIndex].name = tabResponse.data.name;
+                    this.pluginGroups[tabIndex].description = tabResponse.data.description;
+                }
+                if (tabResponse.data.location !== 'workspace') {
+                    this.pluginGroups.splice(tabIndex, 1);
+                }
             });
 
         // romove deleted template tabs
@@ -205,11 +227,15 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
 
     private switchActiveTemplateLink(activeTemplate: ApiLink | null) {
         if (activeTemplate == null) {
-            this.selectedTemplate = null;
-            this.selectedTemplateName = "All Plugins";
-            this.activeArea = "plugins";
-            this.pluginGroups = this.defaultPluginGroups;
-            return;
+            if (this.useDefaultTemplate && this.defaultTemplate != null) {
+                activeTemplate = this.defaultTemplate.self;
+            } else {
+                this.selectedTemplate = null;
+                this.selectedTemplateName = "All Plugins";
+                this.activeArea = "plugins";
+                this.pluginGroups = this.defaultPluginGroups;
+                return;
+            }
         }
         const tabId = this.route.snapshot.queryParamMap.get('tab');
         this.selectedTemplate = activeTemplate;
@@ -219,13 +245,15 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     }
 
     private async loadPluginTemplate(activeTemplate: ApiLink) {
+        if (activeTemplate.resourceKey?.uiTemplateId == null) {
+            console.warn("No template id found in template link", activeTemplate);
+            return;
+        }
         const pluginGroups: PluginGroup[] = [];
         this.pluginGroups = pluginGroups;
-        const templateResponse = await this.registry.getByApiLink<TemplateApiObject>(activeTemplate);
-        const workspaceGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "workspace");
+        const tabGroups = await this.templates.getTemplateTabGroups(activeTemplate.resourceKey?.uiTemplateId);
+        const workspaceGroupLink = tabGroups.find(group => group.resourceKey?.["?group"] === "workspace");
         this.workspaceTabsLink = workspaceGroupLink ?? null;
-        const experimentNavigationGroupLink = templateResponse?.data?.groups?.find(group => group.resourceKey?.["?group"] === "experiment-navigation");
-        this.experimentNavigationTabsLink = experimentNavigationGroupLink ?? null;
         if (workspaceGroupLink == null) {
             return;
         }
@@ -244,6 +272,21 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                 link: tab.data.plugins,
             });
         });
+    }
+
+    getTabFilter(groupLink: ApiLink) {
+        return (tabLink: ApiLink): boolean => {
+            if (tabLink.resourceKey == null) {
+                return false;
+            }
+            if (tabLink.resourceKey?.["?group"] !== groupLink.resourceKey?.["?group"]) {
+                return false;
+            }
+            if (tabLink.resourceKey?.templateId !== groupLink.resourceKey?.templateId) {
+                return false;
+            }
+            return true;
+        }
     }
 
     private navigate(template: string | null = null, plugin: string | null = null, tab: string | null = null) {
@@ -312,10 +355,12 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         }
     }
 
-    selectTemplate(templateLink: ApiLink | null) {
+    selectTemplate(templateLink: ApiLink | null, specialTemplateId: "all-plugins" | null = null) {
+        this.useDefaultTemplate = specialTemplateId == null;
+
         this.switchActiveTemplateLink(templateLink);
         if (templateLink == null) {
-            this.navigate(null, null, null);
+            this.navigate(specialTemplateId, null, null);
             return;
         }
         this.navigate(templateLink.resourceKey?.uiTemplateId ?? null, null, null);

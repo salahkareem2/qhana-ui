@@ -85,6 +85,7 @@ import { TemplateDetailsComponent } from './components-small/template-details/te
 import { ExperimentWorkspaceDetailComponent } from './components/experiment-workspace-detail/experiment-workspace-detail.component';
 import { PluginFilterNodeComponent } from './components-small/plugin-filter-node/plugin-filter-node.component';
 import { PluginFilterEditorComponent } from './components-small/plugin-filter-editor/plugin-filter-editor.component';
+import { TabGroupListComponent } from './components/tab-group-list/tab-group-list.component';
 
 @NgModule({
     declarations: [
@@ -129,6 +130,7 @@ import { PluginFilterEditorComponent } from './components-small/plugin-filter-ed
         ImportExperimentComponent,
         PluginFilterNodeComponent,
         PluginFilterEditorComponent,
+        TabGroupListComponent,
     ],
     imports: [
         BrowserModule,
