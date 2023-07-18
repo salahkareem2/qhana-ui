@@ -8,7 +8,7 @@
         <mat-form-field class="form-field">
             <mat-label>Filter String:</mat-label>
             <textarea matInput [formControl]="filterControl" cdkTextareaAutosize #autosize="cdkTextareaAutosize"
-                cdkAutosizeMinRows="1" cdkAutosizeMaxRows="20" (input)="updateFilterEditor()">
+                cdkAutosizeMinRows="1" cdkAutosizeMaxRows="20" (focusout)="updateFilterEditor()">
             </textarea>
             <button mat-raised-button class="copy-button" type="button" (click)="copyFilterString()">
                 <mat-icon>content_copy</mat-icon>

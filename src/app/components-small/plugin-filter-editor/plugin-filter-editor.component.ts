@@ -53,6 +53,7 @@ export class PluginFilterEditorComponent implements OnInit {
             try {
                 this.filterObject = JSON.parse(filterValue);
                 this.filterString = filterValue;
+                this.filterEmitter.emit(this.filterString);
             } catch (e) {
                 console.warn("Invalid filter string", this.filterObject, "\nError:", e);
             }
