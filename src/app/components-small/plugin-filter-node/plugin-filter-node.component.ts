@@ -39,7 +39,7 @@ export class PluginFilterNodeComponent implements OnInit {
 
     setupFilter() {
         this.isEmpty = Object.keys(this.filterIn).length === 0;
-        this.filterObject = { ...this.filterIn };
+        this.filterObject = JSON.parse(JSON.stringify(this.filterIn));
         const filter = this.filterObject.not ?? this.filterObject;
         this.inverted = this.filterObject.not != null;
         if (filter == null) {
@@ -72,7 +72,7 @@ export class PluginFilterNodeComponent implements OnInit {
             console.warn("No type provided to plugin filter node component");
             return;
         }
-        const filter = { ...this.filterObject };
+        const filter = JSON.parse(JSON.stringify(this.filterObject));
         if (this.inverted) {
             filter.not[this.type] = this.children ?? this.value;
         } else {
@@ -126,7 +126,7 @@ export class PluginFilterNodeComponent implements OnInit {
         if (type == null || this.type === type) {
             return;
         }
-        const filter = { ...(this.filterObject.not ?? this.filterObject) };
+        const filter = this.filterObject.not ?? this.filterObject;
         const isLeaf = type !== 'and' && type !== 'or';
         if (this.type != null) {
             delete filter[this.type]
@@ -139,7 +139,7 @@ export class PluginFilterNodeComponent implements OnInit {
             this.value = null;
             filter[type] = this.children ?? [];
         }
-        this.filterOut.emit(filter);
+        this.filterOut.emit(JSON.parse(JSON.stringify(this.filterObject)));
     }
 
     updateFilterString(event: any) {
@@ -154,6 +154,6 @@ export class PluginFilterNodeComponent implements OnInit {
         } else {
             this.filterObject = this.filterObject.not;
         }
-        this.filterOut.emit({ ...this.filterObject });
+        this.filterOut.emit(JSON.parse(JSON.stringify(this.filterObject)));
     }
 }
