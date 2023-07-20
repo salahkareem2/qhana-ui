@@ -1,8 +1,14 @@
 <div class="filter-editor mat-elevation-z0">
     <h3 class="editor-description">Filter Editor</h3>
-    <mat-slide-toggle [(ngModel)]="showEditor">
-        Editor Mode {{ showEditor ? '(UI)' : '(JSON)' }}
-    </mat-slide-toggle>
+    <div class="editor-header">
+        <mat-slide-toggle [(ngModel)]="showEditor">
+            Editor Mode {{ showEditor ? '(UI)' : '(JSON)' }}
+        </mat-slide-toggle>
+        <button mat-raised-button type="button" (click)="ngOnInit()">
+            <mat-icon>refresh</mat-icon>
+            Reload Filter
+        </button>
+    </div>
     <qhana-plugin-filter-node *ngIf="filterObject && showEditor" [filterIn]="filterObject" (filterOut)="updateFilter($event)" (delete)="deleteFilter()"></qhana-plugin-filter-node>
     <ng-container *ngIf="!showEditor">
         <mat-form-field class="form-field">
