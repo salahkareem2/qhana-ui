@@ -37,7 +37,6 @@ export class TemplateDetailsComponent implements OnInit {
         name: "",
         description: "",
         sortKey: 0,
-        filterString: "{}",
         location: "workspace"
     };
 
@@ -45,7 +44,6 @@ export class TemplateDetailsComponent implements OnInit {
         name: [this.initialValues.name, Validators.required],
         description: this.initialValues.description,
         sortKey: this.initialValues.sortKey,
-        filterString: [this.initialValues.filterString, Validators.minLength(2)], // TODO: validate using JSON schema
         location: [this.initialValues.location, [Validators.required, isInSetValidator(Object.keys(TAB_GROUP_NAME_OVERRIDES))]]
     });
 
@@ -77,14 +75,13 @@ export class TemplateDetailsComponent implements OnInit {
             console.warn("TemplateDetailsComponent: neither templateLink nor tabLink is set");
             return;
         }
-        const filterString = this.filterString;
         const link = response?.links?.find(link => link.rel.some(rel => rel === findString) && link.resourceType == "ui-template-tab") ?? null;
         if (link != null) {
             this.registry.submitByApiLink<TemplateTabApiObject>(link, {
                 name: this.templateForm.value.name,
                 description: this.templateForm.value.description,
                 sortKey: this.templateForm.value.sortKey,
-                filterString: filterString,
+                filterString: this.filterString,
                 location: this.templateForm.value.location
             });
             if (this.templateLink != null) {
