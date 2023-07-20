@@ -1,8 +1,19 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, Validators, ValidatorFn } from '@angular/forms';
 import { ApiLink } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TemplateTabApiObject } from 'src/app/services/templates.service';
+
+export function isJSONValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+        try {
+            JSON.parse(control.value);
+            return null;
+        } catch (e) {
+            return { invalidJSON: true };
+        }
+    };
+}
 
 @Component({
     selector: 'qhana-plugin-filter-editor',
@@ -14,7 +25,8 @@ export class PluginFilterEditorComponent implements OnInit {
     @Output() filterEmitter: EventEmitter<string> = new EventEmitter<string>();
 
     filterString: string = "{}";
-    filterControl = new FormControl(this.filterString, [Validators.required, Validators.minLength(2)]);  // TODO: Add validator for JSON
+    // TODO: Add JSON validator for filter strings
+    filterControl = new FormControl(this.filterString, [isJSONValidator()]);
 
     filterObject: any = {};
 

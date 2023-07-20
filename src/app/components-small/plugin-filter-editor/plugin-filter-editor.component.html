@@ -19,6 +19,7 @@
             <button mat-raised-button class="copy-button" type="button" (click)="copyFilterString()">
                 <mat-icon>content_copy</mat-icon>
             </button>
+            <mat-error *ngIf="filterControl.hasError('invalidJSON')">Invalid JSON</mat-error>
         </mat-form-field>
         <details>
             <summary>Filter String Info</summary>
