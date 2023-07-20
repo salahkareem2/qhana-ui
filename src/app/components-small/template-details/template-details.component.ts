@@ -14,12 +14,6 @@ export function isInSetValidator(validValues: any[]): Validators {
     };
 }
 
-export interface Location {
-    value: string;
-    description: string;
-}
-
-
 @Component({
     selector: 'qhana-template-details',
     templateUrl: './template-details.component.html',
