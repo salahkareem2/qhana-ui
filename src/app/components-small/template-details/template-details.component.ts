@@ -14,12 +14,6 @@ export function isInSetValidator(validValues: any[]): Validators {
     };
 }
 
-export interface Location {
-    value: string;
-    description: string;
-}
-
-
 @Component({
     selector: 'qhana-template-details',
     templateUrl: './template-details.component.html',
@@ -29,13 +23,14 @@ export class TemplateDetailsComponent implements OnInit {
     @Input() templateLink: ApiLink | null = null;
     @Input() tabLink: ApiLink | null = null;
 
-    tabGroupNameOverrides = {...TAB_GROUP_NAME_OVERRIDES};
+    filterString: string = "{}";
+
+    tabGroupNameOverrides = { ...TAB_GROUP_NAME_OVERRIDES };
 
     private initialValues = {
         name: "",
         description: "",
         sortKey: 0,
-        filterString: "{}",
         location: "workspace"
     };
 
@@ -43,7 +38,6 @@ export class TemplateDetailsComponent implements OnInit {
         name: [this.initialValues.name, Validators.required],
         description: this.initialValues.description,
         sortKey: this.initialValues.sortKey,
-        filterString: [this.initialValues.filterString, Validators.minLength(2)], // TODO: validate using JSON schema
         location: [this.initialValues.location, [Validators.required, isInSetValidator(Object.keys(TAB_GROUP_NAME_OVERRIDES))]]
     });
 
@@ -56,7 +50,6 @@ export class TemplateDetailsComponent implements OnInit {
                     name: response?.data?.name ?? this.initialValues.name,
                     description: response?.data?.description ?? this.initialValues.description,
                     sortKey: response?.data?.sortKey ?? this.initialValues.sortKey,
-                    filterString: response?.data?.filterString ?? this.initialValues.filterString,
                     location: response?.data?.location ?? this.initialValues.location
                 });
             });
@@ -82,7 +75,7 @@ export class TemplateDetailsComponent implements OnInit {
                 name: this.templateForm.value.name,
                 description: this.templateForm.value.description,
                 sortKey: this.templateForm.value.sortKey,
-                filterString: this.templateForm.value.filterString,
+                filterString: this.filterString,
                 location: this.templateForm.value.location
             });
             if (this.templateLink != null) {

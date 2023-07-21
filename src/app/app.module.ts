@@ -20,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
@@ -82,6 +83,8 @@ import { ChangeUiTemplateComponent } from './dialogs/change-ui-template/change-u
 import { ReactiveFormsModule } from '@angular/forms';
 import { TemplateDetailsComponent } from './components-small/template-details/template-details.component';
 import { ExperimentWorkspaceDetailComponent } from './components/experiment-workspace-detail/experiment-workspace-detail.component';
+import { PluginFilterNodeComponent } from './components-small/plugin-filter-node/plugin-filter-node.component';
+import { PluginFilterEditorComponent } from './components-small/plugin-filter-editor/plugin-filter-editor.component';
 import { TabGroupListComponent } from './components/tab-group-list/tab-group-list.component';
 
 @NgModule({
@@ -125,6 +128,8 @@ import { TabGroupListComponent } from './components/tab-group-list/tab-group-lis
         TemplateDetailsComponent,
         ExperimentWorkspaceDetailComponent,
         ImportExperimentComponent,
+        PluginFilterNodeComponent,
+        PluginFilterEditorComponent,
         TabGroupListComponent,
     ],
     imports: [
@@ -138,6 +143,7 @@ import { TabGroupListComponent } from './components/tab-group-list/tab-group-lis
         MatCardModule,
         MatButtonModule,
         MatButtonToggleModule,
+        MatSlideToggleModule,
         MatCommonModule,
         MatTabsModule,
         MatRippleModule,
