@@ -45,6 +45,10 @@ export class CurrentExperimentService {
         return this.currentExperiment.asObservable().pipe(map(experiment => experiment?.description ?? null));
     }
 
+    get experimentTemplateId() {
+        return this.currentExperiment.asObservable().pipe(map(experiment => experiment?.templateId ?? null));
+    }
+
     constructor(private backend: QhanaBackendService) { }
 
     private updateCurrentExperiment(experimentId: string | null) {
