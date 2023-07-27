@@ -32,11 +32,21 @@
             </button>
         </mat-card-title>
         <mat-card-content>
+            <mat-form-field>
+                <mat-label>Default Template</mat-label>
+                <mat-select (selectionChange)="changeDefaultTemplate($event.value)" [value]="experimentTemplateId">
+                    <mat-option [value]="null">
+                        None
+                    </mat-option>
+                    <mat-option *ngFor="let template of experimentTemplates | keyvalue" [value]="template.key">
+                        {{template.value}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
             <qhana-markdown class="description" [markdown]="experimentDescription"
                 (markdownChanges)="updateDescription($event)" [editable]="true">
             </qhana-markdown>
         </mat-card-content>
-
     </mat-card>
     <div class="updates">
         <div class="update-status" *ngIf="updateStatus === 'changed'">

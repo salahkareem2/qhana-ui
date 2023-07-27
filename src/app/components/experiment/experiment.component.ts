@@ -4,8 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export-experiment.component';
+import { PageApiObject } from 'src/app/services/api-data-types';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { PluginRegistryBaseService } from 'src/app/services/registry.service';
+import { TemplatesService } from 'src/app/services/templates.service';
 
 @Component({
     selector: 'qhana-experiment',
@@ -34,7 +37,10 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     experimentDescription: string = ""; // only updated on initial experiment load
     currentExperimentDescription: string = "";
 
-    constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService, public dialog: MatDialog) { }
+    experimentTemplates: { [id: string]: string } = {};
+    experimentTemplateId: string | number | null = null;
+
+    constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService, private registry: PluginRegistryBaseService, private templates: TemplatesService, public dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params.pipe(map(params => params.experimentId)).subscribe(experimentId => {
@@ -48,6 +54,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             this.lastSavedDescription = experiment?.description ?? "";
             this.experimentDescription = experiment?.description ?? "";
             this.currentExperimentDescription = experiment?.description ?? "";
+            this.experimentTemplateId = experiment?.templateId ?? null;
         });
         this.autoSaveTitleSubscription = this.titleUpdates.pipe(
             filter(value => value != null && value !== this.lastSavedTitle),
@@ -57,6 +64,15 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             filter(value => value != null && value !== this.lastSavedDescription),
             debounceTime(500)
         ).subscribe(this.saveDescription);
+        this.registry.getByRel<PageApiObject>([["ui-template", "collection"]]).then(result => {
+            result?.data.items.forEach(item => {
+                const templateId = item.resourceKey?.uiTemplateId;
+                const name = item.name;
+                if (templateId != null && name != null) {
+                    this.experimentTemplates[templateId] = name;
+                }
+            });
+        });
     }
 
     ngOnDestroy(): void {
@@ -156,4 +172,12 @@ export class ExperimentComponent implements OnInit, OnDestroy {
         });
     }
 
+    async changeDefaultTemplate(templateId: string | null) {
+        if (this.experimentId == null) {
+            return;
+        }
+        this.experimentTemplateId = templateId;
+        await this.templates.setDefaultTemplate(this.experimentId, templateId);
+        this.experimentService.reloadExperiment();
+    }
 }

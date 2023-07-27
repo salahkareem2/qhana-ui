@@ -177,6 +177,15 @@ export interface TimelineStepPageOptions {
     unclearedSubstep?: number;
 }
 
+export interface TemplateApiObject extends ApiObject {
+    templateId: string;
+}
+
+export interface TemplatePostResponseApiObject extends ApiObject {
+    experimentId: number;
+    templateId?: string;
+}
+
 function urlIsString(url: string | null): url is string {
     return url != null;
 }
@@ -489,6 +498,18 @@ export class QhanaBackendService {
     public getTimelineSubStep(experimentId: number | string, step: number | string, substep: number | string): Observable<TimelineSubStepApiObject> {
         return this.callWithRootUrl<TimelineSubStepApiObject>(
             rootUrl => this.http.get<TimelineSubStepApiObject>(`${rootUrl}/experiments/${experimentId}/timeline/${step}/substeps/${substep}`)
+        );
+    }
+
+    public getExperimentDefaultTemplate(experimentId: number | string): Observable<TemplateApiObject> {
+        return this.callWithRootUrl<TemplateApiObject>(
+            rootUrl => this.http.get<TemplateApiObject>(`${rootUrl}/experiments/${experimentId}/template`)
+        );
+    }
+
+    public updateExperimentDefaultTemplate(experimentId: number | string, templateId: string | number | null): Observable<TemplatePostResponseApiObject> {
+        return this.callWithRootUrl<TemplatePostResponseApiObject>(
+            rootUrl => this.http.post<TemplatePostResponseApiObject>(`${rootUrl}/experiments/${experimentId}/template`, { templateId: templateId })
         );
     }
 }

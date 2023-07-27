@@ -203,7 +203,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     }
 
     private async updateTemplateId(templateId: string | null) {
-        if (templateId == null) {
+        if (templateId == null || templateId === "") {
             return; // no template selected
         }
         if (templateId === this.templateId) {

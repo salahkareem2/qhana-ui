@@ -20,8 +20,9 @@ import { ApiLink, ApiObject, PageApiObject } from './api-data-types';
 import { CurrentExperimentService } from './current-experiment.service';
 import { PluginRegistryBaseService } from './registry.service';
 import { EnvService } from './env.service';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { distinctUntilChanged, take } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
+import { QhanaBackendService } from './qhana-backend.service';
 
 
 export interface TemplateApiObject extends ApiObject {  // TODO check fields
@@ -104,7 +105,7 @@ export class TemplatesService {
         return this.currentTemplateSubject.asObservable();
     }
 
-    constructor(private registry: PluginRegistryBaseService, private env: EnvService, private currentExperiment: CurrentExperimentService, private route: ActivatedRoute) {
+    constructor(private registry: PluginRegistryBaseService, private env: EnvService, private currentExperiment: CurrentExperimentService, private backend: QhanaBackendService, private route: ActivatedRoute) {
         this.envSubscription = env.uiTemplateId.subscribe((defaultTemplateId) => {
             this.envTemplateIdSubject.next(defaultTemplateId);
         });
@@ -200,7 +201,7 @@ export class TemplatesService {
     }
 
     private async updateTemplate(templateId: string | null, subject: BehaviorSubject<TemplateApiObject | null>) {
-        if (templateId == null) {
+        if (templateId == null || templateId === "") {
             subject.next(null);
             return;
         }
@@ -230,5 +231,13 @@ export class TemplatesService {
     async getTemplateTabGroups(templateId: string, ignoreCache: boolean | "ignore-embedded" = false) {
         const templateResponse = await this.getTemplate(templateId, ignoreCache);
         return templateResponse?.data?.groups ?? [];
+    }
+
+    async setDefaultTemplate(experimentId: string, templateId: string | null) {
+        this.backend.updateExperimentDefaultTemplate(experimentId, templateId).pipe(take(1)).subscribe(
+            response => {
+                this.defaultTemplateIdSubject.next(response?.templateId ?? null);
+            }
+        );
     }
 }
