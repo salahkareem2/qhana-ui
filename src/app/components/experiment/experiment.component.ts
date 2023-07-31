@@ -1,3 +1,4 @@
+import { KeyValue } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -16,7 +17,6 @@ import { TemplatesService } from 'src/app/services/templates.service';
     styleUrls: ['./experiment.component.sass']
 })
 export class ExperimentComponent implements OnInit, OnDestroy {
-
     private routeSubscription: Subscription | null = null;
 
     private experimentSubscription: Subscription | null = null;
@@ -38,8 +38,13 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     experimentDescription: string = ""; // only updated on initial experiment load
     currentExperimentDescription: string = "";
 
+    readonly itemCount: number = 10;
+    uiTemplatePageIndex: number = 0;
+
     uiTemplates: Map<string, string> = new Map<string, string>();
-    uiTemplateId: string | number | null = null;
+    uiTemplateId: string | null = null;
+    uiTemplateName: string | null = null;
+    uiTemplateCollectionSize: number = 0;
 
     constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService, private registry: PluginRegistryBaseService, private templates: TemplatesService, public dialog: MatDialog) { }
 
@@ -55,10 +60,17 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             this.lastSavedDescription = experiment?.description ?? "";
             this.experimentDescription = experiment?.description ?? "";
             this.currentExperimentDescription = experiment?.description ?? "";
-            this.uiTemplateId = experiment?.templateId ?? null;
+            this.uiTemplateId = experiment?.templateId?.toString() ?? null;
         });
         this.uiTemplateIdSubscription = this.experimentService.experimentTemplateId.subscribe(templateId => {
-            this.uiTemplateId = templateId;
+            this.uiTemplateId = templateId?.toString() ?? null;
+            this.getTemplatePage();
+            if (this.uiTemplateId == null) {
+                return;
+            }
+            this.templates.getTemplate(this.uiTemplateId).then(template => {
+                this.uiTemplateName = template?.data.name ?? null;
+            });
         });
         this.autoSaveTitleSubscription = this.titleUpdates.pipe(
             filter(value => value != null && value !== this.lastSavedTitle),
@@ -68,15 +80,6 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             filter(value => value != null && value !== this.lastSavedDescription),
             debounceTime(500)
         ).subscribe(this.saveDescription);
-        this.registry.getByRel<PageApiObject>([["ui-template", "collection"]]).then(result => {
-            result?.data.items.forEach(item => {
-                const templateId = item.resourceKey?.uiTemplateId;
-                const name = item.name;
-                if (templateId != null && name != null) {
-                    this.uiTemplates.set(templateId, name);
-                }
-            });
-        });
     }
 
     ngOnDestroy(): void {
@@ -179,9 +182,37 @@ export class ExperimentComponent implements OnInit, OnDestroy {
 
     async changeDefaultTemplate(templateId: string | null) {
         if (this.experimentId == null) {
+            this.uiTemplatePageIndex = 0;
+            this.uiTemplateId = null;
+            this.uiTemplateName = null;
             return;
         }
+        this.uiTemplateName = this.uiTemplates.get(templateId ?? "") ?? null;
         await this.templates.setExperimentDefaultTemplate(this.experimentId, templateId);
         this.experimentService.reloadExperiment();
+    }
+
+    async getTemplatePage(pageIndex: number = 0) {
+        const uiTemplates = new Map<string, string>();
+        const params = new URLSearchParams();
+        params.set("sort", "name");
+        params.set("item-count", this.itemCount.toString());
+        params.set("cursor", (pageIndex + 1).toString());
+        await this.registry.getByRel<PageApiObject>([["ui-template", "collection"]], params).then(result => {
+            this.uiTemplateCollectionSize = result?.data.collectionSize ?? 0;
+            result?.data.items.forEach(item => {
+                const templateId = item.resourceKey?.uiTemplateId;
+                const name = item.name;
+                if (templateId != null && name != null) {
+                    uiTemplates.set(templateId, name);
+                }
+            });
+        });
+        this.uiTemplates = uiTemplates;
+        this.uiTemplatePageIndex = pageIndex;
+    }
+
+    originalOrder = (a: KeyValue<string, string>, b: KeyValue<string, string>): number => {
+        return 0;
     }
 }

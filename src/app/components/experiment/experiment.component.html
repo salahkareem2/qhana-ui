@@ -35,10 +35,18 @@
             <mat-form-field>
                 <mat-label>Default Template</mat-label>
                 <mat-select (selectionChange)="changeDefaultTemplate($event.value)" [value]="uiTemplateId">
+                    <mat-paginator [pageSize]="itemCount" [length]="uiTemplateCollectionSize" [pageIndex]="uiTemplatePageIndex" 
+                        (page)="getTemplatePage($event.pageIndex)" aria-label="Select page">
+                    </mat-paginator>
+                    <mat-divider></mat-divider>
                     <mat-option [value]="null">
-                        None
+                        -- none --
                     </mat-option>
-                    <mat-option *ngFor="let template of uiTemplates | keyvalue" [value]="template.key">
+                    <mat-option *ngIf="uiTemplateId && !uiTemplates.has(uiTemplateId)" [value]="uiTemplateId">
+                        {{uiTemplateName}}
+                    </mat-option>
+                    <mat-divider></mat-divider>
+                    <mat-option *ngFor="let template of uiTemplates | keyvalue:originalOrder" [value]="template.key">
                         {{template.value}}
                     </mat-option>
                 </mat-select>
