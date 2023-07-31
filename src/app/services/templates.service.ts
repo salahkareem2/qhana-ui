@@ -233,10 +233,10 @@ export class TemplatesService {
         return templateResponse?.data?.groups ?? [];
     }
 
-    async setDefaultTemplate(experimentId: string, templateId: string | null) {
+    async setExperimentDefaultTemplate(experimentId: string, templateId: string | null) {
         this.backend.updateExperimentDefaultTemplate(experimentId, templateId).pipe(take(1)).subscribe(
             response => {
-                this.defaultTemplateIdSubject.next(response?.templateId ?? null);
+                this.experimentTemplateIdSubject.next(response?.templateId ?? null);
             }
         );
     }

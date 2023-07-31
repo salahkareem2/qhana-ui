@@ -27,6 +27,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     private descriptionUpdates: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
     private autoSaveTitleSubscription: Subscription | null = null;
     private autoSaveDescriptionSubscription: Subscription | null = null;
+    private uiTemplateIdSubscription: Subscription | null = null;
 
     updateStatus: "original" | "changed" | "saved" = "original";
 
@@ -37,8 +38,8 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     experimentDescription: string = ""; // only updated on initial experiment load
     currentExperimentDescription: string = "";
 
-    experimentTemplates: { [id: string]: string } = {};
-    experimentTemplateId: string | number | null = null;
+    uiTemplates: Map<string, string> = new Map<string, string>();
+    uiTemplateId: string | number | null = null;
 
     constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService, private registry: PluginRegistryBaseService, private templates: TemplatesService, public dialog: MatDialog) { }
 
@@ -54,7 +55,10 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             this.lastSavedDescription = experiment?.description ?? "";
             this.experimentDescription = experiment?.description ?? "";
             this.currentExperimentDescription = experiment?.description ?? "";
-            this.experimentTemplateId = experiment?.templateId ?? null;
+            this.uiTemplateId = experiment?.templateId ?? null;
+        });
+        this.uiTemplateIdSubscription = this.experimentService.experimentTemplateId.subscribe(templateId => {
+            this.uiTemplateId = templateId;
         });
         this.autoSaveTitleSubscription = this.titleUpdates.pipe(
             filter(value => value != null && value !== this.lastSavedTitle),
@@ -69,7 +73,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
                 const templateId = item.resourceKey?.uiTemplateId;
                 const name = item.name;
                 if (templateId != null && name != null) {
-                    this.experimentTemplates[templateId] = name;
+                    this.uiTemplates.set(templateId, name);
                 }
             });
         });
@@ -80,6 +84,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
         this.experimentSubscription?.unsubscribe();
         this.autoSaveTitleSubscription?.unsubscribe();
         this.autoSaveDescriptionSubscription?.unsubscribe();
+        this.uiTemplateIdSubscription?.unsubscribe();
     }
 
     cloneExperiment() {
@@ -176,8 +181,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
         if (this.experimentId == null) {
             return;
         }
-        this.experimentTemplateId = templateId;
-        await this.templates.setDefaultTemplate(this.experimentId, templateId);
+        await this.templates.setExperimentDefaultTemplate(this.experimentId, templateId);
         this.experimentService.reloadExperiment();
     }
 }

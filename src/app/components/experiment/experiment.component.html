@@ -34,11 +34,11 @@
         <mat-card-content>
             <mat-form-field>
                 <mat-label>Default Template</mat-label>
-                <mat-select (selectionChange)="changeDefaultTemplate($event.value)" [value]="experimentTemplateId">
+                <mat-select (selectionChange)="changeDefaultTemplate($event.value)" [value]="uiTemplateId">
                     <mat-option [value]="null">
                         None
                     </mat-option>
-                    <mat-option *ngFor="let template of experimentTemplates | keyvalue" [value]="template.key">
+                    <mat-option *ngFor="let template of uiTemplates | keyvalue" [value]="template.key">
                         {{template.value}}
                     </mat-option>
                 </mat-select>
