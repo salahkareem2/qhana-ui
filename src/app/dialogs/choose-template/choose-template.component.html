@@ -1,12 +1,15 @@
-<h1 mat-dialog-title>Choose Template</h1>
+<h1 mat-dialog-title>Select a default template:</h1>
 <div mat-dialog-content>
-    <div>
+    <div class="template-list">
         <qhana-growing-list [rels]="['ui-template', 'collection']" [newItemRels]="['ui-template']" 
             [highlighted]="highlightedTemplateSet" [highlightByKey]="'uiTemplateId'" (clickItem)="selectTemplate($event)">
         </qhana-growing-list>
     </div>
+    <span class="t-title">Selected Template: {{template?.name ?? 'All Plugins'}}</span><br>
+    <span><i>{{template?.description ?? 'This template contains all plugins that are available in Qhana.'}}</i></span>
 </div>
 <div class="dialog-actions" mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="'all-plugins'">Unset</button>
     <button mat-button (click)="onCancel()">Cancel</button>
     <button mat-button [mat-dialog-close]="templateId"
         [disabled]="templateId == null">

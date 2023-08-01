@@ -39,13 +39,10 @@
                 <a [routerLink]="['/experiments', experimentId, 'workspace']" [queryParams]="{ template: uiTemplate?.self?.resourceKey?.uiTemplateId ?? 'all-plugins' }">
                     {{uiTemplate?.name ?? 'All Plugins'}}
                 </a>
-                <!-- <mat-form-field>
-                    <mat-label>Default Template</mat-label>
-                </mat-form-field> -->
                 <button mat-icon-button (click)="showSelectDefaultTemplateDialog()">
                     <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button (click)="updateExperimentDefaultTemplate(null)">
+                <button mat-icon-button *ngIf="uiTemplate != null" (click)="updateExperimentDefaultTemplate(null)">
                     <mat-icon>cancel</mat-icon>
                 </button>
             </div>

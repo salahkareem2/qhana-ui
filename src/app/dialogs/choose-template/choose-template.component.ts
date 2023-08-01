@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { TemplateApiObject } from 'src/app/services/qhana-backend.service';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ApiLink } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
+import { TemplateApiObject } from 'src/app/services/templates.service';
 
 @Component({
     selector: 'qhana-choose-template',
@@ -12,8 +12,16 @@ import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 export class ChooseTemplateComponent implements OnInit {
     highlightedTemplateSet: Set<string> = new Set();
     templateId: string | null = null;
+    template: TemplateApiObject | null = null;
 
-    constructor(public dialogRef: MatDialogRef<ChooseTemplateComponent>) { }
+    constructor(public dialogRef: MatDialogRef<ChooseTemplateComponent>, @Inject(MAT_DIALOG_DATA) public data: TemplateApiObject, private registry: PluginRegistryBaseService) {
+        if (data != null && data.self.resourceKey?.uiTemplateId != null) {
+            const templateId = data.self.resourceKey?.uiTemplateId;
+            this.templateId = templateId;
+            this.highlightedTemplateSet = new Set([templateId]);
+            this.template = data;
+        }
+    }
 
     ngOnInit(): void {
     }
@@ -27,10 +35,13 @@ export class ChooseTemplateComponent implements OnInit {
             // double click deselects template
             this.highlightedTemplateSet.clear();
             this.templateId = null;
+            this.template = null;
             return;
         }
         this.highlightedTemplateSet.clear();
         this.highlightedTemplateSet = new Set([templateId]);
+        const template = await this.registry.getByApiLink<TemplateApiObject>(templateLink, null, false);
+        this.template = template?.data ?? null;
         this.templateId = templateId;
     }
 
