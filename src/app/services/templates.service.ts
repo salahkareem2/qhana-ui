@@ -55,6 +55,7 @@ export const TAB_GROUP_NAME_OVERRIDES: { [group: string]: string } = {
     "navigation": "Navigation Tabs",
 }
 
+export const ALL_PLUGINS_TEMPLATE_ID = "all-plugins";
 
 @Injectable({
     providedIn: 'root'
@@ -125,7 +126,7 @@ export class TemplatesService {
         ]).subscribe(([envTemplateId, experimentTemplateId, routeTemplateId]) => {
             //TODO
             if (routeTemplateId != null) {
-                if (routeTemplateId === "all-plugins") {
+                if (routeTemplateId === ALL_PLUGINS_TEMPLATE_ID) {
                     // allow overriding the default templates using a special template id
                     this.currentTemplateIdSubject.next(null);
                     this.defaultTemplateIdSubject.next(experimentTemplateId ?? envTemplateId ?? null);

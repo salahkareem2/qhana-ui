@@ -7,7 +7,7 @@ import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export
 import { ChooseTemplateComponent } from 'src/app/dialogs/choose-template/choose-template.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
-import { TemplateApiObject, TemplatesService } from 'src/app/services/templates.service';
+import { ALL_PLUGINS_TEMPLATE_ID, TemplateApiObject, TemplatesService } from 'src/app/services/templates.service';
 
 @Component({
     selector: 'qhana-experiment',
@@ -177,7 +177,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
         });
         dialogRef.afterClosed().subscribe(templateId => {
             if (templateId != null) {
-                const id = templateId === 'all-plugins' ? null : templateId;
+                const id = templateId === ALL_PLUGINS_TEMPLATE_ID ? null : templateId;
                 this.updateExperimentDefaultTemplate(id);
             }
         });
