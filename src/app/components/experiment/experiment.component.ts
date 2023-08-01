@@ -1,15 +1,13 @@
-import { KeyValue } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export-experiment.component';
-import { PageApiObject } from 'src/app/services/api-data-types';
+import { ChooseTemplateComponent } from 'src/app/dialogs/choose-template/choose-template.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
-import { PluginRegistryBaseService } from 'src/app/services/registry.service';
-import { TemplatesService } from 'src/app/services/templates.service';
+import { TemplateApiObject, TemplatesService } from 'src/app/services/templates.service';
 
 @Component({
     selector: 'qhana-experiment',
@@ -38,15 +36,9 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     experimentDescription: string = ""; // only updated on initial experiment load
     currentExperimentDescription: string = "";
 
-    readonly itemCount: number = 10;
-    uiTemplatePageIndex: number = 0;
+    uiTemplate: TemplateApiObject | null = null;
 
-    uiTemplates: Map<string, string> = new Map<string, string>();
-    uiTemplateId: string | null = null;
-    uiTemplateName: string | null = null;
-    uiTemplateCollectionSize: number = 0;
-
-    constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService, private registry: PluginRegistryBaseService, private templates: TemplatesService, public dialog: MatDialog) { }
+    constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService, private templates: TemplatesService, public dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params.pipe(map(params => params.experimentId)).subscribe(experimentId => {
@@ -60,16 +52,14 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             this.lastSavedDescription = experiment?.description ?? "";
             this.experimentDescription = experiment?.description ?? "";
             this.currentExperimentDescription = experiment?.description ?? "";
-            this.uiTemplateId = experiment?.templateId?.toString() ?? null;
         });
         this.uiTemplateIdSubscription = this.experimentService.experimentTemplateId.subscribe(templateId => {
-            this.uiTemplateId = templateId?.toString() ?? null;
-            this.getTemplatePage();
-            if (this.uiTemplateId == null) {
+            if (templateId == null) {
+                this.uiTemplate = null;
                 return;
             }
-            this.templates.getTemplate(this.uiTemplateId).then(template => {
-                this.uiTemplateName = template?.data.name ?? null;
+            this.templates.getTemplate(templateId.toString()).then(templateResponse => {
+                this.uiTemplate = templateResponse?.data ?? null;
             });
         });
         this.autoSaveTitleSubscription = this.titleUpdates.pipe(
@@ -180,39 +170,23 @@ export class ExperimentComponent implements OnInit, OnDestroy {
         });
     }
 
-    async changeDefaultTemplate(templateId: string | null) {
+    showSelectDefaultTemplateDialog() {
+        const dialogRef = this.dialog.open(ChooseTemplateComponent, {
+            minWidth: "20rem", maxWidth: "40rem", width: "60%",
+        });
+        dialogRef.afterClosed().subscribe(templateId => {
+            if (templateId != null) {
+                this.updateExperimentDefaultTemplate(templateId);
+            }
+        });
+    }
+
+    async updateExperimentDefaultTemplate(templateId: string | null) {
         if (this.experimentId == null) {
-            this.uiTemplatePageIndex = 0;
-            this.uiTemplateId = null;
-            this.uiTemplateName = null;
+            console.warn("Experiment ID is null!");
             return;
         }
-        this.uiTemplateName = this.uiTemplates.get(templateId ?? "") ?? null;
         await this.templates.setExperimentDefaultTemplate(this.experimentId, templateId);
         this.experimentService.reloadExperiment();
-    }
-
-    async getTemplatePage(pageIndex: number = 0) {
-        const uiTemplates = new Map<string, string>();
-        const params = new URLSearchParams();
-        params.set("sort", "name");
-        params.set("item-count", this.itemCount.toString());
-        params.set("cursor", (pageIndex + 1).toString());
-        await this.registry.getByRel<PageApiObject>([["ui-template", "collection"]], params).then(result => {
-            this.uiTemplateCollectionSize = result?.data.collectionSize ?? 0;
-            result?.data.items.forEach(item => {
-                const templateId = item.resourceKey?.uiTemplateId;
-                const name = item.name;
-                if (templateId != null && name != null) {
-                    uiTemplates.set(templateId, name);
-                }
-            });
-        });
-        this.uiTemplates = uiTemplates;
-        this.uiTemplatePageIndex = pageIndex;
-    }
-
-    originalOrder = (a: KeyValue<string, string>, b: KeyValue<string, string>): number => {
-        return 0;
     }
 }

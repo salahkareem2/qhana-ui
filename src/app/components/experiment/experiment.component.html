@@ -31,26 +31,24 @@
                 <mat-icon>cancel</mat-icon>
             </button>
         </mat-card-title>
-        <mat-card-content>
-            <mat-form-field>
-                <mat-label>Default Template</mat-label>
-                <mat-select (selectionChange)="changeDefaultTemplate($event.value)" [value]="uiTemplateId">
-                    <mat-paginator [pageSize]="itemCount" [length]="uiTemplateCollectionSize" [pageIndex]="uiTemplatePageIndex" 
-                        (page)="getTemplatePage($event.pageIndex)" aria-label="Select page">
-                    </mat-paginator>
-                    <mat-divider></mat-divider>
-                    <mat-option [value]="null">
-                        -- none --
-                    </mat-option>
-                    <mat-option *ngIf="uiTemplateId && !uiTemplates.has(uiTemplateId)" [value]="uiTemplateId">
-                        {{uiTemplateName}}
-                    </mat-option>
-                    <mat-divider></mat-divider>
-                    <mat-option *ngFor="let template of uiTemplates | keyvalue:originalOrder" [value]="template.key">
-                        {{template.value}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+        <mat-card-content class="experiment-settings">
+            <div class="default-template-selection t-subheading">
+                <span>
+                    Default Template:
+                </span>
+                <a [routerLink]="['/experiments', experimentId, 'workspace']" [queryParams]="{ template: uiTemplate?.self?.resourceKey?.uiTemplateId ?? 'all-plugins' }">
+                    {{uiTemplate?.name ?? 'All Plugins'}}
+                </a>
+                <!-- <mat-form-field>
+                    <mat-label>Default Template</mat-label>
+                </mat-form-field> -->
+                <button mat-icon-button (click)="showSelectDefaultTemplateDialog()">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="updateExperimentDefaultTemplate(null)">
+                    <mat-icon>cancel</mat-icon>
+                </button>
+            </div>
             <qhana-markdown class="description" [markdown]="experimentDescription"
                 (markdownChanges)="updateDescription($event)" [editable]="true">
             </qhana-markdown>
