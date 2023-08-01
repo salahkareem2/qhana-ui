@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export-experiment.component';
-import { ChooseTemplateComponent } from 'src/app/dialogs/choose-template/choose-template.component';
+import { ChooseTemplateDialog } from 'src/app/dialogs/choose-template/choose-template.component';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 import { ALL_PLUGINS_TEMPLATE_ID, TemplateApiObject, TemplatesService } from 'src/app/services/templates.service';
@@ -171,7 +171,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     }
 
     showSelectDefaultTemplateDialog() {
-        const dialogRef = this.dialog.open(ChooseTemplateComponent, {
+        const dialogRef = this.dialog.open(ChooseTemplateDialog, {
             minWidth: "20rem", maxWidth: "40rem", width: "60%", maxHeight: "95%",
             data: this.uiTemplate
         });

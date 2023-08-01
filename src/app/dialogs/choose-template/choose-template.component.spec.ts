@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ChooseTemplateComponent } from './choose-template.component';
+import { ChooseTemplateDialog } from './choose-template.component';
 
 describe('ChooseTemplateDialog', () => {
-  let component: ChooseTemplateComponent;
-  let fixture: ComponentFixture<ChooseTemplateComponent>;
+  let component: ChooseTemplateDialog;
+  let fixture: ComponentFixture<ChooseTemplateDialog>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ChooseTemplateComponent ]
+      declarations: [ ChooseTemplateDialog ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ChooseTemplateComponent);
+    fixture = TestBed.createComponent(ChooseTemplateDialog);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

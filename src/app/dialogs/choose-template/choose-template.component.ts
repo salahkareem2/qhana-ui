@@ -9,12 +9,12 @@ import { TemplateApiObject } from 'src/app/services/templates.service';
     templateUrl: './choose-template.component.html',
     styleUrls: ['./choose-template.component.sass']
 })
-export class ChooseTemplateComponent implements OnInit {
+export class ChooseTemplateDialog implements OnInit {
     highlightedTemplateSet: Set<string> = new Set();
     templateId: string | null = null;
     template: TemplateApiObject | null = null;
 
-    constructor(public dialogRef: MatDialogRef<ChooseTemplateComponent>, @Inject(MAT_DIALOG_DATA) public data: TemplateApiObject, private registry: PluginRegistryBaseService) {
+    constructor(public dialogRef: MatDialogRef<ChooseTemplateDialog>, @Inject(MAT_DIALOG_DATA) public data: TemplateApiObject, private registry: PluginRegistryBaseService) {
         if (data != null && data.self.resourceKey?.uiTemplateId != null) {
             const templateId = data.self.resourceKey?.uiTemplateId;
             this.templateId = templateId;
