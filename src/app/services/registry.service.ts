@@ -484,11 +484,7 @@ export class PluginRegistryBaseService {
     public async getByApiLink<T>(link: ApiLink, searchParams: URLSearchParams | null = null, ignoreCache: boolean | "ignore-embedded" = false): Promise<ApiResponse<T> | null> {
         const url = new URL(link.href)
         searchParams?.forEach((value, key) => {
-            if (url.searchParams.has(key)) {
-                url.searchParams.set(key, value);
-            } else {
-                url.searchParams.append(key, value);
-            }
+            url.searchParams.set(key, value);
         });
         return await this._fetch<ApiResponse<T>>(url.toString(), ignoreCache);
     }
