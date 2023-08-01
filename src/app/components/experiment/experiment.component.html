@@ -39,11 +39,11 @@
                 <a [routerLink]="['/experiments', experimentId, 'workspace']" [queryParams]="{ template: uiTemplate?.self?.resourceKey?.uiTemplateId ?? 'all-plugins' }">
                     {{uiTemplate?.name ?? 'All Plugins'}}
                 </a>
-                <button mat-icon-button (click)="showSelectDefaultTemplateDialog()">
-                    <mat-icon>edit</mat-icon>
+                <button mat-raised-button color="primary" (click)="showSelectDefaultTemplateDialog()">
+                    Change Template
                 </button>
-                <button mat-icon-button *ngIf="uiTemplate != null" (click)="updateExperimentDefaultTemplate(null)">
-                    <mat-icon>cancel</mat-icon>
+                <button mat-raised-button color="primary" *ngIf="uiTemplate != null" (click)="updateExperimentDefaultTemplate(null)">
+                    Remove Template
                 </button>
             </div>
             <qhana-markdown class="description" [markdown]="experimentDescription"
