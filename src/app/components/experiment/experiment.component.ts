@@ -183,12 +183,11 @@ export class ExperimentComponent implements OnInit, OnDestroy {
         });
     }
 
-    async updateExperimentDefaultTemplate(templateId: string | null) {
+    updateExperimentDefaultTemplate(templateId: string | null) {
         if (this.experimentId == null) {
             console.warn("Experiment ID is null!");
             return;
         }
-        await this.templates.setExperimentDefaultTemplate(this.experimentId, templateId);
-        this.experimentService.reloadExperiment();
+        this.templates.setExperimentDefaultTemplate(this.experimentId, templateId);
     }
 }
