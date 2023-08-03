@@ -1,12 +1,19 @@
-<h1 mat-dialog-title>Select a default template:</h1>
+<h1 mat-dialog-title>Select Default Template</h1>
 <div mat-dialog-content>
-    <div class="template-list">
-        <qhana-growing-list [rels]="['ui-template', 'collection']" [newItemRels]="['ui-template']" 
+    <mat-form-field class="full-width" color="primary">
+        <mat-label>Search templates</mat-label>
+        <input matInput placeholder="search" autocomplete="off" #searchInput>
+        <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <div class="template-list mat-elevation-z2">
+        <qhana-growing-list [rels]="['ui-template', 'collection']" [newItemRels]="['ui-template']" [search]="searchInput.value"
             [highlighted]="highlightedTemplateSet" [highlightByKey]="'uiTemplateId'" (clickItem)="selectTemplate($event)">
         </qhana-growing-list>
     </div>
-    <span class="t-title">Selected Template: {{template?.name ?? 'All Plugins'}}</span><br>
-    <span><i>{{template?.description ?? 'This template contains all plugins that are available in Qhana.'}}</i></span>
+    <div class="selected-template">
+        <span class="t-title">Selected Template: {{template?.name ?? 'All Plugins'}}</span><br>
+        <span><i>{{template?.description ?? 'This template contains all plugins that are available in Qhana.'}}</i></span>
+    </div>
 </div>
 <div class="dialog-actions" mat-dialog-actions>
     <button mat-button [mat-dialog-close]="'all-plugins'">Unset</button>

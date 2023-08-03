@@ -172,7 +172,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
 
     showSelectDefaultTemplateDialog() {
         const dialogRef = this.dialog.open(ChooseTemplateDialog, {
-            minWidth: "20rem", maxWidth: "40rem", width: "60%", maxHeight: "95%",
+            minWidth: "20rem", maxWidth: "40rem", width: "20%", maxHeight: "95%",
             data: this.uiTemplate
         });
         dialogRef.afterClosed().subscribe(templateId => {
