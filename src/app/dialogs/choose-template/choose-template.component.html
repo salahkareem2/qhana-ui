@@ -10,9 +10,8 @@
 </div>
 <div class="dialog-actions" mat-dialog-actions>
     <button mat-button [mat-dialog-close]="'all-plugins'">Unset</button>
-    <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-button [mat-dialog-close]="templateId"
-        [disabled]="templateId == null">
+    <button mat-raised-button [mat-dialog-close]="templateId" color="primary" [disabled]="templateId == null" cdkFocusInitial>
         Choose
     </button>
+    <button mat-button (click)="onCancel()">Cancel</button>
 </div>
