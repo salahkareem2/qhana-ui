@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
 
 interface SelectValue {
     value: string | boolean;
@@ -35,17 +35,16 @@ export class ExportExperimentDialog implements OnInit {
     ];
 
     stepList: number[] = [];
+    stepListPage: TimelineStepApiObject[] = [];
+    stepCollectionSize: number = 0;
+    readonly pageSize = 10;
 
     constructor(public dialogRef: MatDialogRef<ExportExperimentDialog>, @Inject(MAT_DIALOG_DATA) public data: any) { }
 
     ngOnInit(): void {
         this.backend = this.data.backend;
         this.experimentId = this.data.experimentId;
-        if (this.experimentId == null || this.backend == null) {
-            // should never happen
-            console.warn("Experiment id or backend not set correctly.");
-            this.canExport = false;
-        }
+        this.onStepPageChange(0, this.pageSize);
     }
 
     onExport() {
@@ -64,5 +63,34 @@ export class ExportExperimentDialog implements OnInit {
 
     onCancel(): void {
         this.dialogRef.close();
+    }
+
+    onStepPageChange(page: number, pageSize: number) {
+        if (this.experimentId == null || this.backend == null) {
+            // should never happen
+            console.warn("Experiment id or backend not set correctly.");
+            this.canExport = false;
+            return;
+        }
+        this.backend.getTimelineStepsPage(this.experimentId, {
+            page: page,
+            itemCount: pageSize,
+        }).subscribe(resp => {
+            this.stepCollectionSize = resp.itemCount;
+            this.stepListPage = resp.items;
+        });
+    }
+
+    selectStep(step: number, checked: boolean) {
+        if (!checked && this.stepList.includes(step)) {
+            this.stepList = this.stepList.filter(id => id !== step);
+        } else if (checked && !this.stepList.includes(step)) {
+            this.stepList.push(step);
+        }
+    }
+
+    resetSteps() {
+        this.stepList = [];
+        this.onStepPageChange(0, this.pageSize);
     }
 }
