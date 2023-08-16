@@ -5,8 +5,7 @@
     </a>
 
     <ng-container *ngIf="(currentExperiment|async) != null">
-        <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'info']"
-            [queryParams]="{template: routeTemplateId}" routerLinkActive="active">
+        <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'info']" routerLinkActive="active">
             Info
         </a>
         <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'workspace']"
