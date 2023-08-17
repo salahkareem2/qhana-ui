@@ -108,7 +108,9 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
                     this.switchActiveArea("plugins");
                 }
             }
-            this.loadActiveTemplateFromId(this.templateId ?? this.defaultTemplateId);
+            if (this.routeTemplateId != ALL_PLUGINS_TEMPLATE_ID) {
+                this.loadActiveTemplateFromId(this.templateId ?? this.defaultTemplateId);
+            }
         });
 
         this.registry.resolveRecursiveRels([["plugin", "collection"]]).then((apiLink) => {
