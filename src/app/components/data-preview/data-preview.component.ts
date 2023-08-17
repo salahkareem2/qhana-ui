@@ -237,7 +237,7 @@ export class DataPreviewComponent implements OnChanges {
         const pluginPreviewOptions: PluginPreviewOption[] = pluginLinks.map(pluginLink => {
             return {
                 type: 'plugin',
-                name: pluginLink.name ?? "Unknonw",
+                name: pluginLink.name ?? "Unknown",
                 plugin: pluginLink
             }
         });
