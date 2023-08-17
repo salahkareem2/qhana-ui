@@ -1,18 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ChooseDataDialog } from './choose-data.dialog';
 
-import { ChangeUiTemplateComponent } from './change-ui-template.component';
 
-describe('ChangeUiTemplateComponent', () => {
-    let component: ChangeUiTemplateComponent;
-    let fixture: ComponentFixture<ChangeUiTemplateComponent>;
+describe('ChooseDataDialog', () => {
+    let component: ChooseDataDialog;
+    let fixture: ComponentFixture<ChooseDataDialog>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ChangeUiTemplateComponent]
+            declarations: [ChooseDataDialog]
         })
             .compileComponents();
+    });
 
-        fixture = TestBed.createComponent(ChangeUiTemplateComponent);
+    beforeEach(() => {
+        fixture = TestBed.createComponent(ChooseDataDialog);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

@@ -17,7 +17,7 @@ import { tooltip } from '@milkdown/plugin-tooltip';
 import { gfm } from '@milkdown/preset-gfm';
 import { EditorState, liftListItem, MarkType, redo, setBlockType, sinkListItem, TextSelection, undo, wrapIn } from '@milkdown/prose';
 import { forceUpdate, replaceAll } from '@milkdown/utils';
-import { MarkdownHelpDialog } from 'src/app/dialogs/markdown-help/markdown-help.component';
+import { MarkdownHelpDialog } from 'src/app/dialogs/markdown-help/markdown-help.dialog';
 import { QhanaBackendService } from 'src/app/services/qhana-backend.service';
 import { latex, latexNode } from './milkdown-latex';
 import { QhanaTheme } from './milkdown-utils';

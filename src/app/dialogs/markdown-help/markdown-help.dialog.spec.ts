@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ChoosePluginDialog } from './choose-plugin.dialog';
+import { MarkdownHelpDialog } from './markdown-help.dialog';
 
 
-describe('ChoosePluginDialog', () => {
-    let component: ChoosePluginDialog;
-    let fixture: ComponentFixture<ChoosePluginDialog>;
+describe('MarkdownHelpComponent', () => {
+    let component: MarkdownHelpDialog;
+    let fixture: ComponentFixture<MarkdownHelpDialog>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ChoosePluginDialog]
+            declarations: [MarkdownHelpDialog]
         })
             .compileComponents();
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(ChoosePluginDialog);
+        fixture = TestBed.createComponent(MarkdownHelpDialog);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

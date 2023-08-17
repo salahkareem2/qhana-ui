@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/change-ui-template.component';
+import { ChangeUiTemplateDialog } from 'src/app/dialogs/change-ui-template/change-ui-template.dialog';
 import { DeleteDialog } from 'src/app/dialogs/delete-dialog/delete-dialog.dialog';
 import { ApiLink, ApiResponse, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
@@ -426,7 +426,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     }
 
     async createTemplate() {
-        const dialogRef = this.dialog.open(ChangeUiTemplateComponent, { data: { template: null }, minWidth: "20rem", maxWidth: "40rem", width: "60%" });
+        const dialogRef = this.dialog.open(ChangeUiTemplateDialog, { data: { template: null }, minWidth: "20rem", maxWidth: "40rem", width: "60%" });
         const templateData: TemplateApiObject = await dialogRef.afterClosed().toPromise();
 
         if (!templateData) {

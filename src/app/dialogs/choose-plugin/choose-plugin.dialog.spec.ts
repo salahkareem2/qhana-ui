@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CreateExperimentDialog } from './create-experiment.component';
+import { ChoosePluginDialog } from './choose-plugin.dialog';
 
 
-describe('CreateExperimentComponent', () => {
-    let component: CreateExperimentDialog;
-    let fixture: ComponentFixture<CreateExperimentDialog>;
+describe('ChoosePluginDialog', () => {
+    let component: ChoosePluginDialog;
+    let fixture: ComponentFixture<ChoosePluginDialog>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [CreateExperimentDialog]
+            declarations: [ChoosePluginDialog]
         })
             .compileComponents();
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(CreateExperimentDialog);
+        fixture = TestBed.createComponent(ChoosePluginDialog);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

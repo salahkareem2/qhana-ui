@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ExportExperimentDialog } from './export-experiment.component';
+import { ChangeUiTemplateDialog } from './change-ui-template.dialog';
 
-describe('ExportExperimentDialog', () => {
-    let component: ExportExperimentDialog;
-    let fixture: ComponentFixture<ExportExperimentDialog>;
+describe('ChangeUiTemplateDialog', () => {
+    let component: ChangeUiTemplateDialog;
+    let fixture: ComponentFixture<ChangeUiTemplateDialog>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ExportExperimentDialog]
+            declarations: [ChangeUiTemplateDialog]
         })
             .compileComponents();
 
-        fixture = TestBed.createComponent(ExportExperimentDialog);
+        fixture = TestBed.createComponent(ChangeUiTemplateDialog);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

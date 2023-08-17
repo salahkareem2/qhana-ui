@@ -1,20 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ChooseDataComponent } from './choose-data.component';
 
+import { ExportExperimentDialog } from './export-experiment.dialog';
 
-describe('ChooseDataComponent', () => {
-    let component: ChooseDataComponent;
-    let fixture: ComponentFixture<ChooseDataComponent>;
+describe('ExportExperimentDialog', () => {
+    let component: ExportExperimentDialog;
+    let fixture: ComponentFixture<ExportExperimentDialog>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            declarations: [ChooseDataComponent]
+            declarations: [ExportExperimentDialog]
         })
             .compileComponents();
-    });
 
-    beforeEach(() => {
-        fixture = TestBed.createComponent(ChooseDataComponent);
+        fixture = TestBed.createComponent(ExportExperimentDialog);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

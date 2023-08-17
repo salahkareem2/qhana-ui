@@ -73,13 +73,13 @@ import { SubstepsDetailsComponent } from './components/substeps-details/substeps
 import { TimelineStepNavComponent } from './components/timeline-step-nav/timeline-step-nav.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
 import { TimelineSubstepsComponent } from './components/timeline-substeps/timeline-substeps.component';
-import { ChooseDataComponent } from './dialogs/choose-data/choose-data.component';
-import { ChoosePluginComponent } from './dialogs/choose-plugin/choose-plugin.component';
-import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.component';
+import { ChooseDataDialog } from './dialogs/choose-data/choose-data.dialog';
+import { ChoosePluginDialog } from './dialogs/choose-plugin/choose-plugin.dialog';
+import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.dialog';
 import { DeleteDialog } from './dialogs/delete-dialog/delete-dialog.dialog';
-import { ExportExperimentDialog } from './dialogs/export-experiment/export-experiment.component';
-import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.component';
-import { ChangeUiTemplateComponent } from './dialogs/change-ui-template/change-ui-template.component';
+import { ExportExperimentDialog } from './dialogs/export-experiment/export-experiment.dialog';
+import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.dialog';
+import { ChangeUiTemplateDialog } from './dialogs/change-ui-template/change-ui-template.dialog';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TemplateDetailsComponent } from './components-small/template-details/template-details.component';
 import { ExperimentWorkspaceDetailComponent } from './components/experiment-workspace-detail/experiment-workspace-detail.component';
@@ -106,8 +106,8 @@ import { ChooseTemplateDialog } from './dialogs/choose-template/choose-template.
         PreviewListComponent,
         MarkdownComponent,
         PluginUiframeComponent,
-        ChooseDataComponent,
-        ChoosePluginComponent,
+        ChooseDataDialog,
+        ChoosePluginDialog,
         TimelineSubstepsComponent,
         SubstepsDetailsComponent,
         StepStatusComponent,
@@ -125,7 +125,7 @@ import { ChooseTemplateDialog } from './dialogs/choose-template/choose-template.
         RawTextPreviewComponent,
         PluginPreviewComponent,
         PluginTabComponent,
-        ChangeUiTemplateComponent,
+        ChangeUiTemplateDialog,
         TemplateDetailsComponent,
         ExperimentWorkspaceDetailComponent,
         ImportExperimentComponent,

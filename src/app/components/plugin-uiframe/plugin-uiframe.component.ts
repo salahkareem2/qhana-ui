@@ -4,8 +4,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { concatAll, filter, map, mergeAll, toArray } from 'rxjs/operators';
-import { ChooseDataComponent } from 'src/app/dialogs/choose-data/choose-data.component';
-import { ChoosePluginComponent } from 'src/app/dialogs/choose-plugin/choose-plugin.component';
+import { ChooseDataDialog } from 'src/app/dialogs/choose-data/choose-data.dialog';
+import { ChoosePluginDialog } from 'src/app/dialogs/choose-plugin/choose-plugin.dialog';
 import { CollectionApiObject } from 'src/app/services/api-data-types';
 import { PluginApiObject } from 'src/app/services/qhana-api-data-types';
 import { ApiObjectList, ExperimentDataApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
@@ -214,7 +214,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             return; // only ever show one dialog at a time
         }
         this.dialogActive = true;
-        const dialogRef = this.dialog.open(ChoosePluginComponent, { data: request });
+        const dialogRef = this.dialog.open(ChoosePluginDialog, { data: request });
         dialogRef.afterClosed().subscribe((result: PluginApiObject | null) => {
             this.dialogActive = false;
             if (result == null) {
@@ -235,7 +235,7 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             return; // only ever show one dialog at a time
         }
         this.dialogActive = true;
-        const dialogRef = this.dialog.open(ChooseDataComponent, { data: { acceptedDataType: request.acceptedInputType, acceptedContentTypes: request.acceptedContentTypes } });
+        const dialogRef = this.dialog.open(ChooseDataDialog, { data: { acceptedDataType: request.acceptedInputType, acceptedContentTypes: request.acceptedContentTypes } });
         dialogRef.afterClosed().subscribe((result: ExperimentDataApiObject) => {
             this.dialogActive = false;
             if (result == null) {
