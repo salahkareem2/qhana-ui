@@ -20,8 +20,9 @@ import { ApiLink, ApiObject, PageApiObject } from './api-data-types';
 import { CurrentExperimentService } from './current-experiment.service';
 import { PluginRegistryBaseService } from './registry.service';
 import { EnvService } from './env.service';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { distinctUntilChanged, take } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
+import { QhanaBackendService } from './qhana-backend.service';
 
 
 export interface TemplateApiObject extends ApiObject {  // TODO check fields
@@ -54,6 +55,7 @@ export const TAB_GROUP_NAME_OVERRIDES: { [group: string]: string } = {
     "navigation": "Navigation Tabs",
 }
 
+export const ALL_PLUGINS_TEMPLATE_ID = "all-plugins";
 
 @Injectable({
     providedIn: 'root'
@@ -104,7 +106,7 @@ export class TemplatesService {
         return this.currentTemplateSubject.asObservable();
     }
 
-    constructor(private registry: PluginRegistryBaseService, private env: EnvService, private currentExperiment: CurrentExperimentService, private route: ActivatedRoute) {
+    constructor(private registry: PluginRegistryBaseService, private env: EnvService, private currentExperiment: CurrentExperimentService, private backend: QhanaBackendService, private route: ActivatedRoute) {
         this.envSubscription = env.uiTemplateId.subscribe((defaultTemplateId) => {
             this.envTemplateIdSubject.next(defaultTemplateId);
         });
@@ -124,7 +126,7 @@ export class TemplatesService {
         ]).subscribe(([envTemplateId, experimentTemplateId, routeTemplateId]) => {
             //TODO
             if (routeTemplateId != null) {
-                if (routeTemplateId === "all-plugins") {
+                if (routeTemplateId === ALL_PLUGINS_TEMPLATE_ID) {
                     // allow overriding the default templates using a special template id
                     this.currentTemplateIdSubject.next(null);
                     this.defaultTemplateIdSubject.next(experimentTemplateId ?? envTemplateId ?? null);
@@ -200,7 +202,7 @@ export class TemplatesService {
     }
 
     private async updateTemplate(templateId: string | null, subject: BehaviorSubject<TemplateApiObject | null>) {
-        if (templateId == null) {
+        if (templateId == null || templateId === "") {
             subject.next(null);
             return;
         }
@@ -230,5 +232,14 @@ export class TemplatesService {
     async getTemplateTabGroups(templateId: string, ignoreCache: boolean | "ignore-embedded" = false) {
         const templateResponse = await this.getTemplate(templateId, ignoreCache);
         return templateResponse?.data?.groups ?? [];
+    }
+
+    setExperimentDefaultTemplate(experimentId: string, templateId: string | null) {
+        this.backend.updateExperimentDefaultTemplate(experimentId, templateId).pipe(take(1)).subscribe(
+            response => {
+                this.experimentTemplateIdSubject.next(response?.templateId ?? null);
+                this.currentExperiment.reloadExperiment();
+            }
+        );
     }
 }

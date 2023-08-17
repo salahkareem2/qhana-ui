@@ -4,8 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 import { ExportExperimentDialog } from 'src/app/dialogs/export-experiment/export-experiment.component';
+import { ChooseTemplateDialog } from 'src/app/dialogs/choose-template/choose-template.dialog';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
+import { ALL_PLUGINS_TEMPLATE_ID, TemplateApiObject, TemplatesService } from 'src/app/services/templates.service';
 
 @Component({
     selector: 'qhana-experiment',
@@ -13,7 +15,6 @@ import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana
     styleUrls: ['./experiment.component.sass']
 })
 export class ExperimentComponent implements OnInit, OnDestroy {
-
     private routeSubscription: Subscription | null = null;
 
     private experimentSubscription: Subscription | null = null;
@@ -24,6 +25,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     private descriptionUpdates: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
     private autoSaveTitleSubscription: Subscription | null = null;
     private autoSaveDescriptionSubscription: Subscription | null = null;
+    private uiTemplateIdSubscription: Subscription | null = null;
 
     updateStatus: "original" | "changed" | "saved" = "original";
 
@@ -34,7 +36,9 @@ export class ExperimentComponent implements OnInit, OnDestroy {
     experimentDescription: string = ""; // only updated on initial experiment load
     currentExperimentDescription: string = "";
 
-    constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService, public dialog: MatDialog) { }
+    uiTemplate: TemplateApiObject | null = null;
+
+    constructor(private route: ActivatedRoute, private router: Router, private experimentService: CurrentExperimentService, private backend: QhanaBackendService, private templates: TemplatesService, public dialog: MatDialog) { }
 
     ngOnInit(): void {
         this.routeSubscription = this.route.params.pipe(map(params => params.experimentId)).subscribe(experimentId => {
@@ -48,6 +52,15 @@ export class ExperimentComponent implements OnInit, OnDestroy {
             this.lastSavedDescription = experiment?.description ?? "";
             this.experimentDescription = experiment?.description ?? "";
             this.currentExperimentDescription = experiment?.description ?? "";
+        });
+        this.uiTemplateIdSubscription = this.experimentService.experimentTemplateId.subscribe(templateId => {
+            if (templateId == null) {
+                this.uiTemplate = null;
+                return;
+            }
+            this.templates.getTemplate(templateId.toString()).then(templateResponse => {
+                this.uiTemplate = templateResponse?.data ?? null;
+            });
         });
         this.autoSaveTitleSubscription = this.titleUpdates.pipe(
             filter(value => value != null && value !== this.lastSavedTitle),
@@ -64,6 +77,7 @@ export class ExperimentComponent implements OnInit, OnDestroy {
         this.experimentSubscription?.unsubscribe();
         this.autoSaveTitleSubscription?.unsubscribe();
         this.autoSaveDescriptionSubscription?.unsubscribe();
+        this.uiTemplateIdSubscription?.unsubscribe();
     }
 
     cloneExperiment() {
@@ -156,4 +170,24 @@ export class ExperimentComponent implements OnInit, OnDestroy {
         });
     }
 
+    showSelectDefaultTemplateDialog() {
+        const dialogRef = this.dialog.open(ChooseTemplateDialog, {
+            minWidth: "20rem", maxWidth: "40rem", width: "20%", maxHeight: "95%",
+            data: this.uiTemplate
+        });
+        dialogRef.afterClosed().subscribe(templateId => {
+            if (templateId != null) {
+                const id = templateId === ALL_PLUGINS_TEMPLATE_ID ? null : templateId;
+                this.updateExperimentDefaultTemplate(id);
+            }
+        });
+    }
+
+    updateExperimentDefaultTemplate(templateId: string | null) {
+        if (this.experimentId == null) {
+            console.warn("Experiment ID is null!");
+            return;
+        }
+        this.templates.setExperimentDefaultTemplate(this.experimentId, templateId);
+    }
 }

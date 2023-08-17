@@ -31,12 +31,25 @@
                 <mat-icon>cancel</mat-icon>
             </button>
         </mat-card-title>
-        <mat-card-content>
+        <mat-card-content class="experiment-settings">
+            <div class="default-template-selection t-subheading">
+                <span>
+                    Default Template:
+                </span>
+                <a [routerLink]="['/experiments', experimentId, 'workspace']" [queryParams]="{ template: uiTemplate?.self?.resourceKey?.uiTemplateId ?? 'all-plugins' }">
+                    {{uiTemplate?.name ?? 'All Plugins'}}
+                </a>
+                <button mat-raised-button color="primary" (click)="showSelectDefaultTemplateDialog()">
+                    Change Template
+                </button>
+                <button mat-raised-button color="primary" *ngIf="uiTemplate != null" (click)="updateExperimentDefaultTemplate(null)">
+                    Remove Template
+                </button>
+            </div>
             <qhana-markdown class="description" [markdown]="experimentDescription"
                 (markdownChanges)="updateDescription($event)" [editable]="true">
             </qhana-markdown>
         </mat-card-content>
-
     </mat-card>
     <div class="updates">
         <div class="update-status" *ngIf="updateStatus === 'changed'">

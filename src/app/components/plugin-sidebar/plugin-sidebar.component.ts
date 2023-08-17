@@ -7,7 +7,7 @@ import { ChangeUiTemplateComponent } from 'src/app/dialogs/change-ui-template/ch
 import { DeleteDialog } from 'src/app/dialogs/delete-dialog/delete-dialog.dialog';
 import { ApiLink, ApiResponse, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
-import { TemplateApiObject, TemplateTabApiObject, TemplatesService } from 'src/app/services/templates.service';
+import { ALL_PLUGINS_TEMPLATE_ID, TemplateApiObject, TemplateTabApiObject, TemplatesService } from 'src/app/services/templates.service';
 
 
 export interface PluginGroup {
@@ -17,9 +17,6 @@ export interface PluginGroup {
     link: ApiLink;
     query?: URLSearchParams;
 }
-
-
-const ALL_PLUGINS_TEMPLATE_ID = "all-plugins";
 
 
 @Component({

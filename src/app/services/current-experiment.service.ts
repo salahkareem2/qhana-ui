@@ -45,6 +45,10 @@ export class CurrentExperimentService {
         return this.currentExperiment.asObservable().pipe(map(experiment => experiment?.description ?? null));
     }
 
+    get experimentTemplateId() {
+        return this.currentExperiment.asObservable().pipe(map(experiment => experiment?.templateId ?? null));
+    }
+
     constructor(private backend: QhanaBackendService) { }
 
     private updateCurrentExperiment(experimentId: string | null) {
@@ -64,7 +68,7 @@ export class CurrentExperimentService {
             this.currentExperimentId.next(experimentId);
         }
         const current = this.currentExperiment.getValue();
-        if (current != experiment || current?.name !== experiment?.name || current?.description !== experiment?.description) {
+        if (current != experiment || current?.name !== experiment?.name || current?.description !== experiment?.description || current?.templateId !== experiment?.templateId) {
             this.currentExperiment.next(experiment);
         }
     }
@@ -81,5 +85,4 @@ export class CurrentExperimentService {
             this.updateCurrentExperiment(experimentId);
         }
     }
-
 }

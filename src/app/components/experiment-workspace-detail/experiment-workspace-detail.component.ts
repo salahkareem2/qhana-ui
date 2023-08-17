@@ -10,7 +10,7 @@ import { filter } from 'rxjs/operators';
 import { DeleteDialog } from 'src/app/dialogs/delete-dialog/delete-dialog.dialog';
 import { ApiLink, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
-import { TAB_GROUP_NAME_OVERRIDES, TAB_GROUP_SORT_KEYS, TemplateApiObject, TemplateTabApiObject, TemplatesService } from 'src/app/services/templates.service';
+import { ALL_PLUGINS_TEMPLATE_ID, TAB_GROUP_NAME_OVERRIDES, TAB_GROUP_SORT_KEYS, TemplateApiObject, TemplateTabApiObject, TemplatesService } from 'src/app/services/templates.service';
 
 @Component({
     selector: 'qhana-experiment-workspace-detail',
@@ -63,7 +63,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     ngOnInit() {
         this.routeParamSubscription = this.route.queryParamMap.subscribe(async params => {
             let templateId = params.get('template');
-            if (templateId === "all-plugins") {
+            if (templateId === ALL_PLUGINS_TEMPLATE_ID) {
                 // treat builtin template as default template for the workspace details
                 templateId = null;
             }
@@ -203,7 +203,7 @@ export class ExperimentWorkspaceDetailComponent implements OnInit {
     }
 
     private async updateTemplateId(templateId: string | null) {
-        if (templateId == null) {
+        if (templateId == null || templateId === "") {
             return; // no template selected
         }
         if (templateId === this.templateId) {
