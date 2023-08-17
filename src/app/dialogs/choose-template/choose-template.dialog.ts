@@ -6,8 +6,8 @@ import { TemplateApiObject } from 'src/app/services/templates.service';
 
 @Component({
     selector: 'qhana-choose-template',
-    templateUrl: './choose-template.component.html',
-    styleUrls: ['./choose-template.component.sass']
+    templateUrl: './choose-template.dialog.html',
+    styleUrls: ['./choose-template.dialog.sass']
 })
 export class ChooseTemplateDialog implements OnInit {
     highlightedTemplateSet: Set<string> = new Set();

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ChooseTemplateDialog } from './choose-template.component';
+import { ChooseTemplateDialog } from './choose-template.dialog';
 
 describe('ChooseTemplateDialog', () => {
   let component: ChooseTemplateDialog;

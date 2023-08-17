@@ -86,7 +86,7 @@ import { ExperimentWorkspaceDetailComponent } from './components/experiment-work
 import { PluginFilterNodeComponent } from './components-small/plugin-filter-node/plugin-filter-node.component';
 import { PluginFilterEditorComponent } from './components-small/plugin-filter-editor/plugin-filter-editor.component';
 import { TabGroupListComponent } from './components/tab-group-list/tab-group-list.component';
-import { ChooseTemplateDialog } from './dialogs/choose-template/choose-template.component';
+import { ChooseTemplateDialog } from './dialogs/choose-template/choose-template.dialog';
 
 @NgModule({
     declarations: [
