@@ -12,17 +12,17 @@ interface PluginRestrictions {
 
 @Component({
     selector: 'qhana-choose-plugin',
-    templateUrl: './choose-plugin.component.html',
-    styleUrls: ['./choose-plugin.component.sass']
+    templateUrl: './choose-plugin.dialog.html',
+    styleUrls: ['./choose-plugin.dialog.sass']
 })
-export class ChoosePluginComponent {
+export class ChoosePluginDialog {
 
     highlightedPluginSet: Set<string> = new Set();
     selectedPlugin: PluginApiObject | null = null;
 
     queryParams: URLSearchParams | null = null;
 
-    constructor(public dialogRef: MatDialogRef<ChoosePluginComponent>, @Inject(MAT_DIALOG_DATA) public data: PluginRestrictions, private registry: PluginRegistryBaseService) {
+    constructor(public dialogRef: MatDialogRef<ChoosePluginDialog>, @Inject(MAT_DIALOG_DATA) public data: PluginRestrictions, private registry: PluginRegistryBaseService) {
         const query = new URLSearchParams();
         if (data.pluginTags) {
             const tag_list = data.pluginTags.join(",");

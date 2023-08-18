@@ -4,7 +4,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { CreateExperimentDialog } from 'src/app/dialogs/create-experiment/create-experiment.component';
+import { CreateExperimentDialog } from 'src/app/dialogs/create-experiment/create-experiment.dialog';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
 import { ExperimentApiObject, QhanaBackendService } from 'src/app/services/qhana-backend.service';
 

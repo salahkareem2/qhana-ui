@@ -3,8 +3,8 @@ import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
     selector: 'qhana-create-experiment',
-    templateUrl: './create-experiment.component.html',
-    styleUrls: ['./create-experiment.component.sass']
+    templateUrl: './create-experiment.dialog.html',
+    styleUrls: ['./create-experiment.dialog.sass']
 })
 export class CreateExperimentDialog implements OnInit {
 

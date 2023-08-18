@@ -7,10 +7,10 @@ import { ApiObjectList, ExperimentDataApiObject, QhanaBackendService } from 'src
 
 @Component({
     selector: 'qhana-choose-data',
-    templateUrl: './choose-data.component.html',
-    styleUrls: ['./choose-data.component.sass']
+    templateUrl: './choose-data.dialog.html',
+    styleUrls: ['./choose-data.dialog.sass']
 })
-export class ChooseDataComponent implements OnInit {
+export class ChooseDataDialog implements OnInit {
 
     experimentId: string | null = null;
 
@@ -34,7 +34,7 @@ export class ChooseDataComponent implements OnInit {
 
     selected: ExperimentDataApiObject | null = null;
 
-    constructor(public dialogRef: MatDialogRef<ChooseDataComponent>, @Inject(MAT_DIALOG_DATA) public data: { acceptedDataType: string, acceptedContentTypes: string[] }, private experiment: CurrentExperimentService, private backend: QhanaBackendService) { }
+    constructor(public dialogRef: MatDialogRef<ChooseDataDialog>, @Inject(MAT_DIALOG_DATA) public data: { acceptedDataType: string, acceptedContentTypes: string[] }, private experiment: CurrentExperimentService, private backend: QhanaBackendService) { }
 
     ngOnInit(): void {
         this.acceptedDataTypeMatcher = this.getMimetypeLikeMatcher(this.data.acceptedDataType);

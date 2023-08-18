@@ -4,17 +4,17 @@ import { TemplateApiObject } from 'src/app/services/templates.service';
 
 @Component({
     selector: 'qhana-change-ui-template',
-    templateUrl: './change-ui-template.component.html',
-    styleUrls: ['./change-ui-template.component.sass'],
+    templateUrl: './change-ui-template.dialog.html',
+    styleUrls: ['./change-ui-template.dialog.sass'],
 })
-export class ChangeUiTemplateComponent implements OnInit {
+export class ChangeUiTemplateDialog implements OnInit {
 
     templateName: string = "";
     templateDescription: string = "";
     templateTags: string[] = [];
     tagName: string = "";
 
-    constructor(public dialogRef: MatDialogRef<ChangeUiTemplateComponent>, @Inject(MAT_DIALOG_DATA) public data: { template: TemplateApiObject | null }) { }
+    constructor(public dialogRef: MatDialogRef<ChangeUiTemplateDialog>, @Inject(MAT_DIALOG_DATA) public data: { template: TemplateApiObject | null }) { }
 
     ngOnInit(): void {
         this.templateName = this.data.template?.name || "";

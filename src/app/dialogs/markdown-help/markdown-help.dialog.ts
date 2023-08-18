@@ -3,8 +3,8 @@ import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
     selector: 'qhana-markdown-help',
-    templateUrl: './markdown-help.component.html',
-    styleUrls: ['./markdown-help.component.sass']
+    templateUrl: './markdown-help.dialog.html',
+    styleUrls: ['./markdown-help.dialog.sass']
 })
 export class MarkdownHelpDialog {
 
