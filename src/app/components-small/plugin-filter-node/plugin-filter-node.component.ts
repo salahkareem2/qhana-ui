@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@
 // Define filter types ('not' excluded)
 // The PluginFilterNodeComponent component is designed to encapsulate a filter object and the information wether the filter is inverted ('not').
 // When the filter is inverted, the filter object is wrapped in a 'not' object and the 'inverted' property is set to true.
-const filterTypes = ['and', 'or', 'name', 'tag', 'version'] as const;
+const filterTypes = ['and', 'or', 'id', 'name', 'tag', 'version'] as const;
 type FilterType = (typeof filterTypes)[number];
 const isFilterType = (x: any): x is FilterType => filterTypes.includes(x);
 

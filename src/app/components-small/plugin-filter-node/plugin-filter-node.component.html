@@ -52,6 +52,7 @@
                 <mat-form-field class="inner-form-field">
                     <mat-label>Filter Type:</mat-label>
                     <mat-select [value]="type" (valueChange)="changeType($event)">
+                        <mat-option value="id">Plugin ID</mat-option>
                         <mat-option value="name">Name</mat-option>
                         <mat-option value="tag">Tag</mat-option>
                         <mat-option value="version">Version</mat-option>
