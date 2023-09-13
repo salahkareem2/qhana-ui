@@ -26,9 +26,11 @@
             
             <i>Enter a filter string as JSON object. Filter strings have the following keys:</i>
             <dl>
-                <dt>name</dt> <dd>Represents the name of a plugin.</dd>
+                <dt>id</dt> <dd>Filters for a plugin id (<code>@&lt;version&gt;</code> not required).</dd>
+                <dt>name</dt> <dd>Filters for a plugin name.</dd>
                 <dt>tag</dt> <dd>Allows filtering elements by their assigned tags.</dd>
                 <dt>version</dt> <dd>Uses PEP 440 version specifier to filter elements based on specific versions or version ranges.</dd>
+                <dt>type</dt> <dd>Filters for plugin types (e.g. processing, visualization, ...)</dd>
                 <dt>not</dt> <dd>Specifies a filter string to exclude certain elements.</dd>
                 <dt>and</dt> <dd>Includes multiple filter strings, with elements passing all conditions included in the filtered results (intersection).</dd>
                 <dt>or</dt> <dd>Includes multiple filter strings, with elements meeting at least one condition included in the filtered results (union).</dd>

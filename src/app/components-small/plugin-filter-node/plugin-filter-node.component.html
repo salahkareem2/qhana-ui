@@ -52,15 +52,23 @@
                 <mat-form-field class="inner-form-field">
                     <mat-label>Filter Type:</mat-label>
                     <mat-select [value]="type" (valueChange)="changeType($event)">
+                        <mat-option value="id">Plugin ID</mat-option>
                         <mat-option value="name">Name</mat-option>
                         <mat-option value="tag">Tag</mat-option>
                         <mat-option value="version">Version</mat-option>
+                        <mat-option value="type">Type</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field class="form-field">
                     <mat-label>Filter String:</mat-label>
-                    <textarea matInput [value]="value" (focusout)="updateFilterString($event)" cdkTextareaAutosize #autosize="cdkTextareaAutosize"
-                    cdkAutosizeMinRows="1" cdkAutosizeMaxRows="15"></textarea>
+                    <input matInput [value]="value" (focusout)="updateFilterString($event)" list="plugin-types">
+                    <datalist *ngIf="type === 'type'" id="plugin-types">
+                        <option value="processing"></option>
+                        <option value="visualization"></option>
+                        <option value="conversion"></option>
+                        <option value="dataloader"></option>
+                        <option value="interaction"></option>
+                    </datalist>
                 </mat-form-field>
                 <button mat-raised-button type="button" (click)="delete.emit()">
                     <mat-icon>delete</mat-icon>
