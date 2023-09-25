@@ -77,12 +77,21 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.routeParamSubscription = this.route.queryParamMap.subscribe(params => {
             let templateId = params.get('template');
+            let templateChanged = false;
             if (templateId === ALL_PLUGINS_TEMPLATE_ID) {
+                templateChanged = this.useExternalDefaultTemplate;
                 this.useExternalDefaultTemplate = false;
                 templateId = null;
             } else {
+                templateChanged = (!this.useExternalDefaultTemplate) || (templateId !== this.routeTemplateId);
                 this.useExternalDefaultTemplate = true;
                 this.templateId = templateId;
+            }
+            if (templateChanged) {
+                const searchField = this.searchInput?.nativeElement;
+                if (searchField != null) {
+                    searchField.value = "";
+                }
             }
             this.pluginId = params.get('plugin');
             this.tabId = params.get('tab');
@@ -248,9 +257,10 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
         }
     }
 
-    private switchActiveTemplateLink(activeTemplate: ApiLink | null) {
+    private switchActiveTemplateLink(activeTemplate: ApiLink | null, useExternalDefaultTemplate?: boolean) {
+        useExternalDefaultTemplate = useExternalDefaultTemplate ?? this.useExternalDefaultTemplate;
         if (activeTemplate == null) {
-            if (this.useExternalDefaultTemplate && this.defaultTemplate != null) {
+            if (useExternalDefaultTemplate && this.defaultTemplate != null) {
                 activeTemplate = this.defaultTemplate.self;
             } else {
                 this.selectedTemplate = null;
@@ -313,12 +323,21 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     }
 
     private navigate(template: string | null = null, plugin: string | null = null, tab: string | null = null) {
+        let templateChanged = false;
         if (template === ALL_PLUGINS_TEMPLATE_ID) {
+            templateChanged = this.useExternalDefaultTemplate;
             this.useExternalDefaultTemplate = false;
             this.templateId = null;
         } else {
+            templateChanged = (!this.useExternalDefaultTemplate) || (template !== this.routeTemplateId);
             this.useExternalDefaultTemplate = true;
             this.templateId = template;
+        }
+        if (templateChanged) {
+            const searchField = this.searchInput?.nativeElement;
+            if (searchField != null) {
+                searchField.value = "";
+            }
         }
         this.pluginId = plugin;
         this.tabId = tab;
@@ -385,9 +404,7 @@ export class PluginSidebarComponent implements OnInit, OnDestroy {
     }
 
     selectTemplate(templateLink: ApiLink | null, specialTemplateId: (typeof ALL_PLUGINS_TEMPLATE_ID) | null = null) {
-        this.useExternalDefaultTemplate = specialTemplateId == null;
-
-        this.switchActiveTemplateLink(templateLink);
+        this.switchActiveTemplateLink(templateLink, specialTemplateId == null);
         if (templateLink == null) {
             this.navigate(specialTemplateId, null, null);
             return;
