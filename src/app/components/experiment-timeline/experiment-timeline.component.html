@@ -1,10 +1,10 @@
 <div class="big-content">
     <div class="flex-header">
-        <h1 class="t-page-headline align-arrow">Experiment Timeline
-            <button mat-icon-button class="arrow-button" (click)="onSort()" aria-label="change sort order">
-                <mat-icon [inline]="true" class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
-            </button>
-        </h1>
+        <h1 class="t-page-headline align-arrow">Experiment Timeline</h1>
+        <button mat-icon-button class="arrow-button" (click)="onSort()" aria-label="change sort order">
+            <mat-icon>{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
+        </button>
+        <div class="flex-space"></div>
 
         <mat-paginator #paginatorTop class="paginator"
             (page)="paginatorBottom.pageSize = $event.pageSize; paginatorBottom.pageIndex = $event.pageIndex; onPageChange($event)"
