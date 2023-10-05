@@ -31,12 +31,15 @@
                     </h2>
                 </summary>
                 <mat-divider></mat-divider>
-                <button mat-button class="w-100 all-plugins-button" (click)="selectTemplate(null)"
-                    *ngIf="defaultTemplate">
+                <button mat-button
+                    class="w-100 builtin-template-button {{(templateId==null && useExternalDefaultTemplate) ? 'active' : ''}}"
+                    (click)="selectTemplate(null)" *ngIf="defaultTemplate">
                     use default template
                 </button>
                 <mat-divider *ngIf="defaultTemplate"></mat-divider>
-                <button mat-button class="w-100 all-plugins-button" (click)="selectTemplate(null, 'all-plugins')">
+                <button mat-button
+                    class="w-100 builtin-template-button {{(templateId==null && !useExternalDefaultTemplate) ? 'active' : ''}}"
+                    (click)="selectTemplate(null, 'all-plugins')">
                     show all plugins
                 </button>
                 <mat-divider></mat-divider>
@@ -44,7 +47,9 @@
                     [highlighted]="highlightedTemplates" [highlightByKey]="'uiTemplateId'"
                     (clickItem)="selectTemplate($event)"></qhana-growing-list>
                 <mat-divider></mat-divider>
-                <button mat-ripple class="sidebar-button w-100" (click)="createTemplate()">Create Template</button>
+                <button class="new-template-button" mat-stroked-button (click)="createTemplate()">
+                    Create Template
+                </button>
             </details>
             <mat-form-field class="full-width" color="primary"
                 [hidden]="activeArea == 'detail' || activeArea == 'templates'">
@@ -66,6 +71,7 @@
                     <span class="plugin-group-header-text">
                         <mat-icon>extension</mat-icon>
                         {{group.name}}
+                        ({{pluginList.visibleCollectionSize|async}}/{{pluginList.collectionSize|async}})
                     </span>
                     <mat-icon matSuffix [hidden]="group.open">expand_more</mat-icon>
                     <mat-icon matSuffix [hidden]="!group.open">expand_less</mat-icon>
@@ -73,8 +79,8 @@
                 <mat-divider></mat-divider>
             </summary>
             <qhana-growing-list [apiLink]="group.link" [query]="group?.query ?? null" [search]="searchInput.value"
-                [highlighted]="highlightedPlugins" [highlightByKey]="'pluginId'"
-                (clickItem)="selectPlugin($event)"></qhana-growing-list>
+                [autoloadOnSearch]="true" [highlighted]="highlightedPlugins" [highlightByKey]="'pluginId'"
+                (clickItem)="selectPlugin($event)" #pluginList></qhana-growing-list>
             <mat-divider></mat-divider>
         </details>
     </div>

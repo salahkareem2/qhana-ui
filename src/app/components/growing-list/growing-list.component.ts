@@ -28,6 +28,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     @Input() set search(value: string | null) {
         this.normalizedSearch = value?.toLowerCase()?.trim() ?? null;
     }
+    @Input() autoloadOnSearch: boolean | number = false;
 
     normalizedSearch: string | null = null;
 
@@ -42,7 +43,9 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     @Input() highlightByKey: string | null = null;
 
     @Output() itemsChanged: EventEmitter<ApiLink[]> = new EventEmitter<ApiLink[]>();
+    @Output() visibleItems: EventEmitter<ApiLink[]> = new EventEmitter<ApiLink[]>();
     @Output() collectionSize: EventEmitter<number> = new EventEmitter<number>();
+    @Output() visibleCollectionSize: EventEmitter<number> = new EventEmitter<number>();
     @Output() clickItem: EventEmitter<ApiLink> = new EventEmitter<ApiLink>();
     @Output() editItem: EventEmitter<ApiLink> = new EventEmitter<ApiLink>();
     @Output() deleteItem: EventEmitter<ApiLink> = new EventEmitter<ApiLink>();
@@ -63,6 +66,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     private deletedItemsSubscription: Subscription | null = null;
 
     items: ApiLink[] = [];
+    itemsInSearch: boolean[] = [];
 
     constructor(private registry: PluginRegistryBaseService, private dialog: MatDialog) { }
 
@@ -116,7 +120,11 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             this.loadMoreClicked = false;
             this.lastCollectionSize = null;
             this.items = [];
+            this.itemsInSearch = [];
             this.setupGrowingList();
+        }
+        if (changes.search) {
+            this.updateIsInSearch();
         }
     }
 
@@ -148,6 +156,7 @@ export class GrowingListComponent implements OnInit, OnDestroy {
         this.loadMoreApiLink = null;
         this.lastCollectionSize = null;
         this.collectionSize.emit(0);
+        this.visibleCollectionSize.emit(0);
         const query = this.query;
         this.updateQueue.next(() => this.replaceApiLinkQueued(newApiLink, query));
     }
@@ -179,18 +188,25 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             this.isLoading = false;
             return;
         }
+        const itemsInSearch = new Array(response.data.items.length);
+        response.data.items.forEach((link, index) => itemsInSearch[index] = this.isInSearch(link));
         this.startApiLink = newApiLink;
         this.startQueryArgs = query;
         this.items = [...response.data.items];
+        this.itemsInSearch = itemsInSearch;
         this.loadMoreApiLink = response.links.find(link => matchesLinkRel(link, "next")) ?? null;
         this.isLoading = false;
         this.loadMoreClicked = false;
         this.itemsChanged.emit([...this.items]);
         this.lastCollectionSize = response.data.collectionSize;
         this.collectionSize.emit(response.data.collectionSize);
+        this.onItemsInSearchChanged();
     }
 
     loadMore() {
+        if (this.loadMoreClicked) {
+            return; // do not allow multiple parallel loadMore commands in queue
+        }
         this.loadMoreClicked = true;
         this.updateQueue.next(() => this.loadMoreQueued());
     }
@@ -217,13 +233,17 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             this.isLoading = false;
             return;
         }
+        let newItemsInSearch = new Array(response.data.items.length);
+        response.data.items.forEach((link, index) => newItemsInSearch[index] = this.isInSearch(link));
         this.items = [...items, ...response.data.items];
+        this.itemsInSearch = [...this.itemsInSearch, ...newItemsInSearch];
         this.loadMoreApiLink = response.links.find(link => matchesLinkRel(link, "next")) ?? null;
         this.isLoading = false;
         this.loadMoreClicked = false;
         this.itemsChanged.emit([...this.items]);
         this.lastCollectionSize = response.data.collectionSize;
         this.collectionSize.emit(response.data.collectionSize);
+        this.onItemsInSearchChanged();
     }
 
     private async onNewObjectQueued(newObjectLink: ApiLink) {
@@ -233,9 +253,11 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             return;
         }
         this.items = [...this.items, newObjectLink];
+        this.itemsInSearch = [...this.itemsInSearch, this.isInSearch(newObjectLink)];
         this.itemsChanged.emit([...this.items]);
         this.lastCollectionSize = (this.lastCollectionSize ?? 0) + 1; // extrapolate collection size
         this.collectionSize.emit(this.lastCollectionSize ?? 0);
+        this.onItemsInSearchChanged();
     }
 
     private async onChangedObjectQueued(changedObjectLink: ApiLink) {
@@ -256,8 +278,12 @@ export class GrowingListComponent implements OnInit, OnDestroy {
                 return;
             }
             newItems[index] = changedObjectLink;
+            const newItemsInSearch = [...this.itemsInSearch];
+            newItemsInSearch[index] = this.isInSearch(changedObjectLink);
             this.items = newItems;
+            this.itemsInSearch = newItemsInSearch;
             this.itemsChanged.emit([...this.items]);
+            this.onItemsInSearchChanged();
         }
 
         const newItemRels = this.newItemRels;
@@ -267,11 +293,19 @@ export class GrowingListComponent implements OnInit, OnDestroy {
     }
 
     private async onDeletedObjectQueued(deletedObjectLink: ApiLink) {
-        const newItems = this.items.filter(link => link.href !== deletedObjectLink.href);
+        const toRemove = new Set<number>();
+        const newItems = this.items.filter((link, index) => {
+            if (link.href === deletedObjectLink.href) {
+                toRemove.add(index);
+                return false;  // filter out matches
+            }
+            return true;
+        });
         if (newItems.length === this.items.length) {
             return; // nothing filtered
         }
         this.items = newItems;
+        this.itemsInSearch = this.itemsInSearch.filter((value, index) => !toRemove.has(index));
         this.itemsChanged.emit([...this.items]);
         if (this.lastCollectionSize == null) {
             this.collectionSize.emit(0);
@@ -282,6 +316,19 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             this.lastCollectionSize -= 1; // extrapolate collection size
             this.collectionSize.emit(this.lastCollectionSize);
         }
+        this.onItemsInSearchChanged();
+    }
+
+    private updateIsInSearch() {
+        const newItemsInSearch = [...this.itemsInSearch];
+        this.items.forEach((link, index) => {
+            if (link.resourceType === "plugin") {
+                return; // plugins have special search inclusions
+            }
+            newItemsInSearch[index] = this.isInSearch(link);
+        });
+        this.itemsInSearch = newItemsInSearch;
+        this.onItemsInSearchChanged();
     }
 
     trackBy: TrackByFunction<ApiLink> = (index, item: ApiLink): string => {
@@ -302,6 +349,30 @@ export class GrowingListComponent implements OnInit, OnDestroy {
             return true;
         }
         return link.name?.toLowerCase()?.includes(search) ?? false;
+    }
+
+    onItemsInSearchChanged() {
+        const seen = new Set<string>();
+        const itemsInSearch = this.items.filter((link, index) => {
+            if (seen.has(link.href)) {
+                return false;
+            }
+            seen.add(link.href);
+            return this.itemsInSearch[index];
+        });
+        const itemsInSearchCount = itemsInSearch.length;
+        Promise.resolve().then(() => {
+            // defer update for angualar change detection
+            this.visibleItems.emit(itemsInSearch);
+            this.visibleCollectionSize.emit(itemsInSearchCount);
+        });
+        if (this.autoloadOnSearch !== false) {
+            const minItems = this.autoloadOnSearch === true ? 0 : this.autoloadOnSearch;
+            const underMinItems = itemsInSearchCount <= minItems;
+            if (underMinItems && this.loadMoreApiLink != null) {
+                this.loadMore();
+            }
+        }
     }
 
     onItemClick(link: ApiLink) {
