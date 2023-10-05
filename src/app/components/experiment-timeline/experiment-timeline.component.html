@@ -56,7 +56,7 @@
     </mat-expansion-panel>
 
     <div class="page-item-list">
-        <mat-card class="page-item card" *ngIf="!(timelineSteps | async)">
+        <mat-card appearance="outlined" class="page-item card" *ngIf="!(timelineSteps | async)">
             <mat-card-title>
                 <span class="t-headline">no timeline steps</span>
             </mat-card-title>
@@ -64,7 +64,7 @@
                 Use the plugins in the experiment workspace to add timeline step entries to the experiment.
             </mat-card-content>
         </mat-card>
-        <mat-card class="page-item card" *ngFor="let step of timelineSteps | async">
+        <mat-card appearance="outlined" class="page-item card" *ngFor="let step of timelineSteps | async">
             <mat-card-title>
                 <a class="t-headline title-link"
                     [routerLink]="['/experiments', experimentId, 'timeline', step.sequence]">

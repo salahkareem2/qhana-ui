@@ -25,7 +25,7 @@
     </div>
 
     <div class="page-item-list">
-        <mat-card class="page-item card" *ngIf="!(experimentData | async)">
+        <mat-card appearance="outlined" class="page-item card" *ngIf="!(experimentData | async)">
             <mat-card-title>
                 <span class="t-headline">no data</span>
             </mat-card-title>
@@ -33,7 +33,7 @@
                 Use the plugins in the experiment workspace to add data to the experiment.
             </mat-card-content>
         </mat-card>
-        <mat-card class="page-item card" *ngFor="let data of experimentData | async">
+        <mat-card appearance="outlined" class="page-item card" *ngFor="let data of experimentData | async">
             <mat-card-title>
                 <a class="t-headline title-link"
                     [routerLink]="['/experiments', experimentId, 'data', data.name, {version: data.version.toString()}]">{{data.name}}</a>

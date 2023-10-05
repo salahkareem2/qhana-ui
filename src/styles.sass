@@ -1,7 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat
 
-@import '~@angular/material/theming'
+@import '@angular/material/theming'
 
 @include mat.core()
 
@@ -172,20 +172,20 @@ $my-typography: mat.define-typography-config()
 
 // expose typography as css classes
 .t-page-headline
-    @include mat.typography-level($my-typography, 'display-2')
+    @include mat.typography-level($my-typography, 'headline-3')
     margin-block: 0.8ex
 
 .t-headline
-    @include mat.typography-level($my-typography, 'headline')
+    @include mat.typography-level($my-typography, 'headline-5')
 
 .t-title
-    @include mat.typography-level($my-typography, 'title')
+    @include mat.typography-level($my-typography, 'headline-6')
 
 .t-subheading
-    @include mat.typography-level($my-typography, 'subheading-2')
+    @include mat.typography-level($my-typography, 'subtitle-1')
 
 .t-subsubheading
-    @include mat.typography-level($my-typography, 'subheading-1')
+    @include mat.typography-level($my-typography, 'subtitle-2')
 
 .t-paragraph
     @include mat.typography-level($my-typography, 'body-1')
@@ -759,16 +759,16 @@ form.qhana-form
     @include mat.typography-level($my-typography, 'body-1')
 
 .plugin-micro-frontend h1
-    @include mat.typography-level($my-typography, 'headline')
+    @include mat.typography-level($my-typography, 'headline-5')
 
 .plugin-micro-frontend h2
-    @include mat.typography-level($my-typography, 'title')
+    @include mat.typography-level($my-typography, 'headline-6')
 
 .plugin-micro-frontend h3
-    @include mat.typography-level($my-typography, 'subheading-2')
+    @include mat.typography-level($my-typography, 'subtitle-1')
 
 .plugin-micro-frontend h4
-    @include mat.typography-level($my-typography, 'subheading-1')
+    @include mat.typography-level($my-typography, 'subtitle-2')
 
 .qhana-table
     flex-direction: row

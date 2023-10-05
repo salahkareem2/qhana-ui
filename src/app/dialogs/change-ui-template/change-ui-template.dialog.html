@@ -28,12 +28,12 @@
 
         <div *ngIf="templateTags.length > 0">
             <h3>Tags:</h3>
-            <mat-chip-list>
-                <mat-chip *ngFor="let tag of templateTags" [removable]="true" (removed)="removeTag(tag)">
+            <mat-chip-listbox>
+                <mat-chip-option *ngFor="let tag of templateTags" [removable]="true" (removed)="removeTag(tag)">
                     {{tag}}
                 <mat-icon matChipRemove>cancel</mat-icon>
-                </mat-chip>
-            </mat-chip-list>
+                </mat-chip-option>
+            </mat-chip-listbox>
         </div>
     </div>
 </div>
