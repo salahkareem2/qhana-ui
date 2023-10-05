@@ -5,7 +5,7 @@
             <mat-icon>arrow_back</mat-icon>
         </a>
     </div>
-    <mat-card class="data-card card">
+    <mat-card appearance="outlined" class="data-card card">
         <mat-card-title class="t-headline">{{data.name}}</mat-card-title>
         <mat-card-content>
             <dl class="data-details">
@@ -53,7 +53,7 @@
             </dl>
         </mat-card-content>
     </mat-card>
-    <mat-card class="recommendation-card card" *ngIf="pluginRecommendations.length != 0">
+    <mat-card appearance="outlined" class="recommendation-card card" *ngIf="pluginRecommendations.length != 0">
         <mat-card-title class="t-headline">Plugin Recommendations</mat-card-title>
         <mat-card-content>
             <a *ngFor="let plugin of pluginRecommendations" [routerLink]="['/experiments', experimentId, 'workspace']" [queryParams]="{'plugin': plugin.resourceKey?.pluginId}">

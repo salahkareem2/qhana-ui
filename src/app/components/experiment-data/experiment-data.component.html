@@ -1,10 +1,10 @@
 <div class="big-content">
     <div class="flex-header">
-        <h1 class="t-page-headline align-arrow">Experiment Data
-            <button mat-icon-button class="arrow-button" (click)="onSort()" aria-label="change sort order">
-                <mat-icon [inline]="true" class="arrow">{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
-            </button>
-        </h1>
+        <h1 class="t-page-headline align-arrow">Experiment Data</h1>
+        <button mat-icon-button class="arrow-button" (click)="onSort()" aria-label="change sort order">
+            <mat-icon>{{sort>=0?"arrow_upward":"arrow_downward"}}</mat-icon>
+        </button>
+        <div class="flex-space"></div>
 
         <mat-paginator #paginatorTop class="paginator"
             (page)="paginatorBottom.pageSize = $event.pageSize; paginatorBottom.pageIndex = $event.pageIndex; onPageChange($event)"
@@ -25,7 +25,7 @@
     </div>
 
     <div class="page-item-list">
-        <mat-card class="page-item card" *ngIf="!(experimentData | async)">
+        <mat-card appearance="outlined" class="page-item card" *ngIf="!(experimentData | async)">
             <mat-card-title>
                 <span class="t-headline">no data</span>
             </mat-card-title>
@@ -33,7 +33,7 @@
                 Use the plugins in the experiment workspace to add data to the experiment.
             </mat-card-content>
         </mat-card>
-        <mat-card class="page-item card" *ngFor="let data of experimentData | async">
+        <mat-card appearance="outlined" class="page-item card" *ngFor="let data of experimentData | async">
             <mat-card-title>
                 <a class="t-headline title-link"
                     [routerLink]="['/experiments', experimentId, 'data', data.name, {version: data.version.toString()}]">{{data.name}}</a>

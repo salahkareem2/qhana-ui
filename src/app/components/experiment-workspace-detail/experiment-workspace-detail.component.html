@@ -3,7 +3,7 @@
         <h1 class="t-page-headline">Template: {{templateObject?.name}}</h1>
     </div>
 
-    <mat-card>
+    <mat-card appearance="outlined">
         <div class="card-header">
             <h2>Template Details</h2>
             <button mat-icon-button aria-label="Edit item" (click)="editTemplate()">
@@ -25,14 +25,14 @@
                 </mat-form-field>
                 <mat-form-field class="form-field">
                     <mat-label>Tags</mat-label>
-                    <mat-chip-list #chiplist>
-                        <mat-chip *ngFor="let tag of editTemplateTags" [selectable]="true" [removable]="true" (removed)="removeTag(tag)">
+                    <mat-chip-grid #chiplist>
+                        <mat-chip-row *ngFor="let tag of editTemplateTags" [removable]="true" (removed)="removeTag(tag)">
                             {{tag}}
                             <mat-icon matChipRemove>cancel</mat-icon>
-                        </mat-chip>
+                        </mat-chip-row>
                         <input matInput [matChipInputFor]="chiplist" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                             [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addTag($event)">
-                    </mat-chip-list>
+                    </mat-chip-grid>
                 </mat-form-field>
                 <div class="edit-template-buttons">
                     <button mat-raised-button color="primary" (click)="updateTemplate()">Update Template</button>
@@ -43,11 +43,11 @@
                 <p>Name: {{templateObject?.name}}</p>
                 <p>Description: {{templateObject?.description}}</p>
                 <p>Tags:</p>
-                <mat-chip-list>
+                <mat-chip-listbox>
                     <mat-chip *ngFor="let tag of templateObject?.tags">
                         {{tag}}
                     </mat-chip>
-                </mat-chip-list>
+                </mat-chip-listbox>
             </ng-container>
         </mat-card-content>
     </mat-card>

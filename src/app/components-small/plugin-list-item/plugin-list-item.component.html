@@ -6,7 +6,7 @@
             *ngIf="plugin!=null">
         </qhana-plugin-last-used>
     </span>
-    <mat-chip-list class="tags" [hidden]="(plugin?.tags?.length ?? 0) === 0">
+    <mat-chip-listbox class="tags" [hidden]="(plugin?.tags?.length ?? 0) === 0">
         <mat-chip class="tag" *ngFor="let tag of plugin?.tags ?? []">{{tag}}</mat-chip>
-    </mat-chip-list>
+    </mat-chip-listbox>
 </div>

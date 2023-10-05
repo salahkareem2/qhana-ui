@@ -2,7 +2,7 @@
 
     <h1 class="t-page-headline">Settings</h1>
 
-    <mat-card class="card">
+    <mat-card appearance="outlined" class="card">
         <mat-card-title>
             <h3>Plugin Registry URL</h3>
         </mat-card-title>
@@ -30,7 +30,7 @@
         </mat-card-content>
     </mat-card>
 
-    <mat-card class="card mt-2">
+    <mat-card appearance="outlined" class="card mt-2">
         <mat-card-title class="flex-title">
             <h3 class="mt-0 mb-0">Services</h3>
             <button mat-icon-button aria-label="Refresh services" (click)="services.reloadAll()">
@@ -82,7 +82,7 @@
         </mat-card-content>
     </mat-card>
 
-    <mat-card class="card mt-2">
+    <mat-card appearance="outlined" class="card mt-2">
         <mat-card-title class="flex-title">
             <h3 class="mt-0 mb-0">Plugin Seed URLs</h3>
             <button mat-icon-button aria-label="Refresh seed URLs" (click)="seeds.reloadAll()">
@@ -106,7 +106,7 @@
         </mat-card-content>
     </mat-card>
 
-    <mat-card class="card mt-2">
+    <mat-card appearance="outlined" class="card mt-2">
         <mat-card-title class="flex-title">
             <h3 class="mt-0 mb-0">Environment</h3>
             <button mat-icon-button aria-label="Refresh Environment Variables" (click)="env.reloadAll()">

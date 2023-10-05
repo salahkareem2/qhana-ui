@@ -11,7 +11,7 @@
         [active]="stepTabId">
     </qhana-timeline-step-nav>
 
-    <mat-card class="step-card card" *ngIf="stepTabId === 'overview'">
+    <mat-card appearance="outlined" class="step-card card" *ngIf="stepTabId === 'overview'">
         <mat-card-title class="t-headline flex-title">
             Step {{timelineStep.sequence}} ({{timelineStep.processorName}}@{{timelineStep.processorVersion}})
             <qhana-step-status [step]="timelineStep" [noText]="true"></qhana-step-status>
@@ -115,7 +115,8 @@
             <mat-icon aria-hidden="true">checkmark</mat-icon>
         </div>
     </div>
-    <mat-card class="notes-card card" *ngIf="stepTabId === 'overview' && timelineStep.status !== 'PENDING'">
+    <mat-card appearance="outlined" class="notes-card card"
+        *ngIf="stepTabId === 'overview' && timelineStep.status !== 'PENDING'">
         <mat-card-content>
             <qhana-markdown [markdown]="stepNotes" (markdownChanges)="triggerNoteAutosave($event)" [editable]="true"
                 [hidden]="timelineStep == null || timelineStep.status === 'PENDING'" *ngIf="stepNotes != null">
@@ -125,7 +126,7 @@
             </mat-spinner>
         </mat-card-content>
     </mat-card>
-    <mat-card class="recommendation-card card"
+    <mat-card appearance="outlined" class="recommendation-card card"
         *ngIf="stepTabId === 'overview' && timelineStep.status !== 'PENDING' && pluginRecommendations.length != 0">
         <mat-card-title class="t-headline">Plugin Recommendations</mat-card-title>
         <mat-card-content>
@@ -138,14 +139,14 @@
     <ng-container
         *ngIf="stepTabId === 'outputs' && timelineStep.outputData != null && timelineStep.outputData.length > 0">
         <h2>Output</h2>
-        <qhana-preview-list [dataList]="timelineStep.outputData"></qhana-preview-list>
+        <qhana-preview-list class="data-preview-list" [dataList]="timelineStep.outputData"></qhana-preview-list>
     </ng-container>
     <ng-container *ngIf="stepTabId === 'inputs'">
         <h2>Parameters</h2>
         <qhana-data-preview [data]="timelineStep"></qhana-data-preview>
         <ng-container *ngIf="(timelineStep.inputData) && timelineStep.inputData.length > 0">
             <h2>Data Input</h2>
-            <qhana-preview-list [dataList]="timelineStep.inputData"></qhana-preview-list>
+            <qhana-preview-list class="data-preview-list" [dataList]="timelineStep.inputData"></qhana-preview-list>
         </ng-container>
     </ng-container>
 

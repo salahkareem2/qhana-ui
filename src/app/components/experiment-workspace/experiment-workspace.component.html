@@ -14,7 +14,7 @@
                     <p>Choose a plugin.</p>
                 </div>
                 <div *ngIf="activePlugin != null">
-                    <mat-card class="plugin-details card">
+                    <mat-card appearance="outlined" class="plugin-details card">
                         <mat-card-title>
                             <h2 class="plugin-header" role="button" tabindex="0" aria-controls="plugin-description"
                                 aria-expanded="expandedPluginDescription" (keydown)="onKeyDown($event)"
@@ -32,16 +32,16 @@
                         <mat-card-content id="plugin-description"
                             class="plugin-description-container {{expandedPluginDescription ? 'open' : 'closed'}}">
                             <div class="scroll-container">
-                                <mat-chip-list>
+                                <mat-chip-listbox>
                                     <mat-chip *ngFor="let tag of (activePlugin.tags ?? [])">{{tag}}</mat-chip>
-                                </mat-chip-list>
+                                </mat-chip-listbox>
                                 <qhana-markdown class="plugin-description" [markdown]="activePlugin.description"
                                     [editable]="false">
                                 </qhana-markdown>
                             </div>
                         </mat-card-content>
                     </mat-card>
-                    <mat-card class="card no-padding">
+                    <mat-card appearance="outlined" class="card no-padding">
                         <qhana-plugin-uiframe [url]="frontendUrl" [plugin]="activePlugin.self"
                             [context]="{experimentId: experimentId??undefined}"
                             (formDataSubmit)="onPluginUiFormSubmit($event)">
