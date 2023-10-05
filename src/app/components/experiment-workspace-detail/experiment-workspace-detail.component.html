@@ -44,9 +44,9 @@
                 <p>Description: {{templateObject?.description}}</p>
                 <p>Tags:</p>
                 <mat-chip-listbox>
-                    <mat-chip-option *ngFor="let tag of templateObject?.tags">
+                    <mat-chip *ngFor="let tag of templateObject?.tags">
                         {{tag}}
-                    </mat-chip-option>
+                    </mat-chip>
                 </mat-chip-listbox>
             </ng-container>
         </mat-card-content>
