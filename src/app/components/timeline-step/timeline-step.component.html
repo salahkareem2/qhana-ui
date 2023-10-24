@@ -2,7 +2,7 @@
     <div class="title">
         <h1 class="t-page-headline">Timeline Step {{stepId}}</h1>
         <a mat-icon-button aria-label="back to timeline step list"
-            [routerLink]="['/experiments', experimentId, 'timeline']">
+            [routerLink]="['/experiments', experimentId, 'timeline']" queryParamsHandling="preserve">
             <mat-icon>arrow_back</mat-icon>
         </a>
     </div>
