@@ -20,6 +20,8 @@ import { Observable, Subject } from 'rxjs';
 import { filter, map, mergeMap, take } from 'rxjs/operators';
 import { ServiceRegistryService } from './service-registry.service';
 
+export type ExperimentResultQuality = "UNKNOWN" | "NEUTRAL" | "GOOD" | "BAD" | "ERROR" | "UNUSABLE";
+
 export interface ApiObject {
     "@self": string;
 }
@@ -142,7 +144,7 @@ export interface TimelineStepApiObject extends ApiObject {
     start: string;
     end: string;
     status: string;
-    resultQuality: "UNKNOWN" | "NEUTRAL" | "GOOD" | "BAD" | "ERROR" | "UNUSABLE";
+    resultQuality: ExperimentResultQuality;
     resultLog?: string;
     notes: string;
     processorName: string;
@@ -175,6 +177,7 @@ export interface TimelineStepPageOptions {
     version?: string;
     stepStatus?: "SUCCESS" | "PENDING" | "ERROR" | "";
     unclearedSubstep?: number;
+    resultQuality?: ExperimentResultQuality | "";
 }
 
 export interface TemplateApiObject extends ApiObject {
@@ -446,12 +449,13 @@ export class QhanaBackendService {
         );
     }
 
-    public getTimelineStepsPage(experimentId: number | string, { page = 0, itemCount = 10, sort = 1, pluginName = "", version = "", stepStatus = "", unclearedSubstep = 0 }: TimelineStepPageOptions): Observable<ApiObjectList<TimelineStepApiObject>> {
+    public getTimelineStepsPage(experimentId: number | string, { page = 0, itemCount = 10, sort = 1, pluginName = "", version = "", stepStatus = "", unclearedSubstep = 0, resultQuality = "", }: TimelineStepPageOptions): Observable<ApiObjectList<TimelineStepApiObject>> {
         const queryParams = new HttpParams()
             .append("plugin-name", pluginName)
             .append("version", version)
             .append("status", stepStatus)
             .append("uncleared-substep", unclearedSubstep)
+            .append("result-quality", resultQuality)
             .append("page", page)
             .append("item-count", itemCount)
             .append("sort", sort);
@@ -486,7 +490,7 @@ export class QhanaBackendService {
         );
     }
 
-    public saveTimelineStepResultQuality(experimentId: number | string, step: number | string, newQuality: "UNKNOWN" | "NEUTRAL" | "GOOD" | "BAD" | "ERROR" | "UNUSABLE"): Observable<null> {
+    public saveTimelineStepResultQuality(experimentId: number | string, step: number | string, newQuality: ExperimentResultQuality): Observable<null> {
         return this.callWithRootUrl<null>(
             rootUrl => this.http.put<null>(`${rootUrl}/experiments/${experimentId}/timeline/${step}`, { resultQuality: newQuality })
         );
