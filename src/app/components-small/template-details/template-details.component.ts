@@ -60,7 +60,6 @@ export class TemplateDetailsComponent implements OnInit {
         let findString: string;
         let response: ApiResponse<TemplateApiObject | TemplateTabApiObject> | null;
         if (this.templateForm.invalid) {
-            console.log("TemplateDetailsComponent: form invalid");
             return;
         }
         if (this.templateLink != null) {
