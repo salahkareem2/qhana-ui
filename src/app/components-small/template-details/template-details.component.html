@@ -10,7 +10,8 @@
     </mat-form-field>
     <mat-form-field class="form-field">
         <mat-label>Name:</mat-label>
-        <input matInput formControlName="name" required>
+        <input matInput formControlName="name">
+        <mat-error *ngIf="templateForm.controls['name'].invalid">Invalid tab name!</mat-error>
     </mat-form-field>
     <mat-form-field class="form-field">
         <mat-label>Description:</mat-label>
