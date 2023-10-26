@@ -53,15 +53,16 @@
                 [value]="unclearedSubstepValue.value">{{unclearedSubstepValue.viewValue}}
             </mat-radio-button>
         </mat-radio-group>
-
-        <div class="radio-label">
-            <mat-label>Result quality</mat-label><br>
-        </div>
-        <mat-radio-group [(ngModel)]="resultQuality" (ngModelChange)="updatePageContent()">
-            <mat-radio-button *ngFor="let resultQualityValue of resultQualityValues"
-                [value]="resultQualityValue.value">{{resultQualityValue.viewValue}}
-            </mat-radio-button>
-        </mat-radio-group>
+        <br>
+        <mat-form-field>
+            <mat-label>Result quality</mat-label>
+            <mat-select [(ngModel)]="resultQuality" (ngModelChange)="updatePageContent()">
+                <mat-option [value]="''">Not Selected</mat-option>
+                <mat-option *ngFor="let resultQualityValue of resultQualityValues"
+                    [value]="resultQualityValue">{{resultQualityValue.charAt(0).toUpperCase() + resultQualityValue.slice(1).toLowerCase()}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
     </mat-expansion-panel>
 
     <div class="page-item-list">

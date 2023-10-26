@@ -20,7 +20,8 @@ import { Observable, Subject } from 'rxjs';
 import { filter, map, mergeMap, take } from 'rxjs/operators';
 import { ServiceRegistryService } from './service-registry.service';
 
-export type ExperimentResultQuality = "UNKNOWN" | "NEUTRAL" | "GOOD" | "BAD" | "ERROR" | "UNUSABLE";
+export const ExperimentResultQualityValues = ["UNKNOWN", "NEUTRAL", "GOOD", "BAD", "ERROR", "UNUSABLE"] as const;
+export type ExperimentResultQuality = typeof ExperimentResultQualityValues[number];
 
 export interface ApiObject {
     "@self": string;
