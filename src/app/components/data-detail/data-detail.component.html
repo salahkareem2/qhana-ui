@@ -1,7 +1,7 @@
 <div class="big-content" *ngIf="data != null">
     <div class="title">
         <h1 class="t-page-headline">Data</h1>
-        <a mat-icon-button aria-label="back to data list" [routerLink]="['/experiments', experimentId, 'data']" queryParamsHandling="preserve">
+        <a mat-icon-button aria-label="back to data list" [routerLink]="['/experiments', experimentId, 'data']" queryParamsHandling="merge">
             <mat-icon>arrow_back</mat-icon>
         </a>
     </div>
