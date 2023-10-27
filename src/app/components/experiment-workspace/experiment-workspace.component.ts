@@ -100,6 +100,6 @@ export class ExperimentWorkspaceComponent implements OnInit, OnDestroy {
             processorName: plugin.identifier,
             processorVersion: plugin.version,
             resultLocation: formData.resultUrl,
-        }).subscribe(timelineStep => this.router.navigate(['/experiments', experimentId, 'timeline', timelineStep.sequence.toString()]));
+        }).subscribe(timelineStep => this.router.navigate(['/experiments', experimentId, 'timeline', timelineStep.sequence.toString()], { queryParamsHandling: 'preserve' }));
     }
 }
