@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, Subject, Subscription, from, of, timer } f
 import { catchError, concatMap, debounceTime, filter, mergeAll, mergeMap, take, throttleTime } from 'rxjs/operators';
 import { ApiLink, CollectionApiObject, PageApiObject } from 'src/app/services/api-data-types';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
-import { QhanaBackendService, TimelineStepApiObject, TimelineSubStepApiObject } from 'src/app/services/qhana-backend.service';
+import { ExperimentResultQuality, QhanaBackendService, TimelineStepApiObject, TimelineSubStepApiObject } from 'src/app/services/qhana-backend.service';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
 import { TabDefinition } from '../timeline-step-nav/timeline-step-nav.component';
 
@@ -46,7 +46,7 @@ export class TimelineStepComponent implements OnInit, OnDestroy {
     ];
 
     timelineStep: TimelineStepApiObject | null = null;
-    resultQuality: "UNKNOWN" | "NEUTRAL" | "GOOD" | "BAD" | "ERROR" | "UNUSABLE" = "UNKNOWN";
+    resultQuality: ExperimentResultQuality = "UNKNOWN";
     stepProcessor: Promise<string | null> | null = null;
     stepProgress: Progress | null = null;
     substeps: TimelineSubStepApiObject[] | null = null;
@@ -248,7 +248,7 @@ export class TimelineStepComponent implements OnInit, OnDestroy {
         });
     }
 
-    saveResultQuality(newQuality: "UNKNOWN" | "NEUTRAL" | "GOOD" | "BAD" | "ERROR" | "UNUSABLE") {
+    saveResultQuality(newQuality: ExperimentResultQuality) {
         if (this.stepId == null) {
             return;
         }
