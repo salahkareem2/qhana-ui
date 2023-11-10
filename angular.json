@@ -82,10 +82,10 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "configurations": {
                         "production": {
-                            "browserTarget": "qhana-ui:build:production"
+                          "buildTarget": "qhana-ui:build:production"
                         },
                         "development": {
-                            "browserTarget": "qhana-ui:build:development"
+                          "buildTarget": "qhana-ui:build:development"
                         }
                     },
                     "defaultConfiguration": "development"
@@ -93,7 +93,7 @@
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n",
                     "options": {
-                        "browserTarget": "qhana-ui:build"
+                      "buildTarget": "qhana-ui:build"
                     }
                 },
                 "test": {

@@ -13,7 +13,7 @@
 
     <mat-card appearance="outlined" class="step-card card" *ngIf="stepTabId === 'overview'">
         <mat-card-title class="t-headline flex-title">
-            Step {{timelineStep.sequence}} ({{timelineStep.processorName}}@{{timelineStep.processorVersion}})
+            Step {{timelineStep.sequence}} ({{timelineStep.processorName}}&#64;{{timelineStep.processorVersion}})
             <qhana-step-status [step]="timelineStep" [noText]="true"></qhana-step-status>
             <div class="spacer"></div>
             <span class="t-subheading clickable" (click)="restartWatching()" *ngIf="timelineStep?.end == null">
