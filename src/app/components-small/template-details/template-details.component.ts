@@ -35,7 +35,7 @@ export class TemplateDetailsComponent implements OnInit {
     };
 
     templateForm: FormGroup = this.fb.group({
-        name: [this.initialValues.name, Validators.required],
+        name: [this.initialValues.name, [Validators.required, Validators.minLength(1)]],
         description: this.initialValues.description,
         sortKey: this.initialValues.sortKey,
         location: [this.initialValues.location, [Validators.required, isInSetValidator(Object.keys(TAB_GROUP_NAME_OVERRIDES))]]
@@ -59,6 +59,9 @@ export class TemplateDetailsComponent implements OnInit {
     async onSubmit() {
         let findString: string;
         let response: ApiResponse<TemplateApiObject | TemplateTabApiObject> | null;
+        if (this.templateForm.invalid) {
+            return;
+        }
         if (this.templateLink != null) {
             findString = "create";
             response = await this.registry.getByApiLink<TemplateApiObject>(this.templateLink);

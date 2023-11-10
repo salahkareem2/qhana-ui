@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable, Subscription, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { CurrentExperimentService } from 'src/app/services/current-experiment.service';
-import { QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
+import { ExperimentResultQuality, ExperimentResultQualityValues, QhanaBackendService, TimelineStepApiObject } from 'src/app/services/qhana-backend.service';
 import { ServiceRegistryService } from 'src/app/services/service-registry.service';
 
 interface SelectValue {
@@ -50,6 +50,8 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
         { value: 1, viewValue: "Only steps with uncleared substeps" },
         { value: -1, viewValue: "Only steps with cleared substeps" }
     ];
+    resultQuality: ExperimentResultQuality | "" = "";
+    resultQualityValues = ExperimentResultQualityValues;
 
     constructor(private route: ActivatedRoute, private experiment: CurrentExperimentService, private backend: QhanaBackendService, private serviceRegistry: ServiceRegistryService) { }
 
@@ -99,6 +101,7 @@ export class ExperimentTimelineComponent implements OnInit, OnDestroy {
             version: this.version ?? "",
             stepStatus: this.stepStatus,
             unclearedSubstep: this.unclearedSubstep,
+            resultQuality: this.resultQuality,
         }).pipe(
             map(value => {
                 if (this.currentPage !== currentRequest) {

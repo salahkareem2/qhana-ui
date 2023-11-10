@@ -53,6 +53,16 @@
                 [value]="unclearedSubstepValue.value">{{unclearedSubstepValue.viewValue}}
             </mat-radio-button>
         </mat-radio-group>
+        <br>
+        <mat-form-field>
+            <mat-label>Result quality</mat-label>
+            <mat-select [(ngModel)]="resultQuality" (ngModelChange)="updatePageContent()">
+                <mat-option [value]="''">Not Selected</mat-option>
+                <mat-option *ngFor="let resultQualityValue of resultQualityValues"
+                    [value]="resultQualityValue">{{resultQualityValue.charAt(0).toUpperCase() + resultQualityValue.slice(1).toLowerCase()}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
     </mat-expansion-panel>
 
     <div class="page-item-list">
@@ -67,7 +77,7 @@
         <mat-card appearance="outlined" class="page-item card" *ngFor="let step of timelineSteps | async">
             <mat-card-title>
                 <a class="t-headline title-link"
-                    [routerLink]="['/experiments', experimentId, 'timeline', step.sequence]">
+                    [routerLink]="['/experiments', experimentId, 'timeline', step.sequence]" queryParamsHandling="merge">
                     Step {{step.sequence}} ({{step.processorName}}&#64;{{step.processorVersion}})
                 </a>
                 <qhana-step-status [step]="step" [noText]="step.status !== 'PENDING'" [spinner]="0"></qhana-step-status>
