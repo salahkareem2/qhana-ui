@@ -1,5 +1,5 @@
 # specific node version tagged to prevent dockerfile from suddenly breaking (16 was current lts version)
-FROM node:16-slim AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 COPY . /app

@@ -78,7 +78,7 @@
             <mat-card-title>
                 <a class="t-headline title-link"
                     [routerLink]="['/experiments', experimentId, 'timeline', step.sequence]" queryParamsHandling="merge">
-                    Step {{step.sequence}} ({{step.processorName}}@{{step.processorVersion}})
+                    Step {{step.sequence}} ({{step.processorName}}&#64;{{step.processorVersion}})
                 </a>
                 <qhana-step-status [step]="step" [noText]="step.status !== 'PENDING'" [spinner]="0"></qhana-step-status>
             </mat-card-title>
