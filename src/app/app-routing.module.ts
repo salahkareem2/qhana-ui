@@ -25,6 +25,7 @@ import { ExperimentsPageComponent } from './components/experiments-page/experime
 import { PluginTabComponent } from './components/plugin-tab/plugin-tab.component';
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
+import { WorkflowModelerComponent } from './components/workflow-modeler/workflow-modeler.component';
 
 const routes: Routes = [
     { path: '', component: ExperimentsPageComponent },
@@ -43,6 +44,7 @@ const routes: Routes = [
     { path: 'experiments/:experimentId/timeline/:step/:stepTabId', component: TimelineStepComponent },
     { path: 'experiments/:experimentId/extra/:templateTabId', component: PluginTabComponent },
     { path: 'experiments/:experimentId/extra/:templateTabId/plugin/:pluginId', component: PluginTabComponent },
+    { path: 'experiments/:experimentId/worklow-modeler', component: WorkflowModelerComponent },
 ];
 
 @NgModule({

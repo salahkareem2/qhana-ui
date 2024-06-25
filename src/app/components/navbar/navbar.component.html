@@ -20,6 +20,15 @@
         queryParamsHandling="merge" routerLinkActive="active">
             Timeline
         </a>
+
+        <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'workflow-modeler']"
+        queryParamsHandling="merge" routerLinkActive="active">
+            Workflow Modeler
+        </a>
+
+
+
+
         <a class="navigation-link" mat-button
             [routerLink]="['/experiments', (experimentId|async), 'extra', tab.resourceKey?.uiTemplateTabId]"
             queryParamsHandling="merge" routerLinkActive="active"
