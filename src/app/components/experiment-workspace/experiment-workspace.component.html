@@ -25,6 +25,8 @@
                                     [hidden]="!expandedPluginDescription">expand_more</mat-icon>
                                 <span class="t-title">{{activePlugin.title}}
                                     (&#64;{{activePlugin.version}})</span>
+                                <span class="t-title plugin-identifier">{{activePlugin.identifier}}</span>
+                                <div class="spacer"></div>
                                 <qhana-plugin-last-used class="plugin-status" [plugin]="activePlugin" [spinner]="20">
                                 </qhana-plugin-last-used>
                             </h2>
