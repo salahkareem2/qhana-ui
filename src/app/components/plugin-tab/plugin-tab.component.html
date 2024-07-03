@@ -1,7 +1,8 @@
 <nav mat-tab-nav-bar class="big-nav-tabs" *ngIf="plugins.length > 1">
     <a mat-tab-link
         [routerLink]="['/experiments', currentExperimentId, 'extra', currentTabId, 'plugin', plugin.resourceKey?.pluginId]"
-        [active]="plugin.resourceKey?.pluginId === currentPluginId" *ngFor="let plugin of plugins">
+        [queryParamsHandling]="'preserve'" [active]="plugin.resourceKey?.pluginId === currentPluginId"
+        *ngFor="let plugin of plugins">
         {{plugin.name}}
     </a>
 </nav>
