@@ -13,7 +13,8 @@
             Filter
         </button>
     </div>
-    <mat-card appearance="outlined" *ngIf="!isEmpty" class="filter-node mat-elevation-z0" [ngClass]="{'filter-leaf' : type !== 'and' && type !== 'or'}">
+    <mat-card appearance="outlined" *ngIf="!isEmpty" class="filter-node mat-elevation-z0"
+        [ngClass]="{'filter-leaf' : type !== 'and' && type !== 'or'}">
         <mat-card-header>
             <ng-container *ngIf="children != null">
                 <div class="config-header">
@@ -22,11 +23,13 @@
                         <mat-button-toggle value="or">OR</mat-button-toggle>
                     </mat-button-toggle-group>
                     <div class="config-header-buttons">
-                        <button mat-raised-button *ngIf="depth < 2" type="button" (click)="addFilter('and')" color="primary">
+                        <button mat-raised-button *ngIf="depth < 2" type="button" (click)="addFilter('and')"
+                            color="primary">
                             <mat-icon>add</mat-icon>
                             AND
                         </button>
-                        <button mat-raised-button *ngIf="depth < 2" type="button" (click)="addFilter('or')" color="primary">
+                        <button mat-raised-button *ngIf="depth < 2" type="button" (click)="addFilter('or')"
+                            color="primary">
                             <mat-icon>add</mat-icon>
                             OR
                         </button>
@@ -45,7 +48,8 @@
             <ng-container *ngIf="children != null">
                 <span *ngIf="inverted" class="t-subheading">Not:</span>
                 <qhana-plugin-filter-node *ngFor="let child of children; let i = index" [filterIn]="children[i]"
-                    [depth]="depth + 1" (filterOut)="updateChild($event, i)" (delete)="deleteChild(i)"></qhana-plugin-filter-node>
+                    [depth]="depth + 1" (filterOut)="updateChild($event, i)"
+                    (delete)="deleteChild(i)"></qhana-plugin-filter-node>
             </ng-container>
             <div class="config-filter" *ngIf="value != null">
                 <span *ngIf="inverted" class="t-subheading">Not:</span>
@@ -69,12 +73,20 @@
                         <option value="dataloader"></option>
                         <option value="interaction"></option>
                     </datalist>
+                    <mat-hint *ngIf="type === 'version'">
+                        Examples: ">= 0.1.0", "== 1.0.2", "< 2.0.0", ">= 1.0.0, < 2.0.0" , "!= 1.0.14"
+                    </mat-hint>
+                    <mat-hint *ngIf="type === 'type'">
+                        Examples: "processing", "conversion", "dataloader", "visualization", "interaction"
+                    </mat-hint>
                 </mat-form-field>
                 <button mat-raised-button type="button" (click)="delete.emit()">
                     <mat-icon>delete</mat-icon>
                 </button>
             </div>
-            <mat-checkbox [checked]="inverted" (change)="invertFilter($event)">Invert - <i>Negate this filter</i></mat-checkbox>
+            <mat-checkbox [checked]="inverted" (change)="invertFilter($event)">
+                Invert - <i>Negate this filter</i>
+            </mat-checkbox>
         </mat-card-content>
     </mat-card>
 </div>

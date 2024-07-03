@@ -16,11 +16,10 @@
 
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
@@ -37,6 +36,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -48,16 +48,20 @@ import { IframePreviewComponent } from './components-small/iframe-preview/iframe
 import { ImagePreviewComponent } from './components-small/image-preview/image-preview.component';
 import { ImportExperimentComponent } from './components-small/import-experiment/import-experiment.component';
 import { MarkdownPreviewComponent } from './components-small/markdown-preview/markdown-preview.component';
+import { PluginFilterEditorComponent } from './components-small/plugin-filter-editor/plugin-filter-editor.component';
+import { PluginFilterNodeComponent } from './components-small/plugin-filter-node/plugin-filter-node.component';
 import { PluginLastUsedComponent } from './components-small/plugin-last-used/plugin-last-used.component';
 import { PluginListItemComponent } from './components-small/plugin-list-item/plugin-list-item.component';
 import { PluginPreviewComponent } from './components-small/plugin-preview/plugin-preview.component';
 import { QueryParamPreviewComponent } from './components-small/query-param-preview/query-param-preview.component';
 import { RawTextPreviewComponent } from './components-small/raw-text-preview/raw-text-preview.component';
 import { StepStatusComponent } from './components-small/step-status/step-status.component';
+import { TemplateDetailsComponent } from './components-small/template-details/template-details.component';
 import { DataDetailComponent } from './components/data-detail/data-detail.component';
 import { DataPreviewComponent } from './components/data-preview/data-preview.component';
 import { ExperimentDataComponent } from './components/experiment-data/experiment-data.component';
 import { ExperimentTimelineComponent } from './components/experiment-timeline/experiment-timeline.component';
+import { ExperimentWorkspaceDetailComponent } from './components/experiment-workspace-detail/experiment-workspace-detail.component';
 import { ExperimentWorkspaceComponent } from './components/experiment-workspace/experiment-workspace.component';
 import { ExperimentComponent } from './components/experiment/experiment.component';
 import { ExperimentsPageComponent } from './components/experiments-page/experiments-page.component';
@@ -70,23 +74,18 @@ import { PluginUiframeComponent } from './components/plugin-uiframe/plugin-uifra
 import { PreviewListComponent } from './components/preview-list/preview-list.component';
 import { SettingsPageComponent } from './components/settings-page/settings-page.component';
 import { SubstepsDetailsComponent } from './components/substeps-details/substeps-details.component';
+import { TabGroupListComponent } from './components/tab-group-list/tab-group-list.component';
 import { TimelineStepNavComponent } from './components/timeline-step-nav/timeline-step-nav.component';
 import { TimelineStepComponent } from './components/timeline-step/timeline-step.component';
 import { TimelineSubstepsComponent } from './components/timeline-substeps/timeline-substeps.component';
+import { ChangeUiTemplateDialog } from './dialogs/change-ui-template/change-ui-template.dialog';
 import { ChooseDataDialog } from './dialogs/choose-data/choose-data.dialog';
 import { ChoosePluginDialog } from './dialogs/choose-plugin/choose-plugin.dialog';
+import { ChooseTemplateDialog } from './dialogs/choose-template/choose-template.dialog';
 import { CreateExperimentDialog } from './dialogs/create-experiment/create-experiment.dialog';
 import { DeleteDialog } from './dialogs/delete-dialog/delete-dialog.dialog';
 import { ExportExperimentDialog } from './dialogs/export-experiment/export-experiment.dialog';
 import { MarkdownHelpDialog } from './dialogs/markdown-help/markdown-help.dialog';
-import { ChangeUiTemplateDialog } from './dialogs/change-ui-template/change-ui-template.dialog';
-import { ReactiveFormsModule } from '@angular/forms';
-import { TemplateDetailsComponent } from './components-small/template-details/template-details.component';
-import { ExperimentWorkspaceDetailComponent } from './components/experiment-workspace-detail/experiment-workspace-detail.component';
-import { PluginFilterNodeComponent } from './components-small/plugin-filter-node/plugin-filter-node.component';
-import { PluginFilterEditorComponent } from './components-small/plugin-filter-editor/plugin-filter-editor.component';
-import { TabGroupListComponent } from './components/tab-group-list/tab-group-list.component';
-import { ChooseTemplateDialog } from './dialogs/choose-template/choose-template.dialog';
 
 @NgModule({
     declarations: [
@@ -165,6 +164,7 @@ import { ChooseTemplateDialog } from './dialogs/choose-template/choose-template.
         MatRadioModule,
         MatMenuModule,
         MatBadgeModule,
+        MatRadioModule,
     ],
     providers: [
         { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: "outline" } }

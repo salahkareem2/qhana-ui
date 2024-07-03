@@ -2,8 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ApiLink, ApiResponse } from 'src/app/services/api-data-types';
 import { PluginRegistryBaseService } from 'src/app/services/registry.service';
-import { TemplateApiObject, TemplateTabApiObject } from 'src/app/services/templates.service';
-import { TAB_GROUP_NAME_OVERRIDES } from 'src/app/services/templates.service';
+import { TAB_GROUP_NAME_OVERRIDES, TemplateApiObject, TemplateTabApiObject } from 'src/app/services/templates.service';
 
 export function isInSetValidator(validValues: any[]): Validators {
     return (control: FormControl): { [key: string]: any } | null => {
@@ -25,7 +24,18 @@ export class TemplateDetailsComponent implements OnInit {
 
     filterString: string = "{}";
 
-    tabGroupNameOverrides = { ...TAB_GROUP_NAME_OVERRIDES };
+    tabGroupNameOverrides = Object.entries(TAB_GROUP_NAME_OVERRIDES)
+        .map(entry => { return { key: entry[0], value: entry[1] }; })
+        .sort((a, b) => {
+            if (a.key === "workspace") {
+                return -1;
+            }
+            else if (b.key === "workspace") {
+                return 1;
+            }
+            return a.value.localeCompare(b.value)
+        });
+
 
     private initialValues = {
         name: "",
