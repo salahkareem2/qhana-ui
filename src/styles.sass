@@ -58,6 +58,12 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
 .mat-mdc-dialog, .color-scheme-dialog
     --background: #{mat.get-color-from-palette(mat.$light-theme-background-palette, 'dialog')}
 
+.card.mat-mdc-card
+    padding: 16px
+
+.page-item.card .mat-mdc-card-content
+    padding: 0px
+
 @media (prefers-color-scheme: dark)
     :root
         @include mat.all-component-themes($my-dark-theme)
@@ -114,10 +120,6 @@ $my-dark-theme: mat.define-dark-theme((color: (primary: $my-primary,accent: $my-
     .card.mat-mdc-card
         box-shadow: none
         border: 2px solid var(--border-color)
-        padding: 16px
-
-    .page-item.card .mat-mdc-card-content
-        padding: 0px
 
     :root // color contrast fixes:
 
