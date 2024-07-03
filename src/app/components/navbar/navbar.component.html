@@ -5,7 +5,8 @@
     </a>
 
     <ng-container *ngIf="(currentExperiment|async) != null">
-        <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'info']" routerLinkActive="active">
+        <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'info']"
+            routerLinkActive="active">
             Info
         </a>
         <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'workspace']"
@@ -13,17 +14,16 @@
             Workspace
         </a>
         <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'data']"
-        queryParamsHandling="merge" routerLinkActive="active">
+            queryParamsHandling="merge" routerLinkActive="active">
             Data
         </a>
         <a class="navigation-link" mat-button [routerLink]="['/experiments', (experimentId|async), 'timeline']"
-        queryParamsHandling="merge" routerLinkActive="active">
+            queryParamsHandling="merge" routerLinkActive="active">
             Timeline
         </a>
         <a class="navigation-link" mat-button
             [routerLink]="['/experiments', (experimentId|async), 'extra', tab.resourceKey?.uiTemplateTabId]"
-            queryParamsHandling="merge" routerLinkActive="active"
-            *ngFor="let tab of experimentExtraTabs">
+            queryParamsHandling="merge" routerLinkActive="active" *ngFor="let tab of experimentExtraTabs">
             {{tab.name}}
         </a>
     </ng-container>
@@ -36,7 +36,7 @@
 
     <div class="toolbar-spacer"></div>
 
-    <div [hidden]="(currentExperiment|async) == null">
+    <div class="experiment-switcher" [hidden]="(currentExperiment|async) == null">
         <span>{{currentExperiment|async}}</span>
         <a class="navigation-link" mat-icon-button [hidden]="(currentExperiment|async) == null" [routerLink]="['/']"
             aria-label="change experiment">
