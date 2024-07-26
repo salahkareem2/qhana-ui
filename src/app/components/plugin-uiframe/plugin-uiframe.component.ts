@@ -277,6 +277,22 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
         return;
     }
 
+    private calculateMaxHeight(): number | undefined {
+        const maxHeight = window.visualViewport?.height;
+        if (maxHeight == null) {
+            return undefined;
+        }
+        let offsetTop = 4;  // start with 4px offset to avoid scrollbar
+        let currentElement: HTMLElement | Element | null = this.uiframe?.nativeElement ?? null;
+
+        while (currentElement != null && currentElement instanceof HTMLElement) {
+            offsetTop += currentElement.offsetTop ?? 0; // add up all ofets until root layout
+            currentElement = currentElement.offsetParent ?? null;
+        }
+
+        return maxHeight - offsetTop;
+    }
+
     private selectPlugin(request: PluginUrlRequest) {
         if (this.dialogActive) {
             return; // only ever show one dialog at a time
@@ -471,7 +487,21 @@ export class PluginUiframeComponent implements OnChanges, OnDestroy {
             }
         } else { // assume object message
             if (data?.type === "ui-resize") {
-                this.frontendHeight = Math.max(data.height ?? 100, 20);
+                let newHeight = Math.max(data.height ?? 100, 20);
+                if (data.targetHeight != null && Number.isFinite(data.targetHeight) && data.targetHeight > 20) {
+                    // directly use target height (if it is the higher value)
+                    newHeight = Math.max(newHeight, data.targetHeight);
+                    // use target height * 2 as the maximum height (to allow for some slack)
+                    newHeight = Math.min(newHeight, 2 * data.targetHeight);
+                }
+                if (data.targetHeight === "full") {
+                    // if target height is full set iframe to max height to fill the current screen
+                    const maxHeight = this.calculateMaxHeight();
+                    if (maxHeight != null) {
+                        newHeight = maxHeight;
+                    }
+                }
+                this.frontendHeight = newHeight;
             }
             if (data?.type === "form-submit") {
                 if (!isFormSubmitData(data)) {

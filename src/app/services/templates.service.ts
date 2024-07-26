@@ -15,14 +15,14 @@
  */
 
 import { Injectable } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, Subject, Subscription, combineLatest } from 'rxjs';
+import { distinctUntilChanged, take } from 'rxjs/operators';
 import { ApiLink, ApiObject, PageApiObject } from './api-data-types';
 import { CurrentExperimentService } from './current-experiment.service';
-import { PluginRegistryBaseService } from './registry.service';
 import { EnvService } from './env.service';
-import { distinctUntilChanged, take } from 'rxjs/operators';
-import { ActivatedRoute } from '@angular/router';
 import { QhanaBackendService } from './qhana-backend.service';
+import { PluginRegistryBaseService } from './registry.service';
 
 
 export interface TemplateApiObject extends ApiObject {  // TODO check fields
@@ -50,9 +50,9 @@ export const TAB_GROUP_SORT_KEYS: { [group: string]: number } = {
 }
 
 export const TAB_GROUP_NAME_OVERRIDES: { [group: string]: string } = {
-    "workspace": "Workspace Tabs (Sidebar)",
-    "experiment-navigation": "Experiment Navigation Tabs",
-    "navigation": "Navigation Tabs",
+    "workspace": "Experiment workspace sidebar",
+    "experiment-navigation": "Experiment navigation bar",
+    "navigation": "Navigation bar (with no experiment selected)",
 }
 
 export const ALL_PLUGINS_TEMPLATE_ID = "all-plugins";
