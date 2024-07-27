@@ -1,0 +1,44 @@
+import { Component, OnInit } from '@angular/core';
+import * as BpmnJS from 'bpmn-js/dist/bpmn-navigated-viewer.development.js'; // Use the correct path
+
+@Component({
+  selector: 'app-workflow-modeler',
+  templateUrl: './workflow-modeler.component.html',
+  styleUrls: ['./workflow-modeler.component.sass']
+})
+export class WorkflowModelerComponent implements OnInit {
+  showModeler = false;
+  selectedFile: File | null = null;
+  bpmnViewer: any; // Use 'any' for BpmnJS type if it's not available
+
+  ngOnInit(): void {
+    this.bpmnViewer = new BpmnJS({
+      container: '#canvas',
+      keyboard: {
+        bindTo: document
+      }
+    });
+  }
+
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  openModeler() {
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.showModeler = true;
+        const xmlContent = e.target.result;
+        this.bpmnViewer.importXML(xmlContent, (err: any) => {
+          if (err) {
+            console.error('Failed to import BPMN:', err);
+          } else {
+            this.bpmnViewer.get('canvas').zoom('fit-viewport');
+          }
+        });
+      };
+      reader.readAsText(this.selectedFile);
+    }
+  }
+}

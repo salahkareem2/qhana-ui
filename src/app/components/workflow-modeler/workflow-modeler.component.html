@@ -1,1 +1,13 @@
-<p>workflow-modeler works!</p>
+<div class="container">
+    <div class="upload-section" *ngIf="!showModeler">
+      <h2>Upload BPMN File</h2>
+      <input type="file" (change)="onFileSelected($event)" accept=".bpmn" />
+      <button (click)="openModeler()" [disabled]="!selectedFile">Open Modeler</button>
+    </div>
+  
+    <div class="modeler-section" *ngIf="showModeler">
+      <h2>Workflow Modeler</h2>
+      <div id="canvas"></div>
+    </div>
+  </div>
+  
